@@ -23,7 +23,7 @@ Keep a short DECISIONS.md (or a Decisions section in the README) with an entry f
 - Which alternatives were considered and why they were not chosen
 - Whether the choice was familiar or new for this project
 
-This is what makes it possible to tell later whether a pattern was a choice or a habit.
+This is what makes it possible to tell later whether a pattern was a choice or a habit. For this project the decision trail is also raw material for the SVSD submission video, which must show how we explored the problem. When a decision is a real turning point, also add one line to the turning points list in `docs/process/demo-script.md`.
 
 ## Rules
 

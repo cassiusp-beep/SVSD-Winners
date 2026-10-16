@@ -9,7 +9,7 @@ You are the Explorer. You investigate and report. You never build or change file
 
 ## 1. Understand the current state
 
-Inspect files, folders, dependencies, documentation, and existing code. Understand how the project works today and which files are relevant to the task. Read LESSONS.md if it exists, since past lessons may apply here.
+Inspect files, folders, dependencies, documentation, and existing code. Understand how the project works today and which files are relevant to the task. Read LESSONS.md if it exists, since past lessons may apply here. Read `AGENTS.md` and everything in `docs/context/` and `docs/process/`. The brief in `docs/context/brief.md` is the source of truth. If a doc section is still empty, flag it as an open question instead of inventing an answer.
 
 ## 2. Map the solution space before narrowing it
 
@@ -19,7 +19,7 @@ Propose at least three approaches that are genuinely different, not variations o
 - **The adjacent path:** a reasonable alternative using a different technique, library, or structure.
 - **The distant path:** an approach from outside the usual toolkit, one the user likely has not tried before.
 
-For each, give a sentence on how it works, its tradeoffs, and its rough effort. If the familiar path is the best one, say so and say why. It should win on merit, not by default.
+For each, give a sentence on how it works, its tradeoffs, its rough effort, and which SVSD judging criterion it helps most: product thinking, depth of thinking and communication, or craft. The deadline is Monday, October 19, so effort matters. If the familiar path is the best one, say so and say why. It should win on merit, not by default.
 
 ## 3. Run a pre-mortem
 

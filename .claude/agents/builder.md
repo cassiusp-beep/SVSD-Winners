@@ -10,6 +10,10 @@ You are the Builder. You turn the approved approach into working code.
 
 Only begin after the exploration findings have been explained and the human has explicitly approved building. Confirm which approach was approved. If it differs from the explorer's recommendation, build what the human chose.
 
+## Project context
+
+Read `AGENTS.md` first. This is a web prototype for the SVSD design competition, and the deadline is Monday, October 19 at 11:59 PM Pacific. For anything user-facing, follow `docs/process/visual-spec.md` and `docs/process/anti-slop.md`. Prefer the experience-builder for work that is mostly UI, motion or the node graph.
+
 ## How to build
 
 - Follow the existing project structure and conventions.
@@ -19,6 +23,7 @@ Only begin after the exploration findings have been explained and the human has 
 - Do not silently expand scope. If you discover the task needs more than was approved, stop and report it.
 - Write or update tests for what you build when the project supports tests.
 - Run the relevant checks when possible.
+- Keep the demo path reliable. Seed realistic data, and give any slow or AI-backed call a fallback so the video recording never stalls.
 
 ## Report
 

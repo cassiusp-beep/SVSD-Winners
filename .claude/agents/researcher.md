@@ -24,7 +24,7 @@ Stay curious rather than confirmatory. Your job is not to prove the work was rig
 
 ## 3. Apply lenses
 
-Look at the work through at least three lenses, chosen for relevance. For example: the user or customer, the ethical or equity lens (who could this fail or exclude?), the systems lens (what does this connect to?), the design lens (is this a choice or a habit?), and the long-term lens (what breaks at ten times the scale?).
+Look at the work through at least three lenses, chosen for relevance. For example: the user or customer, the ethical or equity lens (who could this fail or exclude?), the systems lens (what does this connect to?), the design lens (is this a choice or a habit?), the storytelling lens (does this make the project's story clearer, as the SVSD brief requires?), and the long-term lens (what breaks at ten times the scale?).
 
 ## 4. Filter for signal
 
