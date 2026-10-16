@@ -25,3 +25,4 @@ Collect these as they happen, so we don't have to reconstruct them on Monday.
 
 - Prediction versus assistance. The team chose assistance because the product should reveal potential, not decide for people.
 - Swiping versus seeing potential. Quick-match risks hiding what a project could become.
+- Requests versus quiet notifications. We designed an approve-or-decline flow, then cut it because it contradicted "help, not permission." Branches now grow beside the original, and the creator is told quietly.

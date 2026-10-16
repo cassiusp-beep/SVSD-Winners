@@ -14,6 +14,7 @@ Our entry for the Silicon Valley School of Design (SVSD) design competition, "Th
 | `docs/context/judging.md` | Our research on what SVSD judges reward, and where it conflicts with the brief. |
 | `docs/context/conceptual-model.md` | **Branch**, the product's conceptual model: users, core concepts, the six user journeys, edge cases and the three flows to prototype first. This is the most current description of the product. |
 | `docs/context/concept.md` | Notes from the first brainstorm on October 15. Superseded by the conceptual model where they differ. |
+| `DECISIONS.md` | Decisions made so far, with reasons and rejected options. Check it before reopening a settled question. |
 | `docs/process/design-principles.md` | Draft principles every design and build decision is checked against. |
 | `docs/process/anti-slop.md` | What makes work look generic and AI-made, and what to do instead. |
 | `docs/process/visual-spec.md` | Visual and interaction spec. Empty sections mean "not decided yet". |

@@ -25,17 +25,20 @@ The board tags three flows as PROTOTYPE 1 to 3. Each one should be a high-fideli
 - [ ] **Suggest Where I Fit** is optional AI. It is labeled as AI, can be ignored, and the flow works fully without it.
 - [ ] **Try It Privately** is a private draft, and the original is never touched.
 - [ ] **Keep or Undo**: "keep" leads to **Adds a Chapter**, "try again" loops back, and "discard" returns to **Home Hub**.
-- [ ] **Adds a Chapter** shows the new chapter joining the original project's graph, with credit.
+- [ ] **Adds a Chapter** shows the new branch growing beside the original project's graph, linked to its origin and credited. The original story is not changed.
 
 ### Prototype 3: Open Invite loop
 
-**I'm Stuck** → **Ask for Help** → **Open Invite Posted** → explorer finds it → **Review a Request** → **Accept** → **Contributor Credited**
+**I'm Stuck** → **Ask for Help** → **Open Invite Posted** → an explorer finds it and branches it → the creator is quietly notified → the branch appears beside the original
+
+There are no requests to approve. See `DECISIONS.md`.
 
 - [ ] **I'm Stuck** from inside a **Project Story**.
-- [ ] **Ask for Help** frames the request as "not permission to use it, help to iterate."
+- [ ] **Ask for Help** frames the invite as "not permission to use it, help to iterate."
 - [ ] **Open Invite Posted** shows up in **Tinder Style**, where explorers can swipe on it.
-- [ ] The creator gets the request in **Notifications** and can **Review a Request**.
-- [ ] **Accept** leads to **Contributor Credited**. **Decline** leads to **Explorer Can Still Branch**.
+- [ ] The explorer branches the project through Prototype 2. Nothing waits on the creator.
+- [ ] The creator gets a quiet notification: "someone branched your work." It has no Accept or Decline buttons and no badge pressure.
+- [ ] From the notification, the creator sees the branch beside the original, with the contributor credited.
 
 ## Supporting screens the hero path needs
 
@@ -46,7 +49,7 @@ Build these only as far as the video requires. They can be lighter or partly fak
 | **Home Hub** | Every task starts and ends here | Medium |
 | **Explore** with **Wander the Graph** | How an explorer finds the project in Prototypes 1 and 2 | Medium to high |
 | **Tinder Style** feed | Where the open invite appears in Prototype 3 | Medium |
-| **Notifications** | Where the creator sees the request and the new chapter | Low to medium |
+| **Notifications** | Where the creator quietly learns someone branched their work | Medium. Its calm tone is part of the story. |
 | **Living Map** | Shows the new chapter on the contributor's profile | Low |
 | **Browse Anonymously** | Shows a guest can explore with no account | Low. It can be a single entry point. |
 
@@ -69,3 +72,5 @@ These are in the conceptual model but are not needed to tell the story in the vi
 ## Cut list
 
 Move features here when they're cut, with one line on why. The cuts are part of the story we tell in the video.
+
+- **Review a Request, Accept and Decline.** Cut on October 16. Approval contradicted "help, not permission," and branches never touch the original, so there was nothing to approve.

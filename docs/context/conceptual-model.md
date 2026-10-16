@@ -2,11 +2,13 @@
 
 A guide to the "Copy of Conceptual Model" frame on the SVSD Winners Miro board. It explains who Branch is for, how people move through it, and why it is designed the way it is. Step names in **bold** match the labels on the board exactly.
 
+> **Changed since the board, October 16, 2026: no requests.** Creators never approve or decline anything. When someone branches their work, the creator gets a quiet notification. Branches appear as linked offshoots beside the original project, visibly credited to whoever made them. The creator's own story only changes when the creator adds to it. The board may still show the old request flow, with Review a Request, Accept and Decline. This document follows the new decision. See `DECISIONS.md`.
+
 ---
 
 ## 1. Overview
 
-Branch is a creative exchange for student makers who want to share unfinished work and discover what it could become in someone else's hands. Today, work is split across tools by medium (GitHub for code, Hackster for hardware, Behance and Dribbble for visuals), so a designer, a programmer and a musician rarely find each other's projects or a place to join in. In Branch, a creator publishes a living **Project Story**: the question that started it, the experiments tried, the decisions made, and the paths not yet explored, all as connected nodes. Others can follow how the project grew, find where they fit, and add a new chapter, while every contributor stays credited.
+Branch is a creative exchange for student makers who want to share unfinished work and discover what it could become in someone else's hands. Today, work is split across tools by medium (GitHub for code, Hackster for hardware, Behance and Dribbble for visuals), so a designer, a programmer and a musician rarely find each other's projects or a place to join in. In Branch, a creator publishes a living **Project Story**: the question that started it, the experiments tried, the decisions made, and the paths not yet explored, all as connected nodes. Others can follow how the project grew, find where they fit, and branch it in a new direction. Their branch grows beside the original, linked and credited, and the creator is quietly notified. No one needs permission.
 
 The product answers the SVSD brief theme of storytelling: the node graph itself is the story of how a project changes over time.
 
@@ -23,6 +25,7 @@ The model is built for wandering, not just "finish the task and leave."
 - **Joining, not just viewing.** **Find Your Place** offers four choices: **Save for Later**, **Contribute a Skill**, **Revive an Experiment** (pick up an abandoned dead end) or **Start a New Branch**.
 - **Safe to experiment.** **Try It Privately** is a private draft where "the original is never touched." **Keep or Undo** either keeps the work, sends you to "try again," or discards it and returns you to **Home Hub**. Undo also appears across the reference tables ("Undo brings it back," "Nothing is a dead end").
 - **No dead ends.** Every task ends with a way back to **Home Hub**.
+- **No gatekeeping.** Joining in never waits on approval. Branches sit beside the original rather than changing it, so there is nothing for a creator to approve.
 - **Several ways to tell a story.** The Modes of Storytelling are **Free Form**, **Quick Design Sessions**, **Assisted (optional AI)** and **AI Draft (optional AI)**. **Free Form** can start from a **Starting Question** or a **Starting Artifact**.
 
 ### AI as an option
@@ -45,10 +48,10 @@ AI supports the maker's own creativity. It is never the product and never a requ
 
 | User | Goal on the board |
 | --- | --- |
-| **Creator** (student maker) | Share an unfinished project as a story, get help when stuck, and see the project grow through other people. |
+| **Creator** (student maker) | Share an unfinished project as a story, get help when stuck, and see the project grow through other people's branches. |
 | **Explorer / contributor** | Discover projects across disciplines, understand how they developed, and find a meaningful place to contribute or branch off. |
 | **Guest** | Browse with no account ("Wander, no account needed") and only sign up when they want to join. |
-| **Returning user** | Skip onboarding, pick up a draft, check replies, and explore. |
+| **Returning user** | Skip onboarding, pick up a draft, see who branched their work, and explore. |
 | **Locked-out user** | Recover from a failed login and get back in. |
 
 The narrative on the board names example makers: a designer with a physical prototype, a programmer who wants to experiment with an interaction, and a musician who imagines a sound-based version.
@@ -63,13 +66,13 @@ These are the objects a user understands, from the "What a user understands" ref
 | --- | --- | --- |
 | **Project** | a Story (starting question, experiments, decisions), Nodes, Branches, Contributors | Draft (private), Shared, Stuck, Branched, Revived |
 | **Node** | Media (sketch, recording, prototype, file), Connections, Author | Added, Connected, Organized (optional AI), Undone |
-| **Branch** | an Origin link, a New purpose, Credit to everyone involved | Tried privately, Kept, Discarded |
+| **Branch** | an Origin link, a New purpose, Credit to everyone involved | Tried privately, Kept (shown beside the original), Discarded |
 | **Living Map** | Interests, Experiments, Collaborations | Browsed anonymously, Followed, Exported |
 
 Other concepts that appear on the map:
 
 - **Project Story:** the question that started it, experiments tried, decisions made, paths not yet explored.
-- **Chapter:** what a contribution or branch adds to a project ("Adds a Chapter"). It shows on every contributor's Living Map, and the original creator is also told in Notifications.
+- **Chapter:** what a contribution or branch adds to a project ("Adds a Chapter"). It appears as a linked offshoot beside the original story, not inside it. It shows on every contributor's Living Map, and the original creator gets a quiet notification. The creator never has to approve it.
 - **Open Invite:** a call for collaborators. On the map it is posted from **Ask for Help** as **Open Invite Posted**. In the reference tables, marking "paths not yet explored" also creates open invites.
 - **Domain of Possibility:** where your skills could fit in a project. It labels **Calibration** and **Find Your Place**.
 - **Home Hub:** "every task starts and ends here."
@@ -254,7 +257,7 @@ Failed login, reset password, update settings, get help, log out.
 
 ### (6) Stuck creator
 
-Ask for help, post an open invite, get a reply, log out.
+Ask for help, post an open invite, see someone branch it, log out.
 
 1. Start
 2. Login
@@ -265,19 +268,20 @@ Ask for help, post an open invite, get a reply, log out.
 7. Ask for Help ("not permission to use it, help to iterate")
 8. Open Invite Posted
 9. Home Hub ("creator returns to Home Hub")
-10. Notifications
-11. Review a Request
-12. Accept
-13. Contributor Credited
-14. Home Hub
-15. Log Out
+10. An explorer branches the project (journey 3, from Find Your Place onward)
+11. Notifications, a quiet "someone branched your work"
+12. See the branch beside the original project, with the contributor credited
+13. Home Hub
+14. Log Out
 
 **Key decisions and branches**
 
 - **Where the invite goes.** Open Invite Posted "shows up in" Tinder Style, where explorers can swipe on it.
-- **Answering the request.** Review a Request "can" Accept, which leads to Contributor Credited, or Decline, which leads to Explorer Can Still Branch. Both return to Home Hub.
+- **No request to answer.** The creator doesn't approve or decline. The branch already exists beside the original, credited, and the notification simply says so. The creator can follow the branch, or ignore it.
 
 **Where optional AI fits:** none required.
+
+**Changed from the board:** the board's version had Review a Request, then Accept leading to Contributor Credited, or Decline leading to Explorer Can Still Branch. Those steps are removed.
 
 ---
 
@@ -290,7 +294,7 @@ Ask for help, post an open invite, get a reply, log out.
 | Publish Failed | Above Review & Share, "(Error)" | Draft kept, retry Review & Share |
 | Nothing Here Yet | Home Hub, "(Empty state)" | Shown "if you have no projects yet." Leads to Explore. |
 | Experiment not worth keeping | Keep or Undo | "try again" or "discard," back to Home Hub. The original is never touched. |
-| Request declined | Review a Request > Decline | Explorer Can Still Branch, then back to Home Hub |
+| Unwanted or abusive branch | Beside the original project | Report or block someone (? assumption). The original story is never changed, so nothing needs undoing. |
 | Creator is stuck | I'm Stuck | Ask for Help > Open Invite Posted |
 | Guest wants to join | Find Your Place | A quick sign-up appears before joining, then you continue (? assumption) |
 
@@ -307,7 +311,7 @@ The Key States reference row adds: First Visit: "What are you exploring?"; Empty
 3. Following a person puts their new work in your feeds?
 4. You can save a Pecha Kucha for later?
 5. If publishing fails, the draft is kept and you retry with one tap?
-6. Creators can reply to discuss a request before accepting it?
+6. ~~Creators can reply to discuss a request before accepting it?~~ Resolved October 16: there are no requests. Creators get a quiet notification instead.
 7. Empty map copy: "start with one sketch"?
 
 ### Other items marked "?" on the board
@@ -317,7 +321,8 @@ The Key States reference row adds: First Visit: "What are you exploring?"; Empty
 - Every Interaction table:
   - "Sign up only when you want to contribute."
   - "Report or block someone."
-  - The Shuffle, Follow a Person, Pecha Kucha save, publish-fail and reply-to-discuss rows.
+  - The Shuffle, Follow a Person, Pecha Kucha save and publish-fail rows.
+  - The reply-to-discuss row is obsolete, since there are no requests.
 
 ### Questions written elsewhere on the board
 
@@ -345,8 +350,8 @@ The Key States reference row adds: First Visit: "What are you exploring?"; Empty
 | Calibration | Onboarding step where you pick skills to offer and things to learn ("Domain of Possibility") |
 | Domain of Possibility | Where your experience could fit in a project |
 | Node | One piece of a story: sketch, recording, prototype, file or note |
-| Branch | A new direction that stays linked to the original project |
-| Chapter | What a contribution or branch adds to a project |
+| Branch | A new direction that stays linked to the original project and grows beside it. It needs no approval. |
+| Chapter | What a contribution or branch adds to a project. It appears beside the original story. |
 | Revive an Experiment | Pick up a node that was marked a dead end |
 | Living Map | Your profile as a map of interests, experiments and collaborations |
 | Open Invite | A public call for collaborators on a project |

@@ -12,7 +12,7 @@ The prototype focuses on three flows:
 
 1. **Follow Its Story.** Open a project and watch how it grew.
 2. **Find Your Place.** See where your skills fit, try a branch privately, then keep it or undo it.
-3. **Open Invite loop.** A stuck creator asks for help, an explorer answers, and the contributor is credited.
+3. **Open Invite loop.** A stuck creator asks for help, and an explorer branches the project. The branch grows beside the original, credited, and the creator gets a quiet notification. Nobody has to approve anything.
 
 There are two design principles: **exploratory by design** and **AI as an option**. AI is never required, and every journey works without it.
 
@@ -34,6 +34,7 @@ To use an agent role in a tool without subagents, ask it to "act as the product-
 | Path | What it holds |
 |---|---|
 | `AGENTS.md` | Project overview, deadline, team, workflow and agent roles |
+| `DECISIONS.md` | Significant design decisions, with the reasons and the options we rejected |
 | `docs/context/conceptual-model.md` | Branch's users, core concepts, user journeys, edge cases and open questions |
 | `docs/context/brief.md` | The official SVSD brief, judging criteria and dates |
 | `docs/context/judging.md` | Our research on what the judges reward |
