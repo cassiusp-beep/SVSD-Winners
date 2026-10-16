@@ -1,5 +1,7 @@
 # The concept so far
 
+> **Superseded in part.** The product now has a name, Branch, and a full conceptual model in `conceptual-model.md`. Where the two disagree, follow the conceptual model. This file keeps the original brainstorm reasoning for the video's "how we got here" section.
+
 Source: the team's first brainstorm on Thursday, October 15, 2026, transcribed from a recording. This is a direction, not a decision. Most of it is still open.
 
 ## The idea in one line

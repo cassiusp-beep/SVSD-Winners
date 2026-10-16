@@ -1,8 +1,22 @@
-# SVSD Winners
+# SVSD Winners: Branch
 
-Team Fester's entry for the Silicon Valley School of Design competition. It's a web-based product prototype on the theme of storytelling, due Monday, October 19, 2026 at 11:59 PM Pacific.
+Team Fester's entry for the Silicon Valley School of Design competition. The brief asks for a product on the theme of storytelling, built for a specific group of people. Submissions are due Monday, October 19, 2026 at 11:59 PM Pacific.
 
-Start with [AGENTS.md](AGENTS.md). It explains the project, the deadline and the agent roles, and points to everything in `docs/`. It works with any AI assistant, including ChatGPT, Codex and Claude Code.
+## What we're building
+
+**Branch** is a creative exchange for student makers who want to share unfinished work and discover what it could become in someone else's hands.
+
+A creator publishes a living **Project Story**: the question that started it, the experiments tried, the decisions made, and the paths not yet explored, all as connected nodes. Others can follow how the project grew, find where they fit, and add a new chapter, and every contributor stays credited. The node graph itself is the story of how a project changes over time.
+
+The prototype focuses on three flows:
+
+1. **Follow Its Story.** Open a project and watch how it grew.
+2. **Find Your Place.** See where your skills fit, try a branch privately, then keep it or undo it.
+3. **Open Invite loop.** A stuck creator asks for help, an explorer answers, and the contributor is credited.
+
+There are two design principles: **exploratory by design** and **AI as an option**. AI is never required, and every journey works without it.
+
+The full details are in the [conceptual model](docs/context/conceptual-model.md).
 
 ## Using AI assistants on this project
 
@@ -20,6 +34,14 @@ To use an agent role in a tool without subagents, ask it to "act as the product-
 | Path | What it holds |
 |---|---|
 | `AGENTS.md` | Project overview, deadline, team, workflow and agent roles |
-| `docs/context/` | The brief, judging research and the current concept |
-| `docs/process/` | Design principles, anti-slop rules, visual spec, features, video plan and references |
+| `docs/context/conceptual-model.md` | Branch's users, core concepts, user journeys, edge cases and open questions |
+| `docs/context/brief.md` | The official SVSD brief, judging criteria and dates |
+| `docs/context/judging.md` | Our research on what the judges reward |
+| `docs/context/concept.md` | Notes from the first brainstorm |
+| `docs/process/features.md` | The three prototype flows, supporting screens and demo data |
+| `docs/process/design-principles.md` | The design principles every decision traces back to |
+| `docs/process/visual-spec.md` | Visual and interaction rules. Undecided sections are marked. |
+| `docs/process/anti-slop.md` | How to avoid work that looks generic or AI-made |
+| `docs/process/demo-script.md` | The structure of the submission video |
+| `docs/process/references.md` | Precedents and inspiration |
 | `.claude/agents/` | Instructions for each agent role |

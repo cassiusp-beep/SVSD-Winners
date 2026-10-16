@@ -1,12 +1,34 @@
 # Design principles
 
-**Status: provisional.** These are drafted from the October 15 brainstorm. The team should cut them to the best three and sharpen the wording. Every design and build decision should trace back to one of them.
+Source: section 2 of `docs/context/conceptual-model.md`, taken from the Miro board. Every design and build decision should trace back to one of these principles.
 
-1. **Reveal, don't prescribe.** Show the domain of possibility. The user always makes the call. The product is an assistant, not an oracle.
-2. **The project is the story.** A project's history and possible futures are visible as a graph that grows over time. Every contribution adds to the narrative.
-3. **Ask for help, not permission.** Joining someone's work should feel like an invitation to collaborate, not a request to take.
-4. **Every discipline counts.** Someone with photos of physical work is as legible as someone with a GitHub history. No one is filtered out for lacking a digital footprint.
-5. **Look before you join.** Anyone can browse without an account.
+## 1. Exploratory by design
+
+Branch is built for wandering, not for "finish the task and leave."
+
+- **Many ways in.** Explore offers five discovery views. Guests can use all of them with no account.
+- **Room to stumble onto things.** Shuffle and Wander the Graph lead people to work they weren't looking for.
+- **Joining, not just viewing.** Every project offers a way in: save it, contribute a skill, revive an experiment, or start a new branch.
+- **Safe to experiment.** Try It Privately never touches the original. Keep or Undo always offers a way back.
+- **No dead ends.** Every task ends with a way back to Home Hub. A dead-end experiment can be revived.
+- **More than one way to tell a story.** Free Form, Quick Design Sessions, and two optional AI modes.
+
+## 2. AI as an option
+
+AI supports the maker's own creativity. It is never the product and never a required step.
+
+- **Every journey works without AI.** AI steps are side branches that rejoin the main flow.
+- **AI output is labeled, editable and dismissable.** It works only on material the user selects.
+- **AI shows possibilities and never prescribes.** The user always makes the call.
+- **Five commitments:** AI is optional, data practices are clear (no selling creator data and no training on projects), human authorship is visible, work is truly portable (files, graph, history and attribution can be exported), and the business model is understandable.
+
+## A possible third principle
+
+**Status: proposed, not on the board yet.** The team should decide whether to add it.
+
+**The project is the story.** A project's history and its possible futures are visible as a graph that grows over time, and every contribution adds a chapter.
+
+The brief makes storytelling the one required theme, but neither board principle names it. Past winners also led with three principles. This line comes from the conceptual model's own overview, so it wouldn't add anything new to the product.
 
 ## How to use these
 
