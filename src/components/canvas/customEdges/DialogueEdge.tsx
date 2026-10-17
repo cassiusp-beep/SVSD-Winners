@@ -7,6 +7,8 @@ export interface DialogueEdgeData {
   label?: string;
   type?: 'led_to' | 'informed' | 'branched_from' | 'revived_from';
   dialogueSnippet?: string;
+  speakerName?: string;
+  speakerAvatar?: string;
   aiRelevance?: string;
   makerColor?: string;
 }
@@ -21,7 +23,7 @@ export const DialogueEdge: React.FC<EdgeProps<any>> = ({
   targetPosition,
   style = {},
   markerEnd,
-  data
+  data,
 }) => {
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -29,7 +31,7 @@ export const DialogueEdge: React.FC<EdgeProps<any>> = ({
     sourcePosition,
     targetX,
     targetY,
-    targetPosition
+    targetPosition,
   });
 
   const state = useBranchStore();
@@ -37,12 +39,12 @@ export const DialogueEdge: React.FC<EdgeProps<any>> = ({
   const edgeData = data as DialogueEdgeData | undefined;
 
   const isBranched = edgeData?.type === 'branched_from';
-  const makerColor = edgeData?.makerColor || (isBranched ? '#B8F35A' : '#4FD8F0');
+  const makerColor = edgeData?.makerColor || (isBranched ? '#E23D28' : '#0D8F5B');
 
   return (
     <>
       <style>{`
-        @keyframes dashTravel {
+        @keyframes markerPulse {
           from {
             stroke-dashoffset: 24;
           }
@@ -52,15 +54,16 @@ export const DialogueEdge: React.FC<EdgeProps<any>> = ({
         }
       `}</style>
 
-      {/* Base Path */}
+      {/* Saturated Whiteboard Marker Conduit Line */}
       <BaseEdge
         path={edgePath}
         markerEnd={markerEnd}
         style={{
           ...style,
-          stroke: isHovered ? makerColor : '#232B47',
-          strokeWidth: isHovered ? 2.5 : 1.75,
-          transition: 'stroke 0.2s ease, stroke-width 0.2s ease'
+          stroke: makerColor,
+          strokeWidth: isHovered ? 3.5 : 2.5,
+          strokeOpacity: isHovered ? 1 : 0.85,
+          transition: 'all 0.2s ease',
         }}
       />
 
@@ -68,24 +71,24 @@ export const DialogueEdge: React.FC<EdgeProps<any>> = ({
       <path
         d={edgePath}
         fill="none"
-        stroke={makerColor}
+        stroke="#FFFFFF"
         strokeWidth={1.5}
-        strokeDasharray="4, 16"
+        strokeDasharray="4, 14"
         style={{
-          animation: 'dashTravel 1.6s linear infinite',
-          opacity: isHovered ? 1 : 0.65
+          animation: 'markerPulse 1.4s linear infinite',
+          opacity: 0.9,
         }}
       />
 
-      {/* Mounted Dialogue Label / Snippet */}
+      {/* Living Dialogue Speech Bubble / Margin Note */}
       {edgeData?.dialogueSnippet && (
         <EdgeLabelRenderer>
           <div
             style={{
               position: 'absolute',
-              transform: `translate(-50%, -120%) translate(${labelX}px,${labelY}px)`,
+              transform: `translate(-50%, -130%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: 'all',
-              zIndex: 10
+              zIndex: 15,
             }}
             className="nodrag nopan"
             onMouseEnter={() => setIsHovered(true)}
@@ -93,35 +96,71 @@ export const DialogueEdge: React.FC<EdgeProps<any>> = ({
           >
             <div
               style={{
-                backgroundColor: '#151B30',
-                border: isHovered ? `1px solid ${makerColor}` : '1px solid #232B47',
-                borderRadius: 8,
+                position: 'relative',
+                backgroundColor: '#FFFFFF',
+                border: `1.75px solid ${makerColor}`,
+                borderRadius: 10,
                 padding: '6px 10px',
                 fontSize: '11px',
-                color: '#EEF1FA',
+                color: '#191C24',
                 boxShadow: isHovered
-                  ? `0 0 16px ${makerColor}40`
-                  : '0 4px 16px rgba(0,0,0,0.5)',
-                maxWidth: 210,
+                  ? `0 6px 20px ${makerColor}30, 0 2px 6px rgba(0,0,0,0.06)`
+                  : '0 4px 16px rgba(24, 28, 38, 0.1)',
+                maxWidth: 200,
                 lineHeight: 1.35,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-                <MessageSquare size={10} color={makerColor} />
-                <span style={{ fontSize: '9px', fontWeight: 700, color: makerColor, textTransform: 'uppercase' }}>
+              {/* Dialogue Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+                <span
+                  style={{
+                    fontSize: '9px',
+                    fontWeight: 700,
+                    color: makerColor,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
+                >
                   {edgeData.label || 'DIALOGUE'}
                 </span>
               </div>
-              <div style={{ fontSize: '11px', color: '#EEF1FA' }}>
+
+              {/* Quote Snippet */}
+              <div style={{ fontSize: '11px', color: '#191C24', fontWeight: 500 }}>
                 {edgeData.dialogueSnippet}
               </div>
+
+              {/* Optional AI Layer */}
               {state.aiEnabled && edgeData.aiRelevance && (
-                <div style={{ fontSize: '9px', color: '#C3C7DD', marginTop: 4, borderTop: '1px solid #1E2640', paddingTop: 3 }}>
-                  <Sparkles size={8} style={{ display: 'inline', marginRight: 3 }} />
+                <div
+                  style={{
+                    fontSize: '9px',
+                    color: '#6B7280',
+                    marginTop: 4,
+                    borderTop: '1px solid #E5E7EB',
+                    paddingTop: 3,
+                  }}
+                >
+                  <Sparkles size={8} style={{ display: 'inline', marginRight: 3, color: '#9CA3AF' }} />
                   {edgeData.aiRelevance}
                 </div>
               )}
+
+              {/* Pointer Arrow Tail */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: -6,
+                  left: '50%',
+                  transform: 'translateX(-50%) rotate(45deg)',
+                  width: 10,
+                  height: 10,
+                  backgroundColor: '#FFFFFF',
+                  borderRight: `1.75px solid ${makerColor}`,
+                  borderBottom: `1.75px solid ${makerColor}`,
+                }}
+              />
             </div>
           </div>
         </EdgeLabelRenderer>

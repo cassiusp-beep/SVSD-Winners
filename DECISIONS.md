@@ -2,7 +2,22 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
-## October 17, 2026: Living Canvas Reset — Option B Shell Refactor & Zero-Modal Architecture (Decision 008)
+## October 17, 2026: Studio Whiteboard Drafting Bed & Real Artifact Cards (Decision 009)
+
+**Decided:**
+1. **Abolished Dark Mode in Favor of the Studio Whiteboard Drafting Bed:** Replaced the generic dark blue/space canvas with a tactile warm off-white drafting bed (`#FAF9F5`), subtle architectural dot grid (`#E5E0D5`), and saturated physical whiteboard marker conduits (Emerald Green `#0D8F5B`, Vermillion Red `#E23D28`, Electric Amber Glow `#FF9F0A`).
+2. **Replaced Text-Box Cards with Rich Physical Artifacts:** In accordance with `anti-slop.md`, eliminated empty rectangular text cards. Replaced them with tactile white cards carrying high-resolution macro photography of Elena's woven jacquard textiles, Challis & Edwards loom pitch concept sketches, Marcus Chen's hardware/DSP prototype photography, and peer project imagery.
+3. **Blooming Petal Membrane Hub:** Transformed Elena's central hub from detached satellite icons into a continuous blooming organic cell with five rounded circular petals (`Projects`, `Connections`, `Skills`, `Interests`, `Needs & Gaps`) that physically cluster around the maker.
+4. **Authentic Speech Bubble Dialogue Margins:** Converted tooltip-like edge badges into genuine margin notes and speech bubbles with maker quotes, timestamps, and pointer tails anchored to the conduit pulses.
+
+**Why:**
+- The dark mode was diagnosed by visual critique as reading like generic AI slop (the common dark cyber/crypto dashboard look), which obscured the authentic physical studio spirit of UC Berkeley MDes.
+- `branch_landing_mockup.jpg` and Miro reference image 15 proved that Branch's true visual soul is a warm, tactile drafting whiteboard with physical media and rich marker ink.
+
+**Alternatives considered:**
+- Keeping dark mode with image thumbnails: Rejected because the dark void still looked like a developer IDE rather than a vibrant design studio charrette.
+
+
 
 **Decided:**
 1. **Option B Shell Refactor over Scratch Rewrite:** Kept the React Flow (`@xyflow/react`) coordinate and gesture substrate, but completely dismantled and gutted the legacy modal popover shell. Implemented the true vision from Cassius's whiteboard walkthrough (`IMG_0837.MOV`): a single, unified, infinite living canvas.

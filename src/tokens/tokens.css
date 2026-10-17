@@ -1,48 +1,57 @@
-/* Branch Design Tokens — Night Lab Palette (Decided Oct 17, 2026) */
+/* Branch Design Tokens — Studio Whiteboard Drafting Bed Palette (Decided Oct 17, 2026) */
 
 :root {
   /* =========================================================================
-     Base (The Dark Lab)
+     Base (The Studio Drafting Bed — Light Canvas)
      ========================================================================= */
-  --canvas: #0B0E1A;       /* Infinite canvas background. Deep ink, slightly blue, never pure black */
-  --grid: #232B47;         /* Faint dot grid on the canvas, for orientation while panning */
-  --node: #151B30;         /* Node body fill */
-  --node-raised: #1E2640;  /* Hovered or selected node body, menus, sheets */
-  --text: #EEF1FA;         /* Primary text */
-  --text-2: #A3ACC7;       /* Secondary text: metadata, timestamps, captions */
-  --muted: #7A84A8;        /* Placeholder and disabled text, inactive links */
+  --canvas: #FAF9F5;       /* Warm off-white drafting bed / studio paper */
+  --grid: #E5E0D5;         /* Subtle architectural drafting dot grid */
+  --node: #FFFFFF;         /* Crisp white tactile card surface */
+  --node-raised: #FFFFFF;  /* Elevated tactile card surface */
+  --card-border: #E8E4DA;  /* Subtle card boundary line */
+  --text: #191C24;         /* Deep archival ink */
+  --text-2: #5F667A;       /* Graphite secondary: metadata, captions */
+  --muted: #8E95A6;        /* Drafting notes, inactive links */
 
   /* =========================================================================
-     Makers (Authorship)
+     Makers (Whiteboard Marker Conduits)
      ========================================================================= */
-  --maker-1: #4FD8F0;      /* Ion cyan (Current user / you is always maker-1) */
-  --maker-2: #FF7A6B;      /* Coral */
-  --maker-3: #B8F35A;      /* Acid lime */
-  --maker-4: #A98BFF;      /* Violet */
-  --maker-5: #FF6FCF;      /* Magenta */
+  --maker-1: #0D8F5B;      /* Saturated Emerald Green (Current user Elena / verified paths) */
+  --maker-2: #E23D28;      /* Vermillion Red (Collaborations / core turning points) */
+  --maker-3: #2563EB;      /* Cobalt Blue (Marcus / Technical DSP) */
+  --maker-4: #8B5CF6;      /* Violet (Amina / Acoustic Ecology) */
+  --maker-5: #D946EF;      /* Magenta (Lucas / Architecture) */
 
   /* =========================================================================
      Meaning States
      ========================================================================= */
-  --gap: #FFB547;          /* Amber outline plus slow breathing glow (~3s cycle) */
-  --dialogue: #FFFFFF;     /* Live dialogue moving between nodes */
-  --ai: #C3C7DD;           /* Anything AI-suggested (pale silver, dotted outline, least colorful) */
-  --error: #FF5468;        /* Something failed (paired with icon and text) */
+  --gap: #FF9F0A;          /* Electric Amber Glow (Open question / need for help) */
+  --gap-bg: rgba(255, 159, 10, 0.12);
+  --dialogue: #191C24;     /* Crisp dialogue ink */
+  --ai: #71717A;           /* Pale neutral AI indicator */
+  --error: #DC2626;        /* System alert */
 
   /* =========================================================================
-     Legacy Aliases (mapped to Night Lab tokens)
+     Tactile Shadows
+     ========================================================================= */
+  --shadow-card: 0 4px 20px rgba(24, 28, 38, 0.06), 0 1px 3px rgba(24, 28, 38, 0.04);
+  --shadow-raised: 0 12px 32px rgba(24, 28, 38, 0.1), 0 2px 6px rgba(24, 28, 38, 0.04);
+  --shadow-hub: 0 8px 30px rgba(13, 143, 91, 0.15);
+
+  /* =========================================================================
+     Legacy Aliases
      ========================================================================= */
   --color-canvas: var(--canvas);
   --color-surface: var(--node);
-  --color-surface-subtle: var(--node-raised);
+  --color-surface-subtle: var(--canvas);
   --color-ink: var(--text);
   --color-ink-muted: var(--text-2);
   --color-ink-faint: var(--muted);
-  --color-border: var(--grid);
-  --color-border-subtle: rgba(35, 43, 71, 0.7);
-  --color-control-border: var(--text-2);
+  --color-border: var(--card-border);
+  --color-border-subtle: rgba(229, 224, 213, 0.7);
+  --color-control-border: var(--card-border);
   --color-focus: var(--maker-1);
-  --color-attention-bg: rgba(255, 181, 71, 0.12);
+  --color-attention-bg: var(--gap-bg);
   --color-attention-ink: var(--gap);
   --color-error-ink: var(--error);
 

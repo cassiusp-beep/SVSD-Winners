@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { useBranchStore, branchStore } from '../../../store/branchStore';
-import { Plus, Compass, Upload, GitFork } from 'lucide-react';
+import { FolderGit2, Users, Wrench, Sparkles, AlertCircle } from 'lucide-react';
 
 interface PersonHubNodeProps {
   id: string;
@@ -15,251 +15,206 @@ interface PersonHubNodeProps {
 
 export const PersonHubNode = memo(({ data, selected }: PersonHubNodeProps) => {
   const state = useBranchStore();
-  const isGuest = data.isGuest || data.userId === 'guest';
-  const isDocked = data.isDocked || state.isProfileDocked;
+  const [hoveredPetal, setHoveredPetal] = useState<string | null>(null);
   const isTargeted = state.hoveredDropTargetId === 'person-hub';
 
-  const handleStartProject = (e: React.MouseEvent) => {
+  const handlePetalClick = (type: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    branchStore.genesisProjectFromDrop('Haptic Weave', '3D Sensor Model');
+    if (type === 'projects') {
+      branchStore.setActiveProject('haptic-weave');
+      branchStore.setViewMode('story');
+    } else if (type === 'gaps') {
+      branchStore.setSelectedNodeId('hw-gap1');
+    }
   };
 
-  const handleDropSource = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    branchStore.genesisProjectFromDrop('Tactile Audio Matrix', 'AudioWorklet DSP');
-  };
+  const petals = [
+    { id: 'projects', label: 'Projects', angle: -135, icon: FolderGit2, count: '3' },
+    { id: 'connections', label: 'Connections', angle: -45, icon: Users, count: '12' },
+    { id: 'skills', label: 'Skills', angle: 40, icon: Wrench, count: '6' },
+    { id: 'interests', label: 'Interests', angle: 90, icon: Sparkles, count: '8' },
+    { id: 'gaps', label: 'Needs & Gaps', angle: 140, icon: AlertCircle, count: '1 open', isAmber: true },
+  ];
 
-  const handleFindPlace = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    branchStore.setViewMode('story');
-    branchStore.setActiveProject('haptic-weave');
-    branchStore.setSelectedNodeId('hw-gap1');
-  };
-
-  const handleToggleExplore = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    branchStore.setViewMode(state.viewMode === 'hub' ? 'story' : 'hub');
-  };
+  const petalDistance = 88;
 
   return (
     <div
       style={{
         position: 'relative',
+        width: 280,
+        height: 280,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 144,
-        height: 144,
-        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+        pointerEvents: 'none',
       }}
     >
-      {/* Handles for connections */}
-      <Handle type="source" position={Position.Left} id="left-source" style={{ opacity: 0 }} />
-      <Handle type="target" position={Position.Left} id="left-target" style={{ opacity: 0 }} />
-      <Handle type="source" position={Position.Right} id="right-source" style={{ opacity: 0 }} />
-      <Handle type="target" position={Position.Right} id="right-target" style={{ opacity: 0 }} />
-      <Handle type="source" position={Position.Top} id="top-source" style={{ opacity: 0 }} />
-      <Handle type="source" position={Position.Bottom} id="bottom-source" style={{ opacity: 0 }} />
+      {/* Invisible Handles */}
+      <Handle type="source" position={Position.Left} id="left-source" style={{ opacity: 0, left: 20 }} />
+      <Handle type="target" position={Position.Left} id="left-target" style={{ opacity: 0, left: 20 }} />
+      <Handle type="source" position={Position.Right} id="right-source" style={{ opacity: 0, right: 20 }} />
+      <Handle type="target" position={Position.Right} id="right-target" style={{ opacity: 0, right: 20 }} />
+      <Handle type="source" position={Position.Top} id="top-source" style={{ opacity: 0, top: 20 }} />
+      <Handle type="source" position={Position.Bottom} id="bottom-source" style={{ opacity: 0, bottom: 20 }} />
 
-      {/* SVG Gooey Filter definition */}
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          <filter id="hub-goo">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
-            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Radial Option Satellites (Bulbing into center) */}
-      {!isDocked && (
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          {/* Top Satellite: + Start Project */}
-          <button
-            onClick={handleStartProject}
-            title="Start a new project (drag item in or click)"
-            style={{
-              position: 'absolute',
-              top: -36,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              backgroundColor: '#1E2640',
-              border: '1.5px solid #232B47',
-              color: '#EEF1FA',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-              transition: 'transform 0.2s ease, border-color 0.2s ease'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1.15)';
-              e.currentTarget.style.borderColor = '#4FD8F0';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-              e.currentTarget.style.borderColor = '#232B47';
-            }}
-          >
-            <Plus size={18} />
-          </button>
-
-          {/* Right Satellite: Explore */}
-          <button
-            onClick={handleToggleExplore}
-            title="Explore network & projects"
-            style={{
-              position: 'absolute',
-              right: -36,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              backgroundColor: '#1E2640',
-              border: '1.5px solid #232B47',
-              color: '#EEF1FA',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-              transition: 'transform 0.2s ease, border-color 0.2s ease'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-50%) scale(1.15)';
-              e.currentTarget.style.borderColor = '#4FD8F0';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
-              e.currentTarget.style.borderColor = '#232B47';
-            }}
-          >
-            <Compass size={18} />
-          </button>
-
-          {/* Bottom Satellite: Drop Source */}
-          <button
-            onClick={handleDropSource}
-            title="Drop or upload a source / 3D model"
-            style={{
-              position: 'absolute',
-              bottom: -36,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              backgroundColor: '#1E2640',
-              border: '1.5px solid #232B47',
-              color: '#EEF1FA',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-              transition: 'transform 0.2s ease, border-color 0.2s ease'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1.15)';
-              e.currentTarget.style.borderColor = '#4FD8F0';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-              e.currentTarget.style.borderColor = '#232B47';
-            }}
-          >
-            <Upload size={18} />
-          </button>
-
-          {/* Left Satellite: Find Your Place / Branch */}
-          <button
-            onClick={handleFindPlace}
-            title="Find your place (branch an open gap)"
-            style={{
-              position: 'absolute',
-              left: -36,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              backgroundColor: '#1E2640',
-              border: '1.5px solid #232B47',
-              color: '#EEF1FA',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-              transition: 'transform 0.2s ease, border-color 0.2s ease'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-50%) scale(1.15)';
-              e.currentTarget.style.borderColor = '#4FD8F0';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
-              e.currentTarget.style.borderColor = '#232B47';
-            }}
-          >
-            <GitFork size={18} />
-          </button>
-        </div>
-      )}
-
-      {/* Central Circular Profile Hub */}
+      {/* Radiant Emerald Aura behind petals */}
       <div
         style={{
-          width: 140,
-          height: 140,
+          position: 'absolute',
+          width: 220,
+          height: 220,
           borderRadius: '50%',
-          backgroundColor: '#151B30',
-          border: isTargeted ? '3px solid #4FD8F0' : '2px solid #4FD8F0',
+          background: 'radial-gradient(circle, rgba(13, 143, 91, 0.16) 0%, rgba(13, 143, 91, 0.04) 55%, transparent 75%)',
+          filter: 'blur(10px)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* SVG Connecting Bridges between Center and Petals */}
+      <svg
+        width="280"
+        height="280"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+        }}
+      >
+        {petals.map((petal) => {
+          const rad = (petal.angle * Math.PI) / 180;
+          const x2 = 140 + Math.cos(rad) * petalDistance;
+          const y2 = 140 + Math.sin(rad) * petalDistance;
+          const isHovered = hoveredPetal === petal.id;
+          const strokeColor = petal.isAmber ? '#FF9F0A' : '#0D8F5B';
+          return (
+            <line
+              key={`line-${petal.id}`}
+              x1={140}
+              y1={140}
+              x2={x2}
+              y2={y2}
+              stroke={strokeColor}
+              strokeWidth={isHovered ? 4 : 2.5}
+              strokeOpacity={isHovered ? 0.9 : 0.4}
+              strokeLinecap="round"
+              style={{ transition: 'all 0.25s ease' }}
+            />
+          );
+        })}
+      </svg>
+
+      {/* Bulbing Petal Lobes */}
+      {petals.map((petal) => {
+        const rad = (petal.angle * Math.PI) / 180;
+        const x = Math.cos(rad) * petalDistance;
+        const y = Math.sin(rad) * petalDistance;
+        const isHovered = hoveredPetal === petal.id;
+        const borderColor = petal.isAmber ? '#FF9F0A' : '#0D8F5B';
+
+        return (
+          <div
+            key={petal.id}
+            onClick={(e) => handlePetalClick(petal.id, e)}
+            onMouseEnter={() => setHoveredPetal(petal.id)}
+            onMouseLeave={() => setHoveredPetal(null)}
+            className="nodrag"
+            style={{
+              position: 'absolute',
+              transform: `translate(${x}px, ${y}px) scale(${isHovered ? 1.08 : 1})`,
+              width: 68,
+              height: 68,
+              borderRadius: '50%',
+              backgroundColor: '#FFFFFF',
+              border: `1.75px solid ${borderColor}`,
+              boxShadow: isHovered
+                ? `0 6px 20px ${borderColor}40, 0 2px 6px rgba(0,0,0,0.06)`
+                : '0 4px 14px rgba(24, 28, 38, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+              zIndex: 3,
+            }}
+          >
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                color: '#191C24',
+                lineHeight: 1.1,
+                textAlign: 'center',
+              }}
+            >
+              {petal.label}
+            </span>
+            <span
+              style={{
+                fontSize: '8.5px',
+                color: petal.isAmber ? '#D97706' : '#5F667A',
+                fontWeight: 500,
+                marginTop: 2,
+              }}
+            >
+              {petal.count}
+            </span>
+          </div>
+        );
+      })}
+
+      {/* Central Maker Profile Hub */}
+      <div
+        className="nodrag"
+        style={{
+          position: 'relative',
+          width: 120,
+          height: 120,
+          borderRadius: '50%',
+          backgroundColor: '#FFFFFF',
+          border: '2.5px solid #0D8F5B',
           boxShadow: isTargeted
-            ? '0 0 36px rgba(79, 216, 240, 0.75)'
-            : '0 0 24px rgba(79, 216, 240, 0.4)',
+            ? '0 0 32px rgba(13, 143, 91, 0.45), 0 8px 24px rgba(0,0,0,0.12)'
+            : '0 10px 30px rgba(13, 143, 91, 0.2), 0 2px 6px rgba(0,0,0,0.06)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          textAlign: 'center',
+          pointerEvents: 'auto',
+          zIndex: 4,
           cursor: 'grab',
-          userSelect: 'none',
-          padding: '12px',
-          transform: isTargeted ? 'scale(1.08)' : 'scale(1)',
-          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease'
+          transition: 'all 0.3s ease',
         }}
       >
-        <img
-          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=128&q=80"
-          alt="Elena Rostova"
+        {/* Avatar Photo */}
+        <div
           style={{
-            width: 44,
-            height: 44,
+            width: 52,
+            height: 52,
             borderRadius: '50%',
-            objectFit: 'cover',
-            border: '2px solid #4FD8F0',
-            marginBottom: 6
+            overflow: 'hidden',
+            border: '2px solid #FFFFFF',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            marginBottom: 4,
           }}
-        />
-        <div style={{ fontSize: '12px', fontWeight: 600, color: '#EEF1FA', lineHeight: 1.2 }}>
-          {isGuest ? 'Anonymous Maker' : 'Elena Rostova'}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80"
+            alt="Elena Rostova"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         </div>
-        <div style={{ fontSize: '10px', color: '#4FD8F0', opacity: 0.9, lineHeight: 1.2 }}>
-          {isGuest ? 'Browse Mode' : '@elena_craft'}
-        </div>
-        <div style={{ fontSize: '9px', color: '#7A84A8', marginTop: 2 }}>
-          {isGuest ? 'Click to login' : 'UC Berkeley MDes'}
+
+        {/* Name and Department */}
+        <div style={{ textAlign: 'center', padding: '0 4px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#191C24', lineHeight: 1.1 }}>
+            Elena Rostova
+          </div>
+          <div style={{ fontSize: '8.5px', color: '#5F667A', fontWeight: 500, marginTop: 1 }}>
+            UC Berkeley MDes
+          </div>
         </div>
       </div>
     </div>

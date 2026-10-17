@@ -82,7 +82,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'project-haptic-weave',
         type: 'projectStoryNode',
-        position: getPos('project-haptic-weave', { x: 230, y: -40 }),
+        position: getPos('project-haptic-weave', { x: 230, y: -50 }),
         draggable: true,
         data: {
           project: {
@@ -100,7 +100,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'source-tactile',
         type: 'sourceNode',
-        position: getPos('source-tactile', { x: 660, y: -210 }),
+        position: getPos('source-tactile', { x: 650, y: -230 }),
         draggable: true,
         data: {
           source: {
@@ -133,7 +133,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'branch-marcus-dsp',
         type: 'branchNode',
-        position: getPos('branch-marcus-dsp', { x: 280, y: 360 }),
+        position: getPos('branch-marcus-dsp', { x: 280, y: 380 }),
         draggable: true,
         data: {
           branch: {
@@ -142,7 +142,7 @@ const CanvasInner: React.FC = () => {
             creatorName: 'Marcus Chen',
             intent: 'Branched from Elena\'s gap. Synthesizes formant filters into PWM signals in browser.',
             date: 'Oct 16',
-            accentColor: '#B8F35A'
+            accentColor: '#2563EB'
           }
         }
       });
@@ -183,7 +183,7 @@ const CanvasInner: React.FC = () => {
         }
       });
 
-      // Edges with Live Dialogue Snippets
+      // Edges with Live Dialogue Snippets (Saturated Whiteboard Markers)
       edgeList.push({
         id: 'edge-hub-project',
         source: 'person-hub',
@@ -192,8 +192,8 @@ const CanvasInner: React.FC = () => {
         targetHandle: 'project-target',
         type: 'dialogueEdge',
         data: {
-          label: 'project',
-          makerColor: '#4FD8F0'
+          label: 'active project',
+          makerColor: '#0D8F5B'
         }
       });
 
@@ -206,7 +206,7 @@ const CanvasInner: React.FC = () => {
         type: 'dialogueEdge',
         data: {
           label: 'validated by',
-          makerColor: '#7A84A8'
+          makerColor: '#0D8F5B'
         }
       });
 
@@ -218,9 +218,9 @@ const CanvasInner: React.FC = () => {
         targetHandle: 'gap-target',
         type: 'dialogueEdge',
         data: {
-          label: 'need',
+          label: 'unfilled need',
           dialogueSnippet: 'Elena: "Need DSP to map voice pitch into LRA pulses."',
-          makerColor: '#FFB547'
+          makerColor: '#FF9F0A'
         }
       });
 
@@ -232,10 +232,36 @@ const CanvasInner: React.FC = () => {
         targetHandle: 'branch-target',
         type: 'dialogueEdge',
         data: {
-          label: 'branch dialogue',
+          label: 'branched response',
           dialogueSnippet: 'Marcus: "AudioWorklet splits speech syllables at <8ms."',
-          makerColor: '#B8F35A',
+          makerColor: '#E23D28',
           type: 'branched_from'
+        }
+      });
+
+      edgeList.push({
+        id: 'edge-hub-amina',
+        source: 'person-hub',
+        target: 'peer-amina',
+        sourceHandle: 'left-source',
+        targetHandle: 'peer-source',
+        type: 'dialogueEdge',
+        data: {
+          label: 'peer collaboration',
+          makerColor: '#0D8F5B'
+        }
+      });
+
+      edgeList.push({
+        id: 'edge-hub-lucas',
+        source: 'person-hub',
+        target: 'peer-lucas',
+        sourceHandle: 'left-source',
+        targetHandle: 'peer-source',
+        type: 'dialogueEdge',
+        data: {
+          label: 'studio critique',
+          makerColor: '#0D8F5B'
         }
       });
     } else {
@@ -388,7 +414,7 @@ const CanvasInner: React.FC = () => {
       style={{
         width: '100vw',
         height: '100vh',
-        backgroundColor: '#0B0E1A',
+        backgroundColor: '#FAF9F5',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -400,9 +426,9 @@ const CanvasInner: React.FC = () => {
         edgeTypes={edgeTypes}
         onNodesChange={handleNodesChange}
         defaultViewport={{
-          x: isMobile ? 160 : window.innerWidth / 2 - 120,
-          y: isMobile ? 380 : window.innerHeight / 2 - 40,
-          zoom: isMobile ? 0.68 : 0.95
+          x: isMobile ? 195 : window.innerWidth / 2 - 110,
+          y: isMobile ? 390 : window.innerHeight / 2 - 30,
+          zoom: isMobile ? 0.55 : 0.82
         }}
         minZoom={0.35}
         maxZoom={2.0}
@@ -412,7 +438,7 @@ const CanvasInner: React.FC = () => {
         preventScrolling={true}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#232B47" gap={24} size={1.5} />
+        <Background color="#E5E0D5" gap={24} size={1.5} />
       </ReactFlow>
 
       {/* 4 Quiet Hot Corners Frame */}

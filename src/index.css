@@ -1,29 +1,9 @@
 @import './tokens/tokens.css';
 
 /* =========================================================================
-   Night Lab Global Stylesheet & Design Tokens
-   Every token strictly declared as named in visual-spec.md
+   Studio Whiteboard Drafting Bed Global Stylesheet
+   Tokens imported from tokens.css
    ========================================================================= */
-:root {
-  --canvas: #0B0E1A;
-  --grid: #232B47;
-  --node: #151B30;
-  --node-raised: #1E2640;
-  --text: #EEF1FA;
-  --text-2: #A3ACC7;
-  --muted: #7A84A8;
-
-  --maker-1: #4FD8F0;
-  --maker-2: #FF7A6B;
-  --maker-3: #B8F35A;
-  --maker-4: #A98BFF;
-  --maker-5: #FF6FCF;
-
-  --gap: #FFB547;
-  --dialogue: #FFFFFF;
-  --ai: #C3C7DD;
-  --error: #FF5468;
-}
 
 /* Global Reset */
 *, *::before, *::after {
