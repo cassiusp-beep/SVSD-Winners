@@ -33,4 +33,28 @@ What to do differently:
 **Sources**
 - [`whiteboard-transcript.md`](whiteboard-transcript.md): Primary walkthrough by Cassius Palacio establishing infinite canvas, bulbing options, and drag-in genesis.
 
+## October 17, 2026 Branch: TouchDesigner Modularity Over Tacky Glowing Orbs
+
+**Lessons learned**
+- Defaulting to neon glowing circular rings and dark sci-fi aesthetics reads as AI bloatware/slop and lacks authentic tool identity.
+- Modular operator blocks inspired by TouchDesigner (distinct rectangular hierarchy, solid color cards, left-to-right signal flow, and visible docking ports) create clarity and desire without visual clutter.
+- Gaps are not glowing circles: they are interactive pins/small dots that smoothly enlarge in size on hover, communicating invitation without shouting.
+- Grounding the interface in a warm, tactile drafting/studio canvas (`#FAF9F5`) with crisp hairline borders connects the work to architectural design studio craft rather than generic SaaS.
+- Shortcuts violate craft: following the multi-agent discipline, citing primary sources, and pausing for human visual mockup sign-off is non-negotiable.
+
+**Lenses applied**
+- *Craft / Anti-Slop Lens:* Moving away from generic dark-mode rings to solid color operator cards and architectural drafting paper gives the tool a sharp, intentional point of view.
+- *Collaborator / Maker Lens:* Small dots that expand on hover let makers discover gaps organically without overwhelming the visual field.
+- *Systems / Tool Lens:* TouchDesigner's operator hierarchy (COMP containers, SOP assets, CHOP parameters, and DAT discussion buses) provides a robust, proven spatial metaphor for creative exchange.
+
+**Worth exploring next**
+- Micro-interaction physics for the gap dot expansion (spring ease on hover, docking tether to contributor branch).
+- Clean directional bus routing with clickable connection inspectors.
+
+**Sources**
+- [Derivative TouchDesigner Documentation](https://derivative.ca): Modular operator families and data flow architectures.
+- [`whiteboard-transcript.md`](whiteboard-transcript.md): Primary whiteboard walkthrough by Cassius Palacio.
+- [`anti-slop.md`](docs/process/anti-slop.md): Eliminating generic glowing orbs, AI gradients, and decorative bloat.
+
+
 

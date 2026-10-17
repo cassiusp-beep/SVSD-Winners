@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import {
   ReactFlow,
   Background,
+  BackgroundVariant,
   useNodesState,
   useEdgesState,
   Node,
@@ -82,7 +83,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'project-haptic-weave',
         type: 'projectStoryNode',
-        position: getPos('project-haptic-weave', { x: 230, y: -50 }),
+        position: getPos('project-haptic-weave', { x: 360, y: -40 }),
         draggable: true,
         data: {
           project: {
@@ -100,7 +101,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'source-tactile',
         type: 'sourceNode',
-        position: getPos('source-tactile', { x: 650, y: -230 }),
+        position: getPos('source-tactile', { x: 720, y: -150 }),
         draggable: true,
         data: {
           source: {
@@ -112,11 +113,11 @@ const CanvasInner: React.FC = () => {
         }
       });
 
-      // 4. Open Gap Node: Audio-to-Haptic DSP (Breathing Amber Glow)
+      // 4. Open Gap Node: Audio-to-Haptic DSP (Small Dot, Blooms on Hover)
       list.push({
         id: 'gap-audio-dsp',
         type: 'gapNode',
-        position: getPos('gap-audio-dsp', { x: 740, y: 50 }),
+        position: getPos('gap-audio-dsp', { x: 720, y: 50 }),
         draggable: true,
         data: {
           gap: {
@@ -133,16 +134,16 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'branch-marcus-dsp',
         type: 'branchNode',
-        position: getPos('branch-marcus-dsp', { x: 280, y: 380 }),
+        position: getPos('branch-marcus-dsp', { x: 860, y: 160 }),
         draggable: true,
         data: {
           branch: {
             id: 'branch-1',
             title: 'AudioWorklet DSP Bridge',
             creatorName: 'Marcus Chen',
-            intent: 'Branched from Elena\'s gap. Synthesizes formant filters into PWM signals in browser.',
+            intent: 'Synthesizes formant filters into PWM signals for LRAs.',
             date: 'Oct 16',
-            accentColor: '#2563EB'
+            accentColor: '#E23D28'
           }
         }
       });
@@ -151,7 +152,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'peer-amina',
         type: 'peerNode',
-        position: getPos('peer-amina', { x: -380, y: -130 }),
+        position: getPos('peer-amina', { x: -320, y: -40 }),
         draggable: true,
         data: {
           peer: {
@@ -169,7 +170,7 @@ const CanvasInner: React.FC = () => {
       list.push({
         id: 'peer-lucas',
         type: 'peerNode',
-        position: getPos('peer-lucas', { x: -360, y: 170 }),
+        position: getPos('peer-lucas', { x: -320, y: 60 }),
         draggable: true,
         data: {
           peer: {
@@ -344,7 +345,7 @@ const CanvasInner: React.FC = () => {
             data: {
               label: `step ${sn.stepNumber}`,
               dialogueSnippet: idx === 3 ? 'Elena: "Need DSP to map voice pitch into LRA pulses."' : undefined,
-              makerColor: '#4FD8F0'
+              makerColor: '#0D8F5B'
             }
           });
         }
@@ -414,7 +415,7 @@ const CanvasInner: React.FC = () => {
       style={{
         width: '100vw',
         height: '100vh',
-        backgroundColor: '#FAF9F5',
+        backgroundColor: '#0B0E1A',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -426,9 +427,9 @@ const CanvasInner: React.FC = () => {
         edgeTypes={edgeTypes}
         onNodesChange={handleNodesChange}
         defaultViewport={{
-          x: isMobile ? 195 : window.innerWidth / 2 - 110,
-          y: isMobile ? 390 : window.innerHeight / 2 - 30,
-          zoom: isMobile ? 0.55 : 0.82
+          x: isMobile ? 80 : 360,
+          y: isMobile ? 320 : 440,
+          zoom: isMobile ? 0.65 : 0.82
         }}
         minZoom={0.35}
         maxZoom={2.0}
@@ -438,7 +439,7 @@ const CanvasInner: React.FC = () => {
         preventScrolling={true}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#E5E0D5" gap={24} size={1.5} />
+        <Background color="#DDD9D0" gap={28} size={1.5} variant={BackgroundVariant.Dots} />
       </ReactFlow>
 
       {/* 4 Quiet Hot Corners Frame */}

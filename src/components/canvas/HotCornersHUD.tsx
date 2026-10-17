@@ -1,15 +1,16 @@
+/**
+ * HotCornersHUD — Four Quiet Corner Controls (Light Studio Drafting Bed)
+ * Clean, tactile HUD elements anchored to corners with fine hairline borders.
+ */
 import React, { useState } from 'react';
 import { useBranchStore, branchStore } from '../../store/branchStore';
 import {
-  User as UserIcon,
   HelpCircle,
   Check,
   Play,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   X,
-  MessageSquare
 } from 'lucide-react';
 
 interface HotCornersHUDProps {
@@ -17,16 +18,50 @@ interface HotCornersHUDProps {
   onCenterStoryStep?: (stepIndex: number) => void;
 }
 
+const BORDER = 'var(--border, #E2E0D8)';
+const NODE_BG = 'var(--node, #FFFFFF)';
+const NODE_RAISED = 'var(--node-raised, #F4F3EE)';
+const TEXT = 'var(--text, #14171F)';
+const TEXT_2 = 'var(--text-2, #5A6275)';
+const MUTED = 'var(--muted, #9BA3B5)';
+const MAKER_1 = 'var(--maker-1, #0D8F5B)';
+const GAP = 'var(--gap, #FF9F0A)';
+const GAP_DARK = 'var(--gap-dark, #D97706)';
+
+const cornerPill = (hovered: boolean): React.CSSProperties => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  padding: '6px 14px',
+  backgroundColor: NODE_BG,
+  border: `1px solid ${hovered ? MAKER_1 : BORDER}`,
+  borderRadius: 9999,
+  color: TEXT,
+  cursor: 'pointer',
+  boxShadow: hovered
+    ? '0 4px 14px rgba(0, 0, 0, 0.08)'
+    : '0 1px 4px rgba(0, 0, 0, 0.04)',
+  fontSize: '11px',
+  fontWeight: 600,
+  fontFamily: "'Space Grotesk', sans-serif",
+  transition: 'all 180ms ease',
+});
+
 export const HotCornersHUD: React.FC<HotCornersHUDProps> = ({
   onCenterHub,
-  onCenterStoryStep
+  onCenterStoryStep,
 }) => {
   const state = useBranchStore();
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [hoveredCorner, setHoveredCorner] = useState<string | null>(null);
 
   const activeProject = state.projects.find((p) => p.id === state.activeProjectId);
   const totalSteps = activeProject ? activeProject.nodes.length : 7;
+
+  const hasGap = state.projects.some((p) =>
+    p.nodes.some((n) => n.type === 'gap')
+  );
 
   const handleStepPrev = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -44,252 +79,230 @@ export const HotCornersHUD: React.FC<HotCornersHUDProps> = ({
 
   return (
     <>
-      {/* =========================================================================
-          1. TOP-LEFT: Profile & Identity Hot Corner
-          ========================================================================= */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 20,
-          left: 20,
-          zIndex: 40,
-        }}
-      >
+      {/* TOP-LEFT: Profile Corner */}
+      <div style={{ position: 'fixed', top: 16, left: 16, zIndex: 40 }}>
         <button
           onClick={onCenterHub}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 9,
-            padding: '7px 14px',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E0D5',
-            borderRadius: 30,
-            color: '#191C24',
-            cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(24, 28, 38, 0.08)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#0D8F5B')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E0D5')}
+          onMouseEnter={() => setHoveredCorner('tl')}
+          onMouseLeave={() => setHoveredCorner(null)}
+          style={cornerPill(hoveredCorner === 'tl')}
         >
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&q=80"
             alt="Elena"
-            style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: 4,
+              objectFit: 'cover',
+              border: `1px solid ${BORDER}`,
+            }}
           />
           <div style={{ textAlign: 'left' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#191C24', lineHeight: 1.1 }}>
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: TEXT,
+                lineHeight: 1.1,
+              }}
+            >
               Elena Rostova
             </div>
-            <div style={{ fontSize: '9px', color: '#5F667A' }}>Profile</div>
+            <div style={{ fontSize: '8.5px', color: TEXT_2 }}>MDes Thesis Studio</div>
           </div>
         </button>
       </div>
 
-      {/* =========================================================================
-          2. TOP-RIGHT: Help & Open Gaps Hot Corner
-          ========================================================================= */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 20,
-          right: 20,
-          zIndex: 40,
-        }}
-      >
+      {/* TOP-RIGHT: Help Corner */}
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 40 }}>
         <button
           onClick={() => setShowHelpDrawer(!showHelpDrawer)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '8px 16px',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E0D5',
-            borderRadius: 30,
-            color: '#191C24',
-            cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(24, 28, 38, 0.08)',
-            fontSize: '11.5px',
-            fontWeight: 600,
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#FF9F0A')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E0D5')}
+          onMouseEnter={() => setHoveredCorner('tr')}
+          onMouseLeave={() => setHoveredCorner(null)}
+          style={cornerPill(hoveredCorner === 'tr')}
         >
           <div style={{ position: 'relative' }}>
-            <HelpCircle size={15} color="#191C24" />
-            <span
-              style={{
-                position: 'absolute',
-                top: -2,
-                right: -2,
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                backgroundColor: '#FF9F0A',
-              }}
-            />
+            <HelpCircle size={14} color={TEXT_2} />
+            {hasGap && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: -2,
+                  right: -2,
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  backgroundColor: GAP,
+                }}
+              />
+            )}
           </div>
-          <span>Help & Open Gaps</span>
+          <span style={{ color: TEXT, fontSize: '10.5px' }}>Help & Open Gaps</span>
         </button>
       </div>
 
-      {/* =========================================================================
-          3. BOTTOM-LEFT: Save & Persistence Hot Corner
-          ========================================================================= */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 20,
-          left: 20,
-          zIndex: 40,
-        }}
-      >
+      {/* BOTTOM-LEFT: Save Status */}
+      <div style={{ position: 'fixed', bottom: 16, left: 16, zIndex: 40 }}>
         <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 7,
-            padding: '7px 14px',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E0D5',
-            borderRadius: 30,
-            color: '#191C24',
-            boxShadow: '0 4px 16px rgba(24, 28, 38, 0.08)',
-            fontSize: '11px',
-            fontWeight: 600,
-          }}
+          onMouseEnter={() => setHoveredCorner('bl')}
+          onMouseLeave={() => setHoveredCorner(null)}
+          style={cornerPill(hoveredCorner === 'bl')}
         >
-          <Check size={14} color="#0D8F5B" />
-          <span>Saved</span>
+          <Check size={13} color={MAKER_1} />
+          <span style={{ color: TEXT_2, fontSize: '10px' }}>Saved locally</span>
         </div>
       </div>
 
-      {/* =========================================================================
-          4. BOTTOM-RIGHT: Story Scrubber & Narrative Progression
-          ========================================================================= */}
+      {/* BOTTOM-RIGHT: Story Scrubber */}
       <div
         style={{
           position: 'fixed',
-          bottom: 20,
-          right: 20,
+          bottom: 16,
+          right: 16,
           zIndex: 40,
           display: 'flex',
           alignItems: 'center',
-          gap: 6,
+          backgroundColor: NODE_BG,
+          border: `1px solid ${BORDER}`,
+          borderRadius: 9999,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+          overflow: 'hidden',
         }}
       >
-        <div
+        <button
+          onClick={() => {
+            branchStore.setViewMode('story');
+            if (onCenterStoryStep) onCenterStoryStep(currentStep);
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E0D5',
-            borderRadius: 30,
-            boxShadow: '0 4px 16px rgba(24, 28, 38, 0.08)',
-            overflow: 'hidden',
+            gap: 6,
+            padding: '7px 14px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: TEXT,
+            cursor: 'pointer',
+            fontSize: '11px',
+            fontWeight: 700,
+            fontFamily: "'Space Grotesk', sans-serif",
           }}
         >
-          <button
-            onClick={() => {
-              branchStore.setViewMode('story');
-              if (onCenterStoryStep) onCenterStoryStep(currentStep);
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 7,
-              padding: '8px 14px',
-              backgroundColor: 'transparent',
-              border: 'none',
-              color: '#191C24',
-              cursor: 'pointer',
-              fontSize: '11.5px',
-              fontWeight: 700,
-            }}
-          >
-            <Play size={12} fill="#0D8F5B" color="#0D8F5B" />
-            <span>Follow Story ({currentStep} of {totalSteps})</span>
-          </button>
+          <Play size={11} fill={MAKER_1} color={MAKER_1} />
+          <span>
+            Follow Story ({currentStep} of {totalSteps})
+          </span>
+        </button>
 
-          <div style={{ width: 1, height: 16, backgroundColor: '#E5E0D5' }} />
+        <div style={{ width: 1, height: 16, backgroundColor: BORDER }} />
 
-          <button
-            onClick={handleStepPrev}
-            disabled={currentStep <= 1}
-            style={{
-              padding: '8px 10px',
-              backgroundColor: 'transparent',
-              border: 'none',
-              color: currentStep <= 1 ? '#C4C8D4' : '#191C24',
-              cursor: currentStep <= 1 ? 'default' : 'pointer',
-            }}
-          >
-            <ChevronLeft size={14} />
-          </button>
+        <button
+          onClick={handleStepPrev}
+          disabled={currentStep <= 1}
+          style={{
+            padding: '7px 10px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: currentStep <= 1 ? MUTED : TEXT,
+            cursor: currentStep <= 1 ? 'default' : 'pointer',
+          }}
+        >
+          <ChevronLeft size={13} />
+        </button>
 
-          <button
-            onClick={handleStepNext}
-            disabled={currentStep >= totalSteps}
-            style={{
-              padding: '8px 10px',
-              backgroundColor: 'transparent',
-              border: 'none',
-              color: currentStep >= totalSteps ? '#C4C8D4' : '#191C24',
-              cursor: currentStep >= totalSteps ? 'default' : 'pointer',
-            }}
-          >
-            <ChevronRight size={14} />
-          </button>
-        </div>
+        <button
+          onClick={handleStepNext}
+          disabled={currentStep >= totalSteps}
+          style={{
+            padding: '7px 10px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: currentStep >= totalSteps ? MUTED : TEXT,
+            cursor: currentStep >= totalSteps ? 'default' : 'pointer',
+          }}
+        >
+          <ChevronRight size={13} />
+        </button>
       </div>
 
-      {/* Slide-out Help & Open Gaps Panel */}
+      {/* Help Drawer */}
       {showHelpDrawer && (
         <div
           style={{
             position: 'fixed',
-            top: 70,
-            right: 20,
-            width: 320,
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E0D5',
-            borderRadius: 16,
-            padding: '16px',
-            boxShadow: '0 12px 36px rgba(24, 28, 38, 0.12)',
+            top: 60,
+            right: 16,
+            width: 290,
+            backgroundColor: NODE_BG,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 8,
+            padding: '14px',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.08)',
             zIndex: 50,
-            color: '#191C24',
+            color: TEXT,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <HelpCircle size={15} color="#FF9F0A" />
-              <h3 style={{ fontSize: '13px', fontWeight: 700, margin: 0 }}>Open Gaps & Calls for Help</h3>
+              <HelpCircle size={14} color={GAP_DARK} />
+              <h3
+                style={{
+                  fontSize: '11.5px',
+                  fontWeight: 700,
+                  margin: 0,
+                  color: TEXT,
+                  fontFamily: "'Space Grotesk', sans-serif",
+                }}
+              >
+                Open Gaps on Canvas
+              </h3>
             </div>
             <button
               onClick={() => setShowHelpDrawer(false)}
-              style={{ background: 'none', border: 'none', color: '#5F667A', cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: MUTED, cursor: 'pointer' }}
             >
-              <X size={15} />
+              <X size={14} />
             </button>
           </div>
 
           <div
             style={{
-              padding: '12px',
-              backgroundColor: '#FFFDF9',
-              border: '1px solid #FEF3C7',
-              borderRadius: 10,
+              padding: '10px',
+              backgroundColor: 'var(--gap-bg, #FFF9ED)',
+              border: `1px solid rgba(217, 119, 6, 0.3)`,
+              borderRadius: 6,
               marginBottom: 10,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#B45309' }}>Audio-to-Haptic DSP</span>
-              <span style={{ fontSize: '9px', color: '#B45309', fontWeight: 600 }}>Elena's Gap</span>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 4,
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 700, color: GAP_DARK }}>
+                Audio-to-Haptic DSP
+              </span>
+              <span style={{ fontSize: '8px', color: TEXT_2 }}>Elena</span>
             </div>
-            <p style={{ fontSize: '11px', color: '#5F667A', margin: '0 0 8px 0', lineHeight: 1.4 }}>
+            <p
+              style={{
+                fontSize: '10px',
+                color: TEXT,
+                margin: '0 0 8px 0',
+                lineHeight: 1.35,
+              }}
+            >
               Need voice pitch mapped to dual-frequency 175Hz / 235Hz LRA actuators.
             </p>
             <button
@@ -299,21 +312,22 @@ export const HotCornersHUD: React.FC<HotCornersHUDProps> = ({
               }}
               style={{
                 width: '100%',
-                padding: '6px',
-                backgroundColor: '#FF9F0A',
+                padding: '4px',
+                backgroundColor: GAP_DARK,
                 border: 'none',
-                borderRadius: 6,
+                borderRadius: 4,
                 color: '#FFFFFF',
-                fontSize: '10.5px',
+                fontSize: '9.5px',
                 fontWeight: 700,
                 cursor: 'pointer',
+                fontFamily: "'Space Grotesk', sans-serif",
               }}
             >
-              Focus on Canvas
+              Focus on Canvas →
             </button>
           </div>
 
-          <p style={{ fontSize: '10px', color: '#8E95A6', margin: 0, lineHeight: 1.4 }}>
+          <p style={{ fontSize: '9px', color: TEXT_2, margin: 0, lineHeight: 1.4 }}>
             In Branch, creators share unfinished work so interdisciplinary peers can bridge the gap without gatekeeping.
           </p>
         </div>

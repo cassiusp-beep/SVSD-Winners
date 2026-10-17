@@ -1,9 +1,10 @@
 @import './tokens/tokens.css';
 
 /* =========================================================================
-   Studio Whiteboard Drafting Bed Global Stylesheet
-   Tokens imported from tokens.css
+   Night Lab Global Stylesheet — Branch
+   Tokens: tokens.css (source of truth: docs/process/visual-spec.md §Color: Night Lab)
    ========================================================================= */
+
 
 /* Global Reset */
 *, *::before, *::after {
@@ -63,32 +64,21 @@ button, input, textarea, select {
   outline-offset: 3px;
 }
 
+/* Visible ports for touch designer feel */
 .react-flow__handle {
-  opacity: 0;
-  pointer-events: none;
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--muted) !important;
+  border: 1.5px solid var(--node) !important;
+  border-radius: 50% !important;
+  opacity: 0.6 !important;
+  transition: all 150ms ease !important;
 }
 
-/* Night Lab Animations */
-@keyframes gap-breathe {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 181, 71, 0.25), inset 0 0 8px rgba(255, 181, 71, 0.15);
-    border-color: rgba(255, 181, 71, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 28px rgba(255, 181, 71, 0.65), inset 0 0 14px rgba(255, 181, 71, 0.35);
-    border-color: rgba(255, 181, 71, 1);
-  }
-}
-
-@keyframes live-pulse {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.02);
-  }
+.react-flow__handle:hover {
+  background: var(--maker-1) !important;
+  transform: scale(1.3) !important;
+  opacity: 1 !important;
 }
 
 /* Accessible focus ring */
@@ -97,7 +87,7 @@ button, input, textarea, select {
   outline-offset: 2px;
 }
 
-/* Custom Scrollbar for dark lab feel */
+/* Custom Scrollbar for studio drafting feel */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -108,7 +98,7 @@ button, input, textarea, select {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--grid);
+  background: var(--border);
   border-radius: var(--radius-pill);
 }
 

@@ -2,7 +2,25 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
-## October 17, 2026: Studio Whiteboard Drafting Bed & Real Artifact Cards (Decision 009)
+## October 17, 2026: TouchDesigner Modular Operator Hierarchy & Studio Drafting Bed (Decision 010)
+
+**Decided:**
+1. **TouchDesigner Operator Block Hierarchy:** Replaced tacky concentric glowing rings and round nodes with a clean, structured hierarchy of modular operator blocks:
+   - **Maker Hub:** Grounded rectangular studio operator block with Elena's avatar, MDes discipline pill, and clean parameter bar (`Projects`, `Network`, `Needs`, `Skills`).
+   - **Project COMP:** Solid container block with saturated emerald header (`#0D8F5B`), live textile photography, thesis context, and visible in/out docking ports.
+   - **Asset SOP:** Compact rounded pill capsule (`[SOURCE · STEP 2] Tactile Aesthetics`).
+   - **Open Gap:** Small amber dot pin (`?`) in resting state that smoothly blooms into an actionable parameter card on hover/focus.
+   - **Lineage Branch:** Solid terracotta block (`#E23D28`) with Marcus Chen's avatar and contribution summary.
+2. **Warm Studio Drafting Bed (`#FAF9F5`):** Complete elimination of dark mode in favor of warm architectural trace paper with a subtle millimeter dot grid (`#DDD9D0`), hairline card borders (`1px solid #E2E0D8`), and dark studio typography (`#14171F`).
+3. **Directional Left-to-Right Bus Flow:** Left is personal/network peers (`Amina Diallo`, `Lucas Zhao`), center is the maker hub, and right is the project story, validation sources, gaps, and collaborator branches.
+
+**Why:**
+- Concentric glowing circles and dark neon voids read as AI bloatware/slop and lacked authentic tool identity.
+- Modular TouchDesigner-inspired blocks bring professional creative-coding rigor, clarity, and delight to cross-disciplinary collaboration.
+
+**Alternatives considered:**
+- Architectural trace paper with rigid 90-degree orthogonal elbow routing: Rejected for now to prevent wire overlap on dense graphs.
+
 
 **Decided:**
 1. **Abolished Dark Mode in Favor of the Studio Whiteboard Drafting Bed:** Replaced the generic dark blue/space canvas with a tactile warm off-white drafting bed (`#FAF9F5`), subtle architectural dot grid (`#E5E0D5`), and saturated physical whiteboard marker conduits (Emerald Green `#0D8F5B`, Vermillion Red `#E23D28`, Electric Amber Glow `#FF9F0A`).

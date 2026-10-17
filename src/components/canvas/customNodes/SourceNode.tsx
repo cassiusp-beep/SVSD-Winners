@@ -1,6 +1,9 @@
-import React, { memo } from 'react';
+/**
+ * SourceNode — Asset SOP Capsule Operator
+ * Compact capsule/pill shape for reference and validation assets.
+ */
+import React, { memo, useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { BookOpen, ExternalLink } from 'lucide-react';
 import { useBranchStore } from '../../../store/branchStore';
 
 interface SourceNodeProps {
@@ -17,64 +20,96 @@ interface SourceNodeProps {
   selected?: boolean;
 }
 
+const MAKER_1 = 'var(--maker-1, #0D8F5B)';
+const BORDER = 'var(--border, #E2E0D8)';
+const NODE_BG = 'var(--node, #FFFFFF)';
+const NODE_RAISED = 'var(--node-raised, #F4F3EE)';
+const TEXT = 'var(--text, #14171F)';
+const TEXT_2 = 'var(--text-2, #5A6275)';
+
 export const SourceNode = memo(({ data, selected }: SourceNodeProps) => {
   const state = useBranchStore();
   const { source } = data;
   const isSelected = selected || state.selectedNodeId === source.id;
+  const [hovered, setHovered] = useState(false);
+  const isActive = isSelected || hovered;
 
   const image =
     source.imageUrl ||
-    'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80';
+    'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=160&q=80';
 
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className="nodrag"
       style={{
-        width: 250,
-        backgroundColor: '#FFFFFF',
-        border: isSelected ? '2px solid #0D8F5B' : '1px solid #E5E0D5',
-        borderRadius: 14,
-        overflow: 'hidden',
-        color: '#191C24',
-        boxShadow: '0 6px 20px rgba(24, 28, 38, 0.06), 0 1px 3px rgba(24, 28, 38, 0.04)',
-        transition: 'all 0.25s ease',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: isActive ? NODE_RAISED : NODE_BG,
+        borderRadius: 20,
+        border: `1px solid ${isActive ? MAKER_1 : BORDER}`,
+        padding: '4px 10px 4px 4px',
+        boxShadow: isActive
+          ? '0 4px 12px rgba(13, 143, 91, 0.12)'
+          : '0 1px 4px rgba(0, 0, 0, 0.04)',
+        cursor: 'pointer',
+        pointerEvents: 'auto',
+        transition: 'all 180ms ease',
       }}
     >
-      <Handle type="target" position={Position.Left} id="source-target" style={{ background: '#0D8F5B', width: 8, height: 8 }} />
-      <Handle type="source" position={Position.Right} id="source-source" style={{ background: '#0D8F5B', width: 8, height: 8 }} />
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="source-target"
+        style={{ left: -4, top: '50%' }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="source-source"
+        style={{ right: -4, top: '50%' }}
+      />
 
-      {/* Loom Pitch Image */}
-      <div style={{ position: 'relative', width: '100%', height: 100, backgroundColor: '#F0EFEA' }}>
-        <img src={image} alt={source.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        <div
+      {/* Asset Preview Thumbnail */}
+      <img
+        src={image}
+        alt={source.title}
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: 14,
+          objectFit: 'cover',
+          border: `1px solid ${BORDER}`,
+        }}
+      />
+
+      {/* Label and Tag */}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <span
           style={{
-            position: 'absolute',
-            top: 6,
-            left: 6,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '2px 6px',
-            borderRadius: 4,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            fontSize: '9px',
+            fontSize: '7.5px',
             fontWeight: 700,
-            color: '#191C24',
-            letterSpacing: '0.04em',
+            color: MAKER_1,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
           }}
         >
-          <BookOpen size={10} color="#0D8F5B" />
-          <span>{source.stepLabel || 'SOURCE • STEP 2'}</span>
-        </div>
-      </div>
-
-      <div style={{ padding: '10px 12px' }}>
-        <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#191C24', margin: '0 0 3px 0' }}>
+          {source.stepLabel || 'SOURCE · VALIDATION'}
+        </span>
+        <span
+          style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: TEXT,
+            fontFamily: "'Space Grotesk', sans-serif",
+            lineHeight: 1.1,
+          }}
+        >
           {source.title}
-        </h4>
-        <p style={{ fontSize: '10.5px', color: '#5F667A', margin: 0 }}>
-          {source.author}
-        </p>
+        </span>
       </div>
     </div>
   );

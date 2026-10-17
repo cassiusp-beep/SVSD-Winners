@@ -1,63 +1,65 @@
-/* Branch Design Tokens — Studio Whiteboard Drafting Bed Palette (Decided Oct 17, 2026) */
+/* Branch Design Tokens — Color: Night Lab (DECIDED Oct 17, 2026) */
+/* Source of truth: docs/process/visual-spec.md §"Color: Night Lab" */
+/* DO NOT change these values without updating visual-spec.md */
 
 :root {
   /* =========================================================================
-     Base (The Studio Drafting Bed — Light Canvas)
+     Base (Light Studio Drafting Bed — Anti-Slop, Non-Dark Mode)
      ========================================================================= */
-  --canvas: #FAF9F5;       /* Warm off-white drafting bed / studio paper */
-  --grid: #E5E0D5;         /* Subtle architectural drafting dot grid */
-  --node: #FFFFFF;         /* Crisp white tactile card surface */
-  --node-raised: #FFFFFF;  /* Elevated tactile card surface */
-  --card-border: #E8E4DA;  /* Subtle card boundary line */
-  --text: #191C24;         /* Deep archival ink */
-  --text-2: #5F667A;       /* Graphite secondary: metadata, captions */
-  --muted: #8E95A6;        /* Drafting notes, inactive links */
+  --canvas: #FAF9F5;       /* Warm studio drafting paper bed */
+  --grid: #E5E3DC;         /* Faint architectural dot grid for spatial orientation */
+  --node: #FFFFFF;         /* Solid clean operator card body */
+  --node-raised: #F4F3EE;  /* Elevated/hovered surface */
+  --node-header: #F9F8F5;  /* Technical header bar fill */
+  --text: #14171F;         /* Deep studio ink typography */
+  --text-2: #5A6275;       /* Secondary metadata and parameters */
+  --muted: #9BA3B5;        /* Placeholder, inactive connectors, and wire guides */
+  --border: #E2E0D8;       /* Clean hairline operator card border */
+  --border-subtle: #ECEAE4;/* Internal partition lines */
 
   /* =========================================================================
-     Makers (Whiteboard Marker Conduits)
+     Makers (Authorship & Operator Families per references.md)
      ========================================================================= */
-  --maker-1: #0D8F5B;      /* Saturated Emerald Green (Current user Elena / verified paths) */
-  --maker-2: #E23D28;      /* Vermillion Red (Collaborations / core turning points) */
-  --maker-3: #2563EB;      /* Cobalt Blue (Marcus / Technical DSP) */
-  --maker-4: #8B5CF6;      /* Violet (Amina / Acoustic Ecology) */
-  --maker-5: #D946EF;      /* Magenta (Lucas / Architecture) */
+  --maker-1: #0D8F5B;      /* Saturated emerald green — Elena / Structural conduits */
+  --maker-2: #E23D28;      /* Vermillion red / Terracotta — Marcus / Lineage branches */
+  --maker-3: #1D6AE5;      /* Cobalt blue — Engineering & mechatronics */
+  --maker-4: #8B5CF6;      /* Studio violet — Synthesis */
+  --maker-5: #059669;      /* Forest teal */
 
   /* =========================================================================
-     Meaning States
+     Meaning states & Gaps
      ========================================================================= */
-  --gap: #FF9F0A;          /* Electric Amber Glow (Open question / need for help) */
-  --gap-bg: rgba(255, 159, 10, 0.12);
-  --dialogue: #191C24;     /* Crisp dialogue ink */
-  --ai: #71717A;           /* Pale neutral AI indicator */
-  --error: #DC2626;        /* System alert */
+  --gap: #FF9F0A;          /* Electric amber — Open question dot / pin */
+  --gap-dark: #D97706;     /* High contrast amber ink */
+  --gap-bg: #FFF9ED;       /* Amber gap parameter card fill */
+  --dialogue: #14171F;     /* Snapped dialogue bus text */
+  --ai: #7C3AED;           /* Distinct violet AI guide */
+  --error: #DC2626;        /* High-contrast error */
 
-  /* =========================================================================
-     Tactile Shadows
-     ========================================================================= */
-  --shadow-card: 0 4px 20px rgba(24, 28, 38, 0.06), 0 1px 3px rgba(24, 28, 38, 0.04);
-  --shadow-raised: 0 12px 32px rgba(24, 28, 38, 0.1), 0 2px 6px rgba(24, 28, 38, 0.04);
-  --shadow-hub: 0 8px 30px rgba(13, 143, 91, 0.15);
+  /* Derived accents */
+  --maker-1-subtle: rgba(13, 143, 91, 0.08);
+  --maker-2-subtle: rgba(226, 61, 40, 0.08);
+  --gap-subtle: rgba(255, 159, 10, 0.12);
 
-  /* =========================================================================
-     Legacy Aliases
-     ========================================================================= */
+  /* Legacy aliases for backward compatibility */
   --color-canvas: var(--canvas);
   --color-surface: var(--node);
-  --color-surface-subtle: var(--canvas);
+  --color-surface-subtle: var(--node-raised);
   --color-ink: var(--text);
   --color-ink-muted: var(--text-2);
   --color-ink-faint: var(--muted);
-  --color-border: var(--card-border);
-  --color-border-subtle: rgba(229, 224, 213, 0.7);
-  --color-control-border: var(--card-border);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-control-border: var(--border);
   --color-focus: var(--maker-1);
   --color-attention-bg: var(--gap-bg);
-  --color-attention-ink: var(--gap);
+  --color-attention-ink: var(--gap-dark);
   --color-error-ink: var(--error);
 
-  /* Typography Families */
+  /* Typography */
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
 
   /* Spacing Scale */
   --space-1: 4px;
@@ -69,20 +71,15 @@
   --space-12: 48px;
   --space-16: 64px;
 
-  /* Border Radii */
-  --radius-media: 6px;
-  --radius-control: 10px;
-  --radius-card: 14px;
-  --radius-pill: 9999px;
-
-  /* Elevations & Glows */
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-floating: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --shadow-glow-maker1: 0 0 16px rgba(79, 216, 240, 0.35);
-  --shadow-glow-gap: 0 0 18px rgba(255, 181, 71, 0.45);
+  /* Shape Hierarchy Radii (No more circles everywhere) */
+  --radius-card: 8px;      /* Modular operator cards */
+  --radius-capsule: 20px;  /* Asset SOP capsules */
+  --radius-tag: 4px;       /* Parameter tags and port chips */
+  --radius-dot: 50%;       /* Gap pin dot & in/out ports */
 
   /* Transitions */
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --duration-micro: 140ms;
   --duration-panel: 220ms;
   --duration-step: 500ms;
@@ -95,5 +92,6 @@
     --duration-panel: 0ms;
     --duration-step: 0ms;
     --duration-branch: 0ms;
+    --duration-gap-breathe: 0ms;
   }
 }
