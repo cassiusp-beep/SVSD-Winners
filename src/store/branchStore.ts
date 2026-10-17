@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { User, Project, NotificationItem, Branch, Chapter, StoryNode } from '../types';
+import { User, Project, NotificationItem, Branch, Chapter, StoryNode, Gap, Credit } from '../types';
 import { SEED_USERS, SEED_PROJECTS, SEED_NOTIFICATIONS } from '../data/seedData';
 
-const STORAGE_KEY = 'svsd_branch_state_v1';
+const STORAGE_KEY = 'svsd_branch_state_v2';
 
 export interface BranchState {
   currentUserId: string;
@@ -10,10 +10,18 @@ export interface BranchState {
   activeStepIndex: number;
   isPlayingStory: boolean;
   aiEnabled: boolean;
+  viewMode: 'hub' | 'story';
+  isProfileDocked: boolean;
+  helpDrawerOpen: boolean;
+  storyTimelineOpen: boolean;
+  lastSavedAt: string;
   openNodes: Record<string, { isPinned: boolean; direction: 'left' | 'right' }>;
   savedProjectIds: string[];
-  activeModal: 'findYourPlace' | 'privateBranch' | 'help' | 'save' | 'notifications' | 'settings' | 'network' | 'tinder' | null;
   selectedNodeId: string | null;
+  hoveredDropTargetId: string | null;
+  activeRadialMenu: boolean;
+  // Legacy compatibility for any lingering modal components
+  activeModal: string | null;
   radialMenu: { isOpen: boolean; x: number; y: number } | null;
   mobileSheetOpen: boolean;
   projects: Project[];
@@ -26,19 +34,25 @@ const defaultState: BranchState = {
   activeStepIndex: 1,
   isPlayingStory: false,
   aiEnabled: false,
+  viewMode: 'hub',
+  isProfileDocked: false,
+  helpDrawerOpen: false,
+  storyTimelineOpen: false,
+  lastSavedAt: 'Saved just now',
   openNodes: {
     'hw-q1': { isPinned: true, direction: 'right' }
   },
   savedProjectIds: ['haptic-weave'],
-  activeModal: null,
   selectedNodeId: 'hw-q1',
+  hoveredDropTargetId: null,
+  activeRadialMenu: true,
+  activeModal: null,
   radialMenu: null,
   mobileSheetOpen: false,
   projects: SEED_PROJECTS,
   notifications: SEED_NOTIFICATIONS
 };
 
-// Simple reactive store with listener subscriptions
 type Listener = () => void;
 let state: BranchState = loadState();
 const listeners = new Set<Listener>();
@@ -63,6 +77,8 @@ function persistState() {
       activeProjectId: state.activeProjectId,
       activeStepIndex: state.activeStepIndex,
       aiEnabled: state.aiEnabled,
+      viewMode: state.viewMode,
+      isProfileDocked: state.isProfileDocked,
       savedProjectIds: state.savedProjectIds,
       projects: state.projects,
       notifications: state.notifications
@@ -89,6 +105,20 @@ export const branchStore = {
 
   setCurrentUser: (userId: string) => {
     state = { ...state, currentUserId: userId };
+    notify();
+  },
+
+  setViewMode: (viewMode: 'hub' | 'story') => {
+    state = {
+      ...state,
+      viewMode,
+      isProfileDocked: viewMode === 'story'
+    };
+    notify();
+  },
+
+  dockProfile: (docked: boolean) => {
+    state = { ...state, isProfileDocked: docked };
     notify();
   },
 
@@ -135,6 +165,44 @@ export const branchStore = {
     notify();
   },
 
+  toggleHelpDrawer: () => {
+    state = { ...state, helpDrawerOpen: !state.helpDrawerOpen };
+    notify();
+  },
+
+  toggleStoryTimeline: () => {
+    state = { ...state, storyTimelineOpen: !state.storyTimelineOpen };
+    notify();
+  },
+
+  toggleRadialMenu: (open?: boolean) => {
+    state = { ...state, activeRadialMenu: open !== undefined ? open : !state.activeRadialMenu };
+    notify();
+  },
+
+  setHoveredDropTarget: (id: string | null) => {
+    if (state.hoveredDropTargetId !== id) {
+      state = { ...state, hoveredDropTargetId: id };
+      notify();
+    }
+  },
+
+  nextStoryStep: () => {
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    const maxSteps = project.nodes.length;
+    const next = state.activeStepIndex >= maxSteps ? 1 : state.activeStepIndex + 1;
+    branchStore.setActiveStepIndex(next);
+  },
+
+  prevStoryStep: () => {
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    const maxSteps = project.nodes.length;
+    const prev = state.activeStepIndex <= 1 ? maxSteps : state.activeStepIndex - 1;
+    branchStore.setActiveStepIndex(prev);
+  },
+
   openNode: (nodeId: string, direction: 'left' | 'right') => {
     state = {
       ...state,
@@ -167,47 +235,14 @@ export const branchStore = {
     }
   },
 
-  closeUnpinnedNodes: () => {
-    const remaining: Record<string, { isPinned: boolean; direction: 'left' | 'right' }> = {};
-    Object.entries(state.openNodes).forEach(([id, val]) => {
-      if (val.isPinned) remaining[id] = val;
-    });
-    state = { ...state, openNodes: remaining, radialMenu: null };
-    notify();
-  },
-
-  openModal: (modal: BranchState['activeModal']) => {
-    state = { ...state, activeModal: modal, radialMenu: null };
-    notify();
-  },
-
-  closeModal: () => {
-    state = { ...state, activeModal: null };
-    notify();
-  },
-
-  openRadialMenu: (x: number, y: number) => {
-    state = { ...state, radialMenu: { isOpen: true, x, y } };
-    notify();
-  },
-
-  closeRadialMenu: () => {
-    state = { ...state, radialMenu: null };
-    notify();
-  },
-
-  toggleMobileSheet: (open?: boolean) => {
-    state = { ...state, mobileSheetOpen: open !== undefined ? open : !state.mobileSheetOpen };
-    notify();
-  },
-
   toggleSaveProject: (projectId: string) => {
     const isSaved = state.savedProjectIds.includes(projectId);
     state = {
       ...state,
       savedProjectIds: isSaved
         ? state.savedProjectIds.filter(id => id !== projectId)
-        : [...state.savedProjectIds, projectId]
+        : [...state.savedProjectIds, projectId],
+      lastSavedAt: 'Saved just now'
     };
     notify();
   },
@@ -232,6 +267,16 @@ export const branchStore = {
       position: { x: 1200 + targetProject.nodes.length * 60, y: 180 }
     };
 
+    const newGapItem: Gap = {
+      id: newGapId,
+      projectId,
+      title: gapTitle,
+      need,
+      disciplineTarget: discipline,
+      status: 'open',
+      sourceNodeId: newGapNode.id
+    };
+
     const newNotification: NotificationItem = {
       id: `notif-${Date.now()}`,
       actorId: state.currentUserId,
@@ -250,20 +295,8 @@ export const branchStore = {
       if (p.id === projectId) {
         return {
           ...p,
-          status: 'stuck' as const,
-          nodes: [...p.nodes, newGapNode],
-          gaps: [
-            ...p.gaps,
-            {
-              id: newGapId,
-              projectId,
-              title: gapTitle,
-              need,
-              disciplineTarget: discipline,
-              status: 'open' as const,
-              sourceNodeId: newGapNode.id
-            }
-          ]
+          gaps: [...p.gaps, newGapItem],
+          nodes: [...p.nodes, newGapNode]
         };
       }
       return p;
@@ -273,41 +306,110 @@ export const branchStore = {
       ...state,
       projects: updatedProjects,
       notifications: [newNotification, ...state.notifications],
-      activeModal: null
+      selectedNodeId: newGapNode.id,
+      lastSavedAt: 'Saved just now'
     };
     notify();
   },
 
-  keepPrivateBranch: (originProjectId: string, originNodeId: string, title: string, intent: string, skill: string) => {
-    const targetProject = state.projects.find(p => p.id === originProjectId);
-    if (!targetProject) return;
-
-    const currentUser = SEED_USERS[state.currentUserId] || SEED_USERS.elena;
-    const branchId = `branch-${Date.now()}`;
-    const chapterId = `ch-${Date.now()}`;
-
-    const newChapter: Chapter = {
-      id: chapterId,
-      branchId,
-      chapterNumber: targetProject.nodes.length + 1,
-      title,
-      authorId: currentUser.id,
-      authorName: currentUser.name,
-      authorDiscipline: currentUser.discipline,
-      date: 'Just now',
-      turningPoint: intent,
-      sourceNodeId: originNodeId,
-      artifacts: [
+  genesisProjectFromDrop: (title: string, droppedType: string) => {
+    const newProjectId = `project-${Date.now()}`;
+    const newProject: Project = {
+      id: newProjectId,
+      creatorId: state.currentUserId,
+      creatorName: SEED_USERS[state.currentUserId]?.name || 'Elena Rostova',
+      creatorAvatar: SEED_USERS[state.currentUserId]?.avatar || '',
+      creatorDiscipline: SEED_USERS[state.currentUserId]?.discipline || 'MDes Student',
+      title: title || 'New Exploratory Branch',
+      startingQuestion: `Started by dragging in ${droppedType}. Exploring through living nodes.`,
+      status: 'shared',
+      heroMedia: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=80',
+      lastActive: 'Just now',
+      nodes: [
         {
-          id: `art-${Date.now()}`,
-          type: 'code',
-          title: `${title} Implementation Draft`,
-          url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-          caption: `${skill} contribution: ${intent}`
+          id: `${newProjectId}-q1`,
+          projectId: newProjectId,
+          type: 'starting_question',
+          title: `How might we explore ${title.toLowerCase()}?`,
+          authorId: state.currentUserId,
+          authorName: SEED_USERS[state.currentUserId]?.name || 'Elena Rostova',
+          authorDiscipline: SEED_USERS[state.currentUserId]?.discipline || 'MDes Student',
+          timestamp: 'Just now',
+          stepNumber: 1,
+          question: `Exploring genesis from ${droppedType}`,
+          position: { x: 100, y: 150 }
+        },
+        {
+          id: `${newProjectId}-gap1`,
+          projectId: newProjectId,
+          type: 'gap',
+          title: 'Unresolved technical constraint',
+          authorId: state.currentUserId,
+          authorName: SEED_USERS[state.currentUserId]?.name || 'Elena Rostova',
+          authorDiscipline: SEED_USERS[state.currentUserId]?.discipline || 'MDes Student',
+          timestamp: 'Just now',
+          stepNumber: 2,
+          gapNeed: 'Looking for a collaborator experienced in real-time execution.',
+          gapStatus: 'open',
+          position: { x: 420, y: 150 }
+        }
+      ],
+      connections: [
+        {
+          id: `conn-${newProjectId}-1`,
+          fromId: `${newProjectId}-q1`,
+          toId: `${newProjectId}-gap1`,
+          type: 'led_to',
+          label: 'genesis gap',
+          dialogueSnippet: 'Elena: "Initial genesis experiment requires real-time bridge."'
+        }
+      ],
+      branches: [],
+      gaps: [
+        {
+          id: `gap-${newProjectId}-1`,
+          projectId: newProjectId,
+          title: 'Unresolved technical constraint',
+          need: 'Looking for a collaborator experienced in real-time execution.',
+          disciplineTarget: 'Engineering / DSP',
+          status: 'open',
+          sourceNodeId: `${newProjectId}-gap1`
+        }
+      ],
+      credits: [
+        {
+          userId: state.currentUserId,
+          name: SEED_USERS[state.currentUserId]?.name || 'Elena Rostova',
+          discipline: SEED_USERS[state.currentUserId]?.discipline || 'MDes Student',
+          role: 'Genesis Creator',
+          timestamp: 'Just now'
         }
       ]
     };
 
+    state = {
+      ...state,
+      projects: [newProject, ...state.projects],
+      activeProjectId: newProjectId,
+      viewMode: 'story',
+      isProfileDocked: true,
+      lastSavedAt: 'Saved just now'
+    };
+    notify();
+  },
+
+  createPrivateBranch: (
+    originProjectId: string,
+    originNodeId: string,
+    title: string,
+    skill: string,
+    intent: string
+  ) => {
+    const currentUser = SEED_USERS[state.currentUserId] || SEED_USERS.elena;
+    const targetProject = state.projects.find(p => p.id === originProjectId);
+    if (!targetProject) return;
+
+    const branchId = `branch-${Date.now()}`;
     const newBranch: Branch = {
       id: branchId,
       originProjectId,
@@ -316,10 +418,23 @@ export const branchStore = {
       contributorId: currentUser.id,
       contributorName: currentUser.name,
       contributorDiscipline: currentUser.discipline,
-      createdAt: 'Just now',
       isPrivate: false,
+      chapters: [
+        {
+          id: `chapter-${branchId}-1`,
+          branchId,
+          chapterNumber: 1,
+          title,
+          authorId: currentUser.id,
+          authorName: currentUser.name,
+          authorDiscipline: currentUser.discipline,
+          date: 'Just now',
+          turningPoint: intent,
+          sourceNodeId: originNodeId,
+          artifacts: []
+        }
+      ],
       credits: [
-        ...targetProject.credits,
         {
           userId: currentUser.id,
           name: currentUser.name,
@@ -328,22 +443,23 @@ export const branchStore = {
           timestamp: 'Just now'
         }
       ],
-      chapters: [newChapter]
+      createdAt: 'Just now'
     };
 
     const newChapterNode: StoryNode = {
-      id: `node-${chapterId}`,
+      id: `node-${branchId}`,
       projectId: originProjectId,
       type: 'chapter',
-      title: `Chapter: ${title}`,
+      title: `${title} (${skill})`,
       authorId: currentUser.id,
       authorName: currentUser.name,
       authorDiscipline: currentUser.discipline,
       timestamp: 'Just now',
       stepNumber: targetProject.nodes.length + 1,
-      decisionRationale: intent,
-      position: { x: 1240, y: 380 + targetProject.branches.length * 160 },
-      artifacts: newChapter.artifacts
+      hypothesis: intent,
+      isTurningPoint: true,
+      turningPointNote: `Branched from gap by ${currentUser.name}`,
+      position: { x: 900, y: 350 }
     };
 
     const newConnection = {
@@ -356,7 +472,6 @@ export const branchStore = {
       aiRelevance: `Branch expands original project scope into ${currentUser.discipline}.`
     };
 
-    // Quiet notification for original creator with ZERO gatekeeping!
     const quietNotification: NotificationItem = {
       id: `notif-${Date.now()}`,
       actorId: currentUser.id,
@@ -398,10 +513,20 @@ export const branchStore = {
       ...state,
       projects: updatedProjects,
       notifications: [quietNotification, ...state.notifications],
-      activeModal: null,
-      selectedNodeId: newChapterNode.id
+      selectedNodeId: newChapterNode.id,
+      lastSavedAt: 'Saved just now'
     };
     notify();
+  },
+
+  // Legacy method compatibility for any unmigrated components
+  openModal: (_modal: any) => {},
+  closeModal: () => {},
+  closeRadialMenu: () => {},
+  openRadialMenu: (_x: number, _y: number) => {},
+  toggleMobileSheet: (_open?: boolean) => {},
+  keepPrivateBranch: (originProjectId: string, originNodeId: string, title: string, intent: string, skill: string) => {
+    branchStore.createPrivateBranch(originProjectId, originNodeId, title, skill, intent);
   },
 
   markNotificationRead: (id: string) => {
@@ -419,7 +544,6 @@ export const branchStore = {
   }
 };
 
-// React hook for consuming branch store
 export function useBranchStore(): BranchState {
   const [snapshot, setSnapshot] = useState<BranchState>(branchStore.getState);
 

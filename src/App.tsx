@@ -1,7 +1,6 @@
 import React from 'react';
-import { LandingCanvasMockup } from './components/mockup/LandingCanvasMockup';
+import { CanvasEngine } from './components/canvas/CanvasEngine';
 
 export const App: React.FC = () => {
-  return <LandingCanvasMockup />;
+  return <CanvasEngine />;
 };
-

@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   Node,
@@ -11,37 +9,34 @@ import {
   useReactFlow,
   ReactFlowProvider,
   NodeChange,
-  applyNodeChanges,
-  EdgeChange,
-  applyEdgeChanges
+  applyNodeChanges
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useBranchStore, branchStore } from '../../store/branchStore';
-import { PersonNode } from './customNodes/PersonNode';
-import { StoryStepNode } from './customNodes/StoryStepNode';
-import { ProjectCardNode } from './customNodes/ProjectCardNode';
-import { SettingsNode } from './customNodes/SettingsNode';
-import { NotificationsNode } from './customNodes/NotificationsNode';
-import { NetworkNode } from './customNodes/NetworkNode';
-import { ExploreNode } from './customNodes/ExploreNode';
-import { AnimatedStoryEdge } from './customEdges/AnimatedStoryEdge';
+import { PersonHubNode } from './customNodes/PersonHubNode';
+import { ProjectStoryNode } from './customNodes/ProjectStoryNode';
+import { GapNode } from './customNodes/GapNode';
+import { BranchNode } from './customNodes/BranchNode';
+import { SourceNode } from './customNodes/SourceNode';
+import { PeerNode } from './customNodes/PeerNode';
+import { DialogueEdge } from './customEdges/DialogueEdge';
+import { HotCornersHUD } from './HotCornersHUD';
 
 const nodeTypes = {
-  personNode: PersonNode,
-  storyStepNode: StoryStepNode,
-  projectCardNode: ProjectCardNode,
-  settingsNode: SettingsNode,
-  notificationsNode: NotificationsNode,
-  networkNode: NetworkNode,
-  exploreNode: ExploreNode
+  personHubNode: PersonHubNode,
+  projectStoryNode: ProjectStoryNode,
+  gapNode: GapNode,
+  branchNode: BranchNode,
+  sourceNode: SourceNode,
+  peerNode: PeerNode
 };
 
 const edgeTypes = {
-  animatedStoryEdge: AnimatedStoryEdge
+  dialogueEdge: DialogueEdge
 };
 
-const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngineReady }) => {
+const CanvasInner: React.FC = () => {
   const state = useBranchStore();
   const reactFlow = useReactFlow();
 
@@ -49,186 +44,284 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
   const [edges, setEdges] = useEdgesState<Edge>([]);
   const draggedPositions = useRef<Record<string, { x: number; y: number }>>({});
 
-  // Notify parent of reactFlow instance
-  useEffect(() => {
-    if (onEngineReady) onEngineReady(reactFlow);
-  }, [reactFlow, onEngineReady]);
+  // Center camera on hub
+  const handleCenterHub = useCallback(() => {
+    reactFlow.setCenter(0, 0, { zoom: window.innerWidth < 768 ? 0.8 : 1, duration: 600 });
+  }, [reactFlow]);
 
-  // Synchronize graph nodes and edges whenever store state changes, preserving dragged positions
+  // Center camera on specific story step
+  const handleCenterStoryStep = useCallback((stepIndex: number) => {
+    const targetX = (stepIndex - 1) * 320;
+    reactFlow.setCenter(targetX, 0, { zoom: 0.95, duration: 500 });
+  }, [reactFlow]);
+
+  // Synchronize graph nodes and edges based on viewMode and store state
   useEffect(() => {
     const list: Node[] = [];
+    const edgeList: Edge[] = [];
 
-    // Helper to get position (dragged position if user moved it, otherwise default)
     const getPos = (id: string, defaultPos: { x: number; y: number }) => {
       return draggedPositions.current[id] || defaultPos;
     };
 
-    // 1. Center Focal Person Node (Home Hub)
-    list.push({
-      id: 'person-hub',
-      type: 'personNode',
-      position: getPos('person-hub', { x: 0, y: 220 }),
-      draggable: true,
-      data: {
-        userId: state.currentUserId,
-        isGuest: state.currentUserId === 'guest'
-      }
-    });
-
-    // 2. Left Blooming Nodes (Personal & Network)
-    if (state.openNodes['settings-node']) {
+    if (state.viewMode === 'hub') {
+      // 1. Central Profile Hub
       list.push({
-        id: 'settings-node',
-        type: 'settingsNode',
-        position: getPos('settings-node', { x: -350, y: 80 }),
+        id: 'person-hub',
+        type: 'personHubNode',
+        position: getPos('person-hub', { x: 0, y: 0 }),
         draggable: true,
-        data: { isPinned: state.openNodes['settings-node'].isPinned }
+        data: {
+          userId: state.currentUserId,
+          isGuest: state.currentUserId === 'guest',
+          isDocked: false
+        }
       });
-    }
 
-    if (state.openNodes['notifications-node']) {
+      // 2. Surrounding Project Hero Card: Haptic Weave (Elena)
       list.push({
-        id: 'notifications-node',
-        type: 'notificationsNode',
-        position: getPos('notifications-node', { x: -380, y: 260 }),
+        id: 'project-haptic-weave',
+        type: 'projectStoryNode',
+        position: getPos('project-haptic-weave', { x: 230, y: -40 }),
         draggable: true,
-        data: { isPinned: state.openNodes['notifications-node'].isPinned }
-      });
-    }
-
-    if (state.openNodes['network-node']) {
-      list.push({
-        id: 'network-node',
-        type: 'networkNode',
-        position: getPos('network-node', { x: -360, y: 460 }),
-        draggable: true,
-        data: { isPinned: state.openNodes['network-node'].isPinned }
-      });
-    }
-
-    // 3. Right Blooming Nodes (Work & Discovery)
-    if (state.openNodes['explore-node']) {
-      list.push({
-        id: 'explore-node',
-        type: 'exploreNode',
-        position: getPos('explore-node', { x: 330, y: 60 }),
-        draggable: true,
-        data: { isPinned: state.openNodes['explore-node'].isPinned }
-      });
-    }
-
-    // 4. Surrounding Project Cards in Explore / Hub Mode
-    const otherProjects = state.projects.filter(p => p.id !== state.activeProjectId);
-    otherProjects.forEach((p, idx) => {
-      const cardId = `card-${p.id}`;
-      list.push({
-        id: cardId,
-        type: 'projectCardNode',
-        position: getPos(cardId, { x: 330, y: 240 + idx * 240 }),
-        draggable: true,
-        data: { project: p, isCurrentActive: false }
-      });
-    });
-
-    // 5. Active Project Story Nodes (Horizontal Left-to-Right Graph)
-    const activeProject = state.projects.find(p => p.id === state.activeProjectId);
-    if (activeProject && activeProject.nodes.length > 0) {
-      activeProject.nodes.forEach((sn) => {
-        const defaultPosX = 700 + (sn.position?.x || sn.stepNumber * 260);
-        const defaultPosY = sn.position?.y || 200;
-
-        list.push({
-          id: sn.id,
-          type: 'storyStepNode',
-          position: getPos(sn.id, { x: defaultPosX, y: defaultPosY }),
-          draggable: true,
-          data: {
-            node: sn,
-            isActiveStep: sn.stepNumber === state.activeStepIndex,
-            isSelected: sn.id === state.selectedNodeId
+        data: {
+          project: {
+            id: 'haptic-weave',
+            title: 'Haptic Weave',
+            tagline: 'Can woven electronic textiles convey emotion through micro-actuators without screens?',
+            creatorName: 'Elena Rostova',
+            openGapsCount: 1,
+            branchesCount: 1
           }
-        });
-      });
-    }
-
-    // Construct dynamic graph edges
-    const edgeList: Edge[] = [];
-
-    if (state.openNodes['settings-node']) {
-      edgeList.push({
-        id: 'edge-hub-settings',
-        source: 'person-hub',
-        target: 'settings-node',
-        sourceHandle: 'left-source',
-        targetHandle: 'settings-source',
-        type: 'animatedStoryEdge',
-        data: { label: 'settings' }
-      });
-    }
-
-    if (state.openNodes['notifications-node']) {
-      edgeList.push({
-        id: 'edge-hub-notif',
-        source: 'person-hub',
-        target: 'notifications-node',
-        sourceHandle: 'left-source',
-        targetHandle: 'notif-source',
-        type: 'animatedStoryEdge',
-        data: { label: 'alerts' }
-      });
-    }
-
-    if (state.openNodes['network-node']) {
-      edgeList.push({
-        id: 'edge-hub-network',
-        source: 'person-hub',
-        target: 'network-node',
-        sourceHandle: 'left-source',
-        targetHandle: 'network-source',
-        type: 'animatedStoryEdge',
-        data: { label: 'network' }
-      });
-    }
-
-    if (state.openNodes['explore-node']) {
-      edgeList.push({
-        id: 'edge-hub-explore',
-        source: 'person-hub',
-        target: 'explore-node',
-        sourceHandle: 'right-source',
-        targetHandle: 'explore-target',
-        type: 'animatedStoryEdge',
-        data: { label: 'explore' }
-      });
-    }
-
-    if (activeProject && activeProject.nodes.length > 0) {
-      const firstNode = activeProject.nodes[0];
-      edgeList.push({
-        id: 'edge-hub-story',
-        source: 'person-hub',
-        target: firstNode.id,
-        sourceHandle: 'right-source',
-        targetHandle: 'step-target',
-        type: 'animatedStoryEdge',
-        data: { label: 'active story' }
+        }
       });
 
-      activeProject.connections.forEach((conn) => {
-        edgeList.push({
-          id: conn.id,
-          source: conn.fromId,
-          target: conn.toId,
-          sourceHandle: 'step-source',
-          targetHandle: 'step-target',
-          type: 'animatedStoryEdge',
-          data: {
-            label: conn.label,
-            type: conn.type,
-            dialogueSnippet: conn.dialogueSnippet,
-            aiRelevance: conn.aiRelevance
+      // 3. Validation Source Node: Tactile Aesthetics
+      list.push({
+        id: 'source-tactile',
+        type: 'sourceNode',
+        position: getPos('source-tactile', { x: 660, y: -210 }),
+        draggable: true,
+        data: {
+          source: {
+            id: 'src-1',
+            title: 'Tactile Aesthetics',
+            author: 'Challis & Edwards (4.8mm pitch)',
+            stepLabel: 'SOURCE • STEP 2'
           }
-        });
+        }
+      });
+
+      // 4. Open Gap Node: Audio-to-Haptic DSP (Breathing Amber Glow)
+      list.push({
+        id: 'gap-audio-dsp',
+        type: 'gapNode',
+        position: getPos('gap-audio-dsp', { x: 740, y: 50 }),
+        draggable: true,
+        data: {
+          gap: {
+            id: 'hw-gap1',
+            title: 'Audio-to-Haptic DSP',
+            need: 'Need voice pitch mapped to dual-frequency 175Hz / 235Hz LRA actuators.',
+            disciplineTarget: 'Mechatronics / Audio',
+            projectId: 'haptic-weave'
+          }
+        }
+      });
+
+      // 5. Branch Node: Marcus Chen AudioWorklet DSP Bridge
+      list.push({
+        id: 'branch-marcus-dsp',
+        type: 'branchNode',
+        position: getPos('branch-marcus-dsp', { x: 280, y: 360 }),
+        draggable: true,
+        data: {
+          branch: {
+            id: 'branch-1',
+            title: 'AudioWorklet DSP Bridge',
+            creatorName: 'Marcus Chen',
+            intent: 'Branched from Elena\'s gap. Synthesizes formant filters into PWM signals in browser.',
+            date: 'Oct 16',
+            accentColor: '#B8F35A'
+          }
+        }
+      });
+
+      // 6. Peer Node: Amina Diallo
+      list.push({
+        id: 'peer-amina',
+        type: 'peerNode',
+        position: getPos('peer-amina', { x: -380, y: -130 }),
+        draggable: true,
+        data: {
+          peer: {
+            id: 'amina-diallo',
+            name: 'Amina Diallo',
+            institution: 'CCRMA',
+            title: 'Bioluminescent Algae',
+            description: 'Translating room acoustics into dinoflagellate glowing shear flow.',
+            accentColor: '#FF7A6B'
+          }
+        }
+      });
+
+      // 7. Peer Node: Lucas Zhao
+      list.push({
+        id: 'peer-lucas',
+        type: 'peerNode',
+        position: getPos('peer-lucas', { x: -360, y: 170 }),
+        draggable: true,
+        data: {
+          peer: {
+            id: 'lucas-zhao',
+            name: 'Lucas Zhao',
+            institution: 'CED',
+            title: 'Origami Acoustic Baffles',
+            description: 'Parametric tessellations that fold to adjust room reverberation time.',
+            accentColor: '#A98BFF'
+          }
+        }
+      });
+
+      // Edges with Live Dialogue Snippets
+      edgeList.push({
+        id: 'edge-hub-project',
+        source: 'person-hub',
+        target: 'project-haptic-weave',
+        sourceHandle: 'right-source',
+        targetHandle: 'project-target',
+        type: 'dialogueEdge',
+        data: {
+          label: 'project',
+          makerColor: '#4FD8F0'
+        }
+      });
+
+      edgeList.push({
+        id: 'edge-project-source',
+        source: 'project-haptic-weave',
+        target: 'source-tactile',
+        sourceHandle: 'project-source',
+        targetHandle: 'source-target',
+        type: 'dialogueEdge',
+        data: {
+          label: 'validated by',
+          makerColor: '#7A84A8'
+        }
+      });
+
+      edgeList.push({
+        id: 'edge-project-gap',
+        source: 'project-haptic-weave',
+        target: 'gap-audio-dsp',
+        sourceHandle: 'project-source',
+        targetHandle: 'gap-target',
+        type: 'dialogueEdge',
+        data: {
+          label: 'need',
+          dialogueSnippet: 'Elena: "Need DSP to map voice pitch into LRA pulses."',
+          makerColor: '#FFB547'
+        }
+      });
+
+      edgeList.push({
+        id: 'edge-gap-branch',
+        source: 'gap-audio-dsp',
+        target: 'branch-marcus-dsp',
+        sourceHandle: 'gap-bottom',
+        targetHandle: 'branch-target',
+        type: 'dialogueEdge',
+        data: {
+          label: 'branch dialogue',
+          dialogueSnippet: 'Marcus: "AudioWorklet splits speech syllables at <8ms."',
+          makerColor: '#B8F35A',
+          type: 'branched_from'
+        }
+      });
+    } else {
+      // 'story' mode: Profile docks top-left, horizontal chapter lineage
+      list.push({
+        id: 'person-hub',
+        type: 'personHubNode',
+        position: getPos('person-hub', { x: -450, y: -200 }),
+        draggable: true,
+        data: {
+          userId: state.currentUserId,
+          isGuest: state.currentUserId === 'guest',
+          isDocked: true
+        }
+      });
+
+      // Linear project lineage
+      const activeProject = state.projects.find(p => p.id === state.activeProjectId) || state.projects[0];
+      activeProject.nodes.forEach((sn, idx) => {
+        const posX = idx * 300;
+        const isGap = sn.type === 'gap';
+
+        if (isGap) {
+          list.push({
+            id: sn.id,
+            type: 'gapNode',
+            position: getPos(sn.id, { x: posX, y: 50 }),
+            draggable: true,
+            data: {
+              gap: {
+                id: sn.id,
+                title: sn.title,
+                need: sn.gapNeed || 'Collaborator needed.',
+                disciplineTarget: sn.authorDiscipline,
+                projectId: activeProject.id
+              }
+            }
+          });
+        } else if (sn.type === 'source') {
+          list.push({
+            id: sn.id,
+            type: 'sourceNode',
+            position: getPos(sn.id, { x: posX, y: -90 }),
+            draggable: true,
+            data: {
+              source: {
+                id: sn.id,
+                title: sn.title,
+                author: sn.authorName,
+                stepLabel: `SOURCE • STEP ${sn.stepNumber}`
+              }
+            }
+          });
+        } else {
+          list.push({
+            id: sn.id,
+            type: 'projectStoryNode',
+            position: getPos(sn.id, { x: posX, y: 0 }),
+            draggable: true,
+            data: {
+              project: {
+                id: sn.id,
+                title: sn.title,
+                tagline: sn.hypothesis || sn.question || 'Exploring story step.',
+                creatorName: sn.authorName,
+                openGapsCount: 0,
+                branchesCount: 0
+              }
+            }
+          });
+        }
+
+        if (idx > 0) {
+          const prevNode = activeProject.nodes[idx - 1];
+          edgeList.push({
+            id: `story-edge-${prevNode.id}-${sn.id}`,
+            source: prevNode.id,
+            target: sn.id,
+            type: 'dialogueEdge',
+            data: {
+              label: `step ${sn.stepNumber}`,
+              dialogueSnippet: idx === 3 ? 'Elena: "Need DSP to map voice pitch into LRA pulses."' : undefined,
+              makerColor: '#4FD8F0'
+            }
+          });
+        }
       });
     }
 
@@ -236,50 +329,69 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
     setEdges(edgeList);
   }, [state, setNodes, setEdges]);
 
-  // Handle node position changes during user dragging
+  // Handle position changes and proximity morphing detection
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
       changes.forEach((change) => {
         if (change.type === 'position' && change.position) {
           draggedPositions.current[change.id] = change.position;
+
+          // Proximity detection for morph behavior (Section 3.5)
+          const draggedPos = change.position;
+          let nearestTarget: string | null = null;
+          let minDistance = 90;
+
+          nodes.forEach((n) => {
+            if (n.id !== change.id) {
+              const dx = (draggedPositions.current[n.id]?.x || n.position.x) - draggedPos.x;
+              const dy = (draggedPositions.current[n.id]?.y || n.position.y) - draggedPos.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < minDistance) {
+                nearestTarget = n.id;
+              }
+            }
+          });
+
+          branchStore.setHoveredDropTarget(nearestTarget);
         }
       });
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
-    [setNodes]
+    [nodes, setNodes]
   );
 
-  const handleEdgesChange = useCallback(
-    (changes: EdgeChange[]) => {
-      setEdges((eds) => applyEdgeChanges(changes, eds));
-    },
-    [setEdges]
-  );
-
-  // Handle clicking empty canvas space to fold unpinned nodes
-  const handlePaneClick = useCallback(() => {
-    branchStore.closeUnpinnedNodes();
-  }, []);
-
-  // Handle desktop file drag and drop onto canvas
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  // HTML5 Drag and drop handler for canvas ingestion (Section 3.6)
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
-  }, []);
+  };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      branchStore.openModal('privateBranch');
+    branchStore.setHoveredDropTarget(null);
+
+    // If external files dropped
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      branchStore.genesisProjectFromDrop(file.name.replace(/\.[^/.]+$/, ''), 'Imported File / 3D Model');
+    } else {
+      branchStore.genesisProjectFromDrop('Tactile Waveform Study', 'Dropped Sensor Artifact');
     }
-  }, []);
+  };
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div
-      style={{ width: '100%', height: '100%', position: 'relative' }}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#0B0E1A',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
     >
       <ReactFlow
         nodes={nodes}
@@ -287,37 +399,35 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodesChange={handleNodesChange}
-        onEdgesChange={handleEdgesChange}
-        onPaneClick={handlePaneClick}
-        nodesDraggable={true}
-        nodesConnectable={false}
-        elementsSelectable={true}
-        fitView
-        fitViewOptions={{ padding: 0.25 }}
+        defaultViewport={{
+          x: isMobile ? 160 : window.innerWidth / 2 - 120,
+          y: isMobile ? 380 : window.innerHeight / 2 - 40,
+          zoom: isMobile ? 0.68 : 0.95
+        }}
         minZoom={0.35}
-        maxZoom={1.75}
-        defaultViewport={{ x: 100, y: 100, zoom: 0.85 }}
+        maxZoom={2.0}
+        panOnDrag={true}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        preventScrolling={true}
+        proOptions={{ hideAttribution: true }}
       >
-        <Background color="#D2D6CF" gap={28} size={1} />
-        <Controls showInteractive={false} position="bottom-right" style={{ marginBottom: 120, marginRight: 16 }} />
-        <MiniMap
-          nodeColor={(n) => {
-            if (n.type === 'personNode') return '#202420';
-            if (n.type === 'storyStepNode') return '#F4E7A3';
-            return '#D8E8F0';
-          }}
-          maskColor="rgba(243, 243, 240, 0.7)"
-          style={{ marginBottom: 180, marginRight: 16, borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}
-        />
+        <Background color="#232B47" gap={24} size={1.5} />
       </ReactFlow>
+
+      {/* 4 Quiet Hot Corners Frame */}
+      <HotCornersHUD
+        onCenterHub={handleCenterHub}
+        onCenterStoryStep={handleCenterStoryStep}
+      />
     </div>
   );
 };
 
-export const CanvasEngine: React.FC<{ onEngineReady?: (flow: any) => void }> = (props) => {
+export const CanvasEngine: React.FC = () => {
   return (
     <ReactFlowProvider>
-      <InnerCanvas {...props} />
+      <CanvasInner />
     </ReactFlowProvider>
   );
 };

@@ -2,7 +2,26 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
-## October 17, 2026: Spatial Canvas Architecture, Hot Corners, and AI Connection Explanations
+## October 17, 2026: Living Canvas Reset — Option B Shell Refactor & Zero-Modal Architecture (Decision 008)
+
+**Decided:**
+1. **Option B Shell Refactor over Scratch Rewrite:** Kept the React Flow (`@xyflow/react`) coordinate and gesture substrate, but completely dismantled and gutted the legacy modal popover shell. Implemented the true vision from Cassius's whiteboard walkthrough (`IMG_0837.MOV`): a single, unified, infinite living canvas.
+2. **Circular Bulbing Profile Hub (`PersonHubNode`):** Replaced rectangular user cards with Elena Rostova's central organic circular avatar hub (`110px` diameter) with a glowing cyan ambient ring and 4 bulbing radial satellite action buttons: Genesis (`+`), Explore (`compass`), Share/Export (`arrow`), and Branch network.
+3. **Zero Modals Mandate:** Abolished all modal dialogs. Every interaction—inspecting open gaps, exploring branches, reviewing validation sources, seeking help—unfolds directly in the spatial graph or through the 4 non-intrusive Hot Corners (`HotCornersHUD`).
+4. **Living Dialogue on Edges (`DialogueEdge`):** Dialogue snippets and creator quotes (e.g. Elena's *"Need DSP to map voice pitch into LRA pulses"* and Marcus's *"AudioWorklet splits speech syllables at <8ms"*) are anchored directly to the bezier connectors with traveling dash pulses, showing who talked to whom and why a branch sprouted without navigating away.
+5. **Night Lab Saturated Marker Palette:** Standardized all UI tokens strictly to the 16 Night Lab tokens (`--nl-space-void`, `--nl-surface-card`, `--nl-accent-cyan`, `--nl-accent-amber`, `--nl-accent-lime`, `--nl-accent-coral`, `--nl-accent-violet`). Abandoned muted grays in favor of vibrant high-contrast markers on deep space navy.
+6. **Genesis Project Creation via Drag-and-Drop:** Dropping external files or project ideas onto the canvas (or onto the central `+` hub) triggers instant project genesis into the graph with organic morph animations.
+
+**Why:**
+- Section-by-section audit of Whiteboard Transcript (3.1 to 3.11) revealed the old modal popovers completely destroyed the core spatial metaphor of Branch.
+- Option B saved 12–16 engineering hours compared to a from-scratch rewrite while delivering 100% fidelity to the whiteboard walkthrough and visual spec.
+- Saturated markers and glowing gap nodes directly address the SVSD judging criteria ("Craft," "Visual Design," and "Unapologetically original").
+
+**Alternatives considered:**
+- **Option A (From-scratch rewrite with raw SVG / HTML Canvas):** Estimated at 18–24 hours, risking the Oct 19 deadline with severe regressions in panning, zooming, and gestures. Rejected.
+- **Keeping bottom drawer sheets for details:** Rejected as half-hearted. All details and dialogue belong directly on the canvas nodes and connecting edges.
+
+
 
 **Decided:**
 1. **Canvas Foundation & Dragging Architecture:** React Flow (`@xyflow/react`) with custom React/CSS nodes and SVG edges. Solves coordinate transformation, infinite pan/zoom, and desktop file drop cleanly while letting custom card components render rich media, turning points, and story scrubbers. To support fluid node rearrangement without overriding spatial persistence, positions are updated via `onNodesChange` and cached in a spatial ref map (`draggedPositions`), while interior interactive controls (buttons, chips, stars) use the `.nodrag` boundary class so dragging and tapping never collide.
