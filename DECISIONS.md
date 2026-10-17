@@ -5,7 +5,7 @@ Significant product and design choices, newest first. Each entry is also raw mat
 ## October 17, 2026: Spatial Canvas Architecture, Hot Corners, and AI Connection Explanations
 
 **Decided:**
-1. **Canvas Foundation:** React Flow (`@xyflow/react`) with custom React/CSS nodes and SVG edges. Solves coordinate transformation, infinite pan/zoom, and desktop file drop cleanly while letting custom card components render rich media, turning points, and story scrubbers.
+1. **Canvas Foundation & Dragging Architecture:** React Flow (`@xyflow/react`) with custom React/CSS nodes and SVG edges. Solves coordinate transformation, infinite pan/zoom, and desktop file drop cleanly while letting custom card components render rich media, turning points, and story scrubbers. To support fluid node rearrangement without overriding spatial persistence, positions are updated via `onNodesChange` and cached in a spatial ref map (`draggedPositions`), while interior interactive controls (buttons, chips, stars) use the `.nodrag` boundary class so dragging and tapping never collide.
 2. **Hot Corners Navigation:** Replaced traditional top/side navigation bars with four persistent Hot Corners: Profile (Top-Left), Help & I'm Stuck (Top-Right), Save & Drafts (Bottom-Left), and Story Scrubber (Bottom-Right).
 3. **AI Connection Relevance Layer:** Added an opt-in semantic explanation badge on in-between node edges explaining *why* step A connects to step B (e.g. why the thermal dead end led to LRAs). Rendered in the rose AI tint (`#F4DDE5`) and completely dismissible.
 4. **Mobile First-Class Parity (390px):** Mobile preserves canvas zoom while personal nodes and project drawer slide up in an adaptive bottom sheet rather than flattening the entire graph into a list.
