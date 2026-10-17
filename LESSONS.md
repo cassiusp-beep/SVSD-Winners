@@ -14,3 +14,23 @@ What to do differently:
 - Treat “polished” as a product and visual design requirement, not merely a passing build.
 - Preserve the distinction between implementation completeness and design quality; a passing build is not evidence of a good prototype.
 
+## October 17, 2026: Spatial Canvas Over Modal Architecture
+
+**Lessons learned**
+- Modals, drawers, and fixed dashboards destroy the feeling of a single infinite canvas. Every time a modal covers the graph, spatial continuity is broken and the app feels like conventional SaaS.
+- A spatial canvas requires nodes that behave like living physical entities on a drafting bed: circular hubs that bulb with spring physics, vectors with persistent dialogue snippets, and gaps that visibly glow.
+- When working with React Flow or canvas engines, the camera's initial coordinate anchor is crucial: landing the user at `(0, 0)` with their personal hub centered creates instant presence.
+
+**Lenses applied**
+- *Collaborator / Maker Lens:* Makers join through visible, radiating gaps and unblocked paths, not form dialogs.
+- *Storytelling Lens:* The canvas coordinate plane is the narrative timeline; moving left-to-right is moving forward through time.
+- *Craft Lens:* Saturated marker colors (whiteboard emerald green and vermillion red) give the tool an authentic studio feel distinct from muted AI-generated palettes.
+
+**Worth exploring next**
+- SVG metaball filter bridges that physically stretch toward dragged items.
+- Dual-track branching where offshoot lanes visually mirror musical scores.
+
+**Sources**
+- [`whiteboard-transcript.md`](whiteboard-transcript.md): Primary walkthrough by Cassius Palacio establishing infinite canvas, bulbing options, and drag-in genesis.
+
+
