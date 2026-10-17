@@ -26,3 +26,15 @@ Judges look at hundreds of AI-assisted entries. Anything that looks like a defau
 ## The test
 
 Before handing anything off, ask: could this screen belong to any other AI app? If yes, it is not done. Give it a point of view, such as one memorable interaction, an editorial layout, or a real typographic voice.
+
+## Postmortem check: October 16, 2026
+
+The first Branch implementation passed a build but failed the anti-slop test. It looked like a generic AI-generated prototype because it was scaffolded before the visual direction had been made concrete and reviewed. The result used invented pastel surfaces, abstract CSS “artifacts,” familiar dashboard-like composition, and a graph that decorated the screen instead of carrying the project's story.
+
+Before implementation:
+
+- Make one representative screen concrete enough to review visually: composition, type, media, graph treatment, and interaction.
+- Confirm that the screen could only belong to this product, not merely any creative collaboration app.
+- Use real or deliberately authored project artifacts; do not substitute generic shapes for the work the product is meant to foreground.
+- Do not expand to multiple routes or flows until the representative slice earns approval.
+- A successful build, responsive layout, or complete click path does not compensate for a weak visual point of view.

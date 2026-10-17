@@ -10,6 +10,7 @@ Our entry for the Silicon Valley School of Design (SVSD) design competition, "Th
 
 | File | What it holds |
 |---|---|
+| `interaction-model.md` | **Branch Interaction Model**: the spatial node-based canvas foundation, bloom/fade mechanics, hot corners, left/right spatial rules, and phone adaptations. |
 | `docs/context/brief.md` | The official brief, judging criteria and dates. This is the source of truth. |
 | `docs/context/judging.md` | Our research on what SVSD judges reward, and where it conflicts with the brief. |
 | `docs/context/conceptual-model.md` | **Branch**, the product's conceptual model: users, core concepts, the six user journeys, edge cases and the three flows to prototype first. This is the most current description of the product. |

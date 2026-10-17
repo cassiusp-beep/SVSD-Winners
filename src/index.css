@@ -1,0 +1,199 @@
+@import './tokens/tokens.css';
+
+/* Global Reset & Base Typography */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+}
+
+/* Typography Utility Classes */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+/* React Flow Canvas Overrides */
+.react-flow {
+  background-color: var(--color-canvas) !important;
+}
+
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane:active {
+  cursor: grabbing;
+}
+
+.react-flow__node {
+  cursor: pointer;
+  border-radius: var(--radius-card);
+  transition: transform var(--duration-micro) var(--ease-spring);
+}
+
+.react-flow__node:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Custom Outlined UI Elements */
+.branch-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: all var(--duration-micro) var(--ease-spring);
+}
+
+.branch-card:hover {
+  border-color: var(--color-control-border);
+  box-shadow: var(--shadow-floating);
+}
+
+.branch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.branch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 8px 16px;
+  border-radius: var(--radius-control);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-micro) var(--ease-spring);
+  border: 1px solid transparent;
+}
+
+.branch-btn-primary {
+  background-color: var(--color-ink);
+  color: #FFFFFF;
+}
+
+.branch-btn-primary:hover {
+  background-color: #383E38;
+}
+
+.branch-btn-secondary {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-ink);
+}
+
+.branch-btn-secondary:hover {
+  border-color: var(--color-control-border);
+  background-color: var(--color-surface-subtle);
+}
+
+.branch-btn-attention {
+  background-color: var(--color-attention-bg);
+  color: var(--color-attention-ink);
+  border-color: #E2CCA6;
+}
+
+.branch-btn-attention:hover {
+  background-color: #F8E8CD;
+}
+
+/* Accessible focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Custom Scrollbar for studio feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-control-border);
+}
+
+/* Responsive Mobile Layout Rules (390px Viewport) */
+@media (max-width: 768px) {
+  .branch-card {
+    border-radius: var(--radius-control);
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+
+  .hotcorner-bottom-right {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 56px !important;
+    width: auto !important;
+  }
+
+  .hotcorner-bottom-left {
+    bottom: 12px !important;
+    left: 12px !important;
+  }
+
+  .mobile-drawer-toggle {
+    bottom: 12px !important;
+    right: 12px !important;
+    left: auto !important;
+    transform: none !important;
+  }
+
+  .hotcorner-top-right {
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  .hotcorner-top-left {
+    top: 12px !important;
+    left: 12px !important;
+    max-width: calc(100vw - 160px);
+    flex-wrap: wrap;
+  }
+}
+

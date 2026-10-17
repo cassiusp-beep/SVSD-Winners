@@ -1,0 +1,73 @@
+/* Branch Design Tokens — Based strictly on UIUX.md §5 */
+
+:root {
+  /* Surface & Canvas Tokens */
+  --color-canvas: #F3F3F0;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #EAECE7;
+  
+  /* Ink & Typography Tokens */
+  --color-ink: #202420;
+  --color-ink-muted: #60665F;
+  --color-ink-faint: #8E948D;
+  
+  /* Structure & Borders */
+  --color-border: #D2D6CF;
+  --color-border-subtle: #E2E6DF;
+  --color-control-border: #767D73;
+  
+  /* Story & Semantic Pastels (Supporting surfaces, never low-contrast text) */
+  --color-question-tint: #F4E7A3;
+  --color-experiment-tint: #D8E8F0;
+  --color-decision-tint: #DCE8D5;
+  --color-branch-tint: #E4DDF0;
+  --color-ai-tint: #F4DDE5;
+  
+  /* Functional Accents */
+  --color-positive-ink: #315D3B;
+  --color-attention-ink: #7A4D0B;
+  --color-attention-bg: #FCF4E6;
+  --color-error-ink: #A12D32;
+  --color-focus: #2454C6;
+  
+  /* Typography Families */
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  
+  /* Border Radii */
+  --radius-media: 6px;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-pill: 9999px;
+  
+  /* Elevations */
+  --shadow-card: 0 4px 16px rgba(32, 36, 32, 0.06);
+  --shadow-floating: 0 8px 24px rgba(32, 36, 32, 0.10);
+  --shadow-popover: 0 12px 32px rgba(32, 36, 32, 0.14);
+  
+  /* Transitions */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-micro: 140ms;
+  --duration-panel: 220ms;
+  --duration-step: 500ms;
+  --duration-branch: 700ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-micro: 0ms;
+    --duration-panel: 0ms;
+    --duration-step: 0ms;
+    --duration-branch: 0ms;
+  }
+}
