@@ -1,49 +1,54 @@
 import { User, Project, NotificationItem } from '../types';
 
+/**
+ * SEED DATA [PLACEHOLDER]
+ * Minimal, realistic maker data for UC Berkeley MDes, EECS, and Stanford CCRMA.
+ * Strictly no lorem ipsum. All items tagged [PLACEHOLDER].
+ */
 export const SEED_USERS: Record<string, User> = {
   elena: {
     id: 'elena',
     name: 'Elena Rostova',
     handle: '@elena_craft',
     discipline: 'Physical & Industrial Design',
-    institution: 'UC Berkeley MDes',
+    institution: 'UC Berkeley MDes [PLACEHOLDER]',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
     exploring: ['Smart textiles', 'Haptic feedback', 'Non-visual interfaces'],
     skills: ['Weaving', 'SolidWorks', 'Soft Prototyping', 'User Research'],
-    bio: 'Exploring how tactile surfaces can replace glass screens for storytelling and ambient communication.'
+    bio: '[PLACEHOLDER] Exploring how tactile surfaces can replace glass screens for storytelling and ambient communication.'
   },
   marcus: {
     id: 'marcus',
     name: 'Marcus Chen',
     handle: '@marcus_makes',
     discipline: 'Creative Technologist / EECS',
-    institution: 'UC Berkeley EECS',
+    institution: 'UC Berkeley EECS [PLACEHOLDER]',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
     exploring: ['WebAudio synthesis', 'Micro-actuators', 'ESP32 firmware'],
     skills: ['DSP', 'Embedded C++', 'Web Audio API', 'Circuit Design'],
-    bio: 'Coding between physical sensors and generative sound synthesis.'
+    bio: '[PLACEHOLDER] Coding between physical sensors and generative sound synthesis.'
   },
   amina: {
     id: 'amina',
     name: 'Amina Diallo',
     handle: '@amina_sound',
     discipline: 'Acoustic & Sound Design',
-    institution: 'Stanford CCRMA',
+    institution: 'Stanford CCRMA [PLACEHOLDER]',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80',
     exploring: ['Spatial audio', 'Binaural storytelling', 'Psychoacoustics'],
     skills: ['Max/MSP', 'Ableton', 'Field Recording', 'Acoustic Ecology'],
-    bio: 'Designing intimate audio environments that ground narrative memory in space.'
+    bio: '[PLACEHOLDER] Designing intimate audio environments that ground narrative memory in space.'
   },
   lucas: {
     id: 'lucas',
     name: 'Lucas Zhao',
     handle: '@lucas_arch',
     discipline: 'Computational Architecture',
-    institution: 'UC Berkeley CED',
+    institution: 'UC Berkeley CED [PLACEHOLDER]',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80',
     exploring: ['Kinetic origami', 'Acoustic origami', 'Parametric folding'],
     skills: ['Rhino/Grasshopper', 'CNC Milling', 'Laser Cutting'],
-    bio: 'Creating responsive acoustic surfaces from folding paper and composite fabrics.'
+    bio: '[PLACEHOLDER] Creating responsive acoustic surfaces from folding paper and composite fabrics.'
   }
 };
 
@@ -54,8 +59,8 @@ export const SEED_PROJECTS: Project[] = [
     creatorName: 'Elena Rostova',
     creatorAvatar: SEED_USERS.elena.avatar,
     creatorDiscipline: 'Physical & Industrial Design',
-    title: 'Haptic Weave: Tactile Storytelling',
-    startingQuestion: 'Can woven electronic textiles convey emotional narrative beats through micro-actuators without a visual screen?',
+    title: 'Haptic Weave: Tactile Storytelling [PLACEHOLDER]',
+    startingQuestion: '[PLACEHOLDER] Can woven electronic textiles convey emotional narrative beats through micro-actuators without a visual screen?',
     status: 'stuck',
     heroMedia: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=1200&q=80',
     lastActive: '2 hours ago',
@@ -366,8 +371,8 @@ export const SEED_PROJECTS: Project[] = [
     creatorName: 'Amina Diallo',
     creatorAvatar: SEED_USERS.amina.avatar,
     creatorDiscipline: 'Acoustic & Sound Design',
-    title: 'Bioluminescent Algae Companion',
-    startingQuestion: 'How can living dinoflagellates translate ambient room acoustics into rhythmic glowing bioluminescence?',
+    title: 'Bioluminescent Algae Companion [PLACEHOLDER]',
+    startingQuestion: '[PLACEHOLDER] How can living dinoflagellates translate ambient room acoustics into rhythmic glowing bioluminescence?',
     status: 'shared',
     heroMedia: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
     lastActive: '5 hours ago',
@@ -381,8 +386,8 @@ export const SEED_PROJECTS: Project[] = [
       {
         id: 'gap-algae-pump',
         projectId: 'bioluminescent-algae',
-        title: 'Peristaltic Micro-Fluidic Shear Valve',
-        need: 'Need mechanical engineer to design silent shear flow chamber so sound pulses agitate dinoflagellates gently.',
+        title: 'Peristaltic Micro-Fluidic Shear Valve [PLACEHOLDER]',
+        need: '[PLACEHOLDER] Need mechanical engineer to design silent shear flow chamber so sound pulses agitate dinoflagellates gently.',
         disciplineTarget: 'Mechatronics / Bio-Engineering',
         status: 'open',
         sourceNodeId: 'bio-q1'
@@ -395,8 +400,8 @@ export const SEED_PROJECTS: Project[] = [
     creatorName: 'Lucas Zhao',
     creatorAvatar: SEED_USERS.lucas.avatar,
     creatorDiscipline: 'Computational Architecture',
-    title: 'Kinetic Origami Acoustic Baffles',
-    startingQuestion: 'Can origami tessellations dynamically fold to reshape room reverberation time based on occupancy?',
+    title: 'Kinetic Origami Acoustic Baffles [PLACEHOLDER]',
+    startingQuestion: '[PLACEHOLDER] Can origami tessellations dynamically fold to reshape room reverberation time based on occupancy?',
     status: 'shared',
     heroMedia: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
     lastActive: '1 day ago',

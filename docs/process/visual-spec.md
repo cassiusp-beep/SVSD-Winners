@@ -52,9 +52,108 @@ From the board's Key States row. Items marked "?" on the board are still assumpt
 
 _Not decided._
 
-## Color
+## Color: "Night Lab"
 
-_Not decided._ Cash's working files use a gray background. That's a starting point, not a decision. The board uses blue for steps and pink for optional AI. Those are diagram conventions and don't have to become UI colors.
+**Status:** DECIDED by the team (Oct 17, 2026). This section overrides any earlier color guidance in visual-spec.md.
+**Idea:** Branch is a lab at night. The canvas is deep ink, and the work is what glows. Light means life: a node is lit because someone made it, a connection lights up because dialogue is moving through it, a gap glows because it's waiting for help. Nothing glows for decoration.
+
+### The rule
+Every color on the canvas means something. If a color can't be explained by the table below, remove it.
+
+### Base (the dark lab)
+
+| Token | Hex | Use |
+|---|---|---|
+| `--canvas` | `#0B0E1A` | Infinite canvas background. Deep ink, slightly blue, never pure black. |
+| `--grid` | `#232B47` | Faint dot grid on the canvas, for orientation while panning. Low contrast on purpose. |
+| `--node` | `#151B30` | Node body fill. |
+| `--node-raised` | `#1E2640` | Hovered or selected node body, menus, sheets. |
+| `--text` | `#EEF1FA` | Primary text. |
+| `--text-2` | `#A3ACC7` | Secondary text: metadata, timestamps, captions. |
+| `--muted` | `#7A84A8` | Placeholder and disabled text, inactive links. |
+
+### Makers (authorship)
+Each maker owns one color. It shows on their profile node's ring, on every node and chapter they made, and on the tail of their dialogue along connections. This is how authorship stays visible everywhere.
+
+| Token | Hex | Name |
+|---|---|---|
+| `--maker-1` | `#4FD8F0` | Ion cyan |
+| `--maker-2` | `#FF7A6B` | Coral |
+| `--maker-3` | `#B8F35A` | Acid lime |
+| `--maker-4` | `#A98BFF` | Violet |
+| `--maker-5` | `#FF6FCF` | Magenta |
+
+- The current user is always `--maker-1` (ion cyan) on their own screen, so "you" is instantly findable.
+- More than 5 makers: reuse colors, but never for two makers in the same project.
+- Never use a maker color for UI chrome (buttons, menus). Maker colors mean people.
+
+### Meaning states
+
+| Token | Hex | Meaning | How it shows |
+|---|---|---|---|
+| `--gap` | `#FFB547` | A gap: an open question or a spot that needs help. | Amber outline plus a slow breathing glow (about 3 s cycle). The only thing on the canvas that breathes. |
+| `--dialogue` | `#FFFFFF` | Live dialogue moving between nodes. | A small bright pulse travels along the connection, trailing the sender's maker color. Comment snippet fades in beside the link. |
+| `--ai` | `#C3C7DD` | Anything AI-suggested. | Pale silver, dotted outline, always labeled "AI". Deliberately the least colorful thing on the canvas, because AI is optional and secondary. |
+| `--error` | `#FF5468` | Something failed (save, upload). | Always paired with an icon and text, never color alone. |
+
+### Node states
+
+| State | Look |
+|---|---|
+| Resting | `--node` fill, 1.5px ring in the maker's color at 60% opacity. |
+| Active / hovered | `--node-raised` fill, ring at 100%, soft outer glow in the maker color (blur 16px, 35% opacity). |
+| Private branch (Find Your Place, not yet kept) | Dashed ring in the maker's color, node at 70% opacity. Reads as "draft." |
+| Kept chapter / credited contribution | Solid ring at 100%, small filled dot in the contributor's color, contributor name visible. |
+| Gap | `--gap` ring and breathing glow (see above). |
+| AI suggestion (ghost node) | `--ai` dotted ring, 60% opacity, "AI" label, until the user places it. Once placed it takes the user's maker color. |
+| Morph target (something dragged near) | Node stretches toward the dragged item and its glow brightens to 60%. Reduced motion: brighter ring only. |
+
+### Connections
+
+| Type | Look |
+|---|---|
+| Idle link | 1.5px line in `--muted` at 50% opacity. |
+| Link between one maker's nodes | 1.5px line in that maker's color at 40% opacity. |
+| Link with recent activity | Same line at 80%, plus the `--dialogue` pulse. |
+| Branch split | Line forks; each fork takes the color of the maker who made that branch. |
+
+### Profile node
+- Larger than other nodes. Filled with a radial gradient of the user's maker color (center 35% opacity to edge 0%) over `--node`, with a full-opacity ring.
+- Radial option nodes use `--node-raised` with a `--text` icon. They pick up the user's color only on hover.
+
+### Hot corners
+- At rest: `--text-2` icon on `--node-raised`, 80% opacity. Quiet.
+- On approach: full opacity, label appears in `--text`.
+- Help corner: when a gap exists anywhere in the open project, its icon carries a small `--gap` dot. That's the link between "stuck" and "ask."
+- Save corner: status text in `--text-2` ("Saved just now"). On failure it switches to `--error` with an icon.
+
+### Phone
+Same palette. On small screens, glows are reduced (blur 8px) to keep the canvas legible, and dialogue snippets become badges in `--node-raised` with a maker-color edge.
+
+### Accessibility (checked)
+Contrast ratios against `--canvas` / `--node`:
+- `--text` 17.0 / 15.1
+- `--text-2` 8.5 / 7.5
+- `--muted` 5.2 / 4.6
+- `--maker-1` 11.4 / 10.1
+- `--maker-2` 7.6 / 6.7
+- `--maker-3` 14.7 / 13.0
+- `--maker-4` 7.2 / 6.4
+- `--maker-5` 7.7 / 6.8
+- `--gap` 10.9 / 9.7
+- `--ai` 11.5 / 10.2
+- `--error` 6.2 / 5.5
+
+All pass WCAG AA for text (4.5:1). `--grid` is intentionally low contrast and must never carry information.
+- Color is never the only signal: gaps also have an icon and label, AI has a label, private branches are dashed, errors have text.
+- `prefers-reduced-motion`: breathing glow, dialogue pulse, and morph are replaced by static brighter rings.
+
+### Banned
+- Pure black (`#000`) or pure gray backgrounds.
+- Purple-to-blue "AI" gradients, or any gradient that doesn't come from a maker color.
+- Glow on anything that isn't a maker's work, a gap, or live dialogue.
+- More than one breathing element type on screen (only gaps breathe).
+- Maker colors used for buttons or chrome.
 
 ## Spacing and layout
 
