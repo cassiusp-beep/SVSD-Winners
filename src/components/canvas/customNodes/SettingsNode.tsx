@@ -36,6 +36,7 @@ export const SettingsNode = memo(({ id, data }: SettingsNodeProps) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
             onClick={() => branchStore.togglePinNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: isPinned ? 'var(--color-ink)' : 'var(--color-ink-muted)' }}
             title={isPinned ? 'Unpin node' : 'Pin node (prevents auto-fade)'}
           >
@@ -43,6 +44,7 @@ export const SettingsNode = memo(({ id, data }: SettingsNodeProps) => {
           </button>
           <button
             onClick={() => branchStore.closeNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--color-ink-muted)' }}
             title="Close"
           >
@@ -63,7 +65,7 @@ export const SettingsNode = memo(({ id, data }: SettingsNodeProps) => {
           <span>Optional AI Layer</span>
           <button
             onClick={() => branchStore.toggleAi()}
-            className="branch-chip"
+            className="branch-chip nodrag"
             style={{
               backgroundColor: branchStore.getState().aiEnabled ? 'var(--color-ai-tint)' : 'var(--color-surface-subtle)',
               color: 'var(--color-ink)',
@@ -77,7 +79,7 @@ export const SettingsNode = memo(({ id, data }: SettingsNodeProps) => {
 
         <button
           onClick={() => branchStore.resetToSeed()}
-          className="branch-btn branch-btn-secondary"
+          className="branch-btn branch-btn-secondary nodrag"
           style={{ width: '100%', fontSize: '11px', marginTop: '4px' }}
         >
           <RefreshCw size={12} />

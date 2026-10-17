@@ -42,6 +42,7 @@ export const NotificationsNode = memo(({ id, data }: NotificationsNodeProps) => 
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
             onClick={() => branchStore.togglePinNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: isPinned ? 'var(--color-ink)' : 'var(--color-ink-muted)' }}
             title={isPinned ? 'Unpin' : 'Pin'}
           >
@@ -49,6 +50,7 @@ export const NotificationsNode = memo(({ id, data }: NotificationsNodeProps) => 
           </button>
           <button
             onClick={() => branchStore.closeNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--color-ink-muted)' }}
             title="Close"
           >
@@ -67,6 +69,7 @@ export const NotificationsNode = memo(({ id, data }: NotificationsNodeProps) => 
             <div
               key={notif.id}
               onClick={() => handleOpenBranch(notif.projectId)}
+              className="nodrag"
               style={{
                 padding: '10px 12px',
                 backgroundColor: notif.read ? 'transparent' : 'var(--color-surface-subtle)',

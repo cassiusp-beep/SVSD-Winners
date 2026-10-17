@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import {
   ReactFlow,
   Background,
@@ -9,7 +9,11 @@ import {
   Node,
   Edge,
   useReactFlow,
-  ReactFlowProvider
+  ReactFlowProvider,
+  NodeChange,
+  applyNodeChanges,
+  EdgeChange,
+  applyEdgeChanges
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -41,20 +45,30 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
   const state = useBranchStore();
   const reactFlow = useReactFlow();
 
-  // Call onEngineReady callback
-  React.useEffect(() => {
+  const [nodes, setNodes] = useNodesState<Node>([]);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
+  const draggedPositions = useRef<Record<string, { x: number; y: number }>>({});
+
+  // Notify parent of reactFlow instance
+  useEffect(() => {
     if (onEngineReady) onEngineReady(reactFlow);
   }, [reactFlow, onEngineReady]);
 
-  // Construct dynamic graph nodes based on current state & open bloomed nodes
-  const nodes = useMemo<Node[]>(() => {
+  // Synchronize graph nodes and edges whenever store state changes, preserving dragged positions
+  useEffect(() => {
     const list: Node[] = [];
+
+    // Helper to get position (dragged position if user moved it, otherwise default)
+    const getPos = (id: string, defaultPos: { x: number; y: number }) => {
+      return draggedPositions.current[id] || defaultPos;
+    };
 
     // 1. Center Focal Person Node (Home Hub)
     list.push({
       id: 'person-hub',
       type: 'personNode',
-      position: { x: 0, y: 220 },
+      position: getPos('person-hub', { x: 0, y: 220 }),
+      draggable: true,
       data: {
         userId: state.currentUserId,
         isGuest: state.currentUserId === 'guest'
@@ -66,7 +80,8 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       list.push({
         id: 'settings-node',
         type: 'settingsNode',
-        position: { x: -350, y: 80 },
+        position: getPos('settings-node', { x: -350, y: 80 }),
+        draggable: true,
         data: { isPinned: state.openNodes['settings-node'].isPinned }
       });
     }
@@ -75,7 +90,8 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       list.push({
         id: 'notifications-node',
         type: 'notificationsNode',
-        position: { x: -380, y: 260 },
+        position: getPos('notifications-node', { x: -380, y: 260 }),
+        draggable: true,
         data: { isPinned: state.openNodes['notifications-node'].isPinned }
       });
     }
@@ -84,7 +100,8 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       list.push({
         id: 'network-node',
         type: 'networkNode',
-        position: { x: -360, y: 460 },
+        position: getPos('network-node', { x: -360, y: 460 }),
+        draggable: true,
         data: { isPinned: state.openNodes['network-node'].isPinned }
       });
     }
@@ -94,7 +111,8 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       list.push({
         id: 'explore-node',
         type: 'exploreNode',
-        position: { x: 330, y: 60 },
+        position: getPos('explore-node', { x: 330, y: 60 }),
+        draggable: true,
         data: { isPinned: state.openNodes['explore-node'].isPinned }
       });
     }
@@ -102,10 +120,12 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
     // 4. Surrounding Project Cards in Explore / Hub Mode
     const otherProjects = state.projects.filter(p => p.id !== state.activeProjectId);
     otherProjects.forEach((p, idx) => {
+      const cardId = `card-${p.id}`;
       list.push({
-        id: `card-${p.id}`,
+        id: cardId,
         type: 'projectCardNode',
-        position: { x: 330, y: 240 + idx * 240 },
+        position: getPos(cardId, { x: 330, y: 240 + idx * 240 }),
+        draggable: true,
         data: { project: p, isCurrentActive: false }
       });
     });
@@ -114,13 +134,14 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
     const activeProject = state.projects.find(p => p.id === state.activeProjectId);
     if (activeProject && activeProject.nodes.length > 0) {
       activeProject.nodes.forEach((sn) => {
-        const posX = 700 + (sn.position?.x || sn.stepNumber * 260);
-        const posY = sn.position?.y || 200;
+        const defaultPosX = 700 + (sn.position?.x || sn.stepNumber * 260);
+        const defaultPosY = sn.position?.y || 200;
 
         list.push({
           id: sn.id,
           type: 'storyStepNode',
-          position: { x: posX, y: posY },
+          position: getPos(sn.id, { x: defaultPosX, y: defaultPosY }),
+          draggable: true,
           data: {
             node: sn,
             isActiveStep: sn.stepNumber === state.activeStepIndex,
@@ -130,16 +151,11 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       });
     }
 
-    return list;
-  }, [state]);
+    // Construct dynamic graph edges
+    const edgeList: Edge[] = [];
 
-  // Construct dynamic graph edges
-  const edges = useMemo<Edge[]>(() => {
-    const list: Edge[] = [];
-
-    // Edges from Person Hub to left nodes
     if (state.openNodes['settings-node']) {
-      list.push({
+      edgeList.push({
         id: 'edge-hub-settings',
         source: 'person-hub',
         target: 'settings-node',
@@ -151,7 +167,7 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
     }
 
     if (state.openNodes['notifications-node']) {
-      list.push({
+      edgeList.push({
         id: 'edge-hub-notif',
         source: 'person-hub',
         target: 'notifications-node',
@@ -163,7 +179,7 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
     }
 
     if (state.openNodes['network-node']) {
-      list.push({
+      edgeList.push({
         id: 'edge-hub-network',
         source: 'person-hub',
         target: 'network-node',
@@ -174,9 +190,8 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       });
     }
 
-    // Edges from Person Hub to right nodes
     if (state.openNodes['explore-node']) {
-      list.push({
+      edgeList.push({
         id: 'edge-hub-explore',
         source: 'person-hub',
         target: 'explore-node',
@@ -187,11 +202,9 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       });
     }
 
-    // Edge from Person Hub to active project story origin
-    const activeProject = state.projects.find(p => p.id === state.activeProjectId);
     if (activeProject && activeProject.nodes.length > 0) {
       const firstNode = activeProject.nodes[0];
-      list.push({
+      edgeList.push({
         id: 'edge-hub-story',
         source: 'person-hub',
         target: firstNode.id,
@@ -201,9 +214,8 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
         data: { label: 'active story' }
       });
 
-      // Internal story connections
       activeProject.connections.forEach((conn) => {
-        list.push({
+        edgeList.push({
           id: conn.id,
           source: conn.fromId,
           target: conn.toId,
@@ -220,8 +232,29 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
       });
     }
 
-    return list;
-  }, [state]);
+    setNodes(list);
+    setEdges(edgeList);
+  }, [state, setNodes, setEdges]);
+
+  // Handle node position changes during user dragging
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      changes.forEach((change) => {
+        if (change.type === 'position' && change.position) {
+          draggedPositions.current[change.id] = change.position;
+        }
+      });
+      setNodes((nds) => applyNodeChanges(changes, nds));
+    },
+    [setNodes]
+  );
+
+  const handleEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+    },
+    [setEdges]
+  );
 
   // Handle clicking empty canvas space to fold unpinned nodes
   const handlePaneClick = useCallback(() => {
@@ -238,16 +271,9 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
     e.preventDefault();
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      const position = reactFlow.screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY
-      });
-
-      // Automatically launch private draft with dropped file context!
       branchStore.openModal('privateBranch');
     }
-  }, [reactFlow]);
+  }, []);
 
   return (
     <div
@@ -260,7 +286,12 @@ const InnerCanvas: React.FC<{ onEngineReady?: (flow: any) => void }> = ({ onEngi
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={handleEdgesChange}
         onPaneClick={handlePaneClick}
+        nodesDraggable={true}
+        nodesConnectable={false}
+        elementsSelectable={true}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         minZoom={0.35}

@@ -51,12 +51,14 @@ export const ExploreNode = memo(({ id, data }: ExploreNodeProps) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
             onClick={() => branchStore.togglePinNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: isPinned ? 'var(--color-ink)' : 'var(--color-ink-muted)' }}
           >
             {isPinned ? <Pin size={14} fill="var(--color-ink)" /> : <PinOff size={14} />}
           </button>
           <button
             onClick={() => branchStore.closeNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--color-ink-muted)' }}
           >
             <X size={14} />
@@ -67,7 +69,7 @@ export const ExploreNode = memo(({ id, data }: ExploreNodeProps) => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <button
           onClick={handleOpenTinder}
-          className="branch-btn branch-btn-secondary"
+          className="branch-btn branch-btn-secondary nodrag"
           style={{ justifyContent: 'space-between', width: '100%', padding: '10px 12px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -82,7 +84,7 @@ export const ExploreNode = memo(({ id, data }: ExploreNodeProps) => {
 
         <button
           onClick={handleShuffle}
-          className="branch-btn branch-btn-secondary"
+          className="branch-btn branch-btn-secondary nodrag"
           style={{ justifyContent: 'space-between', width: '100%', padding: '10px 12px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

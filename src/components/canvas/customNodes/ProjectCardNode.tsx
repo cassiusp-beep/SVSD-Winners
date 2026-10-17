@@ -66,6 +66,7 @@ export const ProjectCardNode = memo(({ data }: ProjectCardNodeProps) => {
 
         <button
           onClick={handleToggleSave}
+          className="nodrag"
           style={{
             position: 'absolute',
             top: 8,
@@ -126,7 +127,7 @@ export const ProjectCardNode = memo(({ data }: ProjectCardNodeProps) => {
         <span style={{ color: 'var(--color-ink-muted)' }}>{project.creatorName}</span>
         <button
           onClick={handleOpenProject}
-          className="branch-btn branch-btn-secondary"
+          className="branch-btn branch-btn-secondary nodrag"
           style={{ padding: '3px 8px', fontSize: '11px' }}
         >
           <span>Open Story</span>

@@ -45,9 +45,12 @@ button, input, textarea, select {
 }
 
 .react-flow__node {
-  cursor: pointer;
+  cursor: grab;
   border-radius: var(--radius-card);
-  transition: transform var(--duration-micro) var(--ease-spring);
+}
+
+.react-flow__node:active {
+  cursor: grabbing;
 }
 
 .react-flow__node:focus-visible {

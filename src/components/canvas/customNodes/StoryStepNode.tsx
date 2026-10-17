@@ -249,7 +249,7 @@ export const StoryStepNode = memo(({ data }: StoryStepNodeProps) => {
 
         <button
           onClick={handleActionClick}
-          className={`branch-btn ${isGap ? 'branch-btn-attention' : 'branch-btn-secondary'}`}
+          className={`branch-btn nodrag ${isGap ? 'branch-btn-attention' : 'branch-btn-secondary'}`}
           style={{ padding: '4px 10px', fontSize: '11px' }}
         >
           {isGap ? (

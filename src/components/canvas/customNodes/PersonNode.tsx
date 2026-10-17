@@ -86,6 +86,7 @@ export const PersonNode = memo(({ data, selected }: PersonNodeProps) => {
                 e.stopPropagation();
                 branchStore.openRadialMenu(e.clientX, e.clientY);
               }}
+              className="nodrag"
               style={{
                 background: 'none',
                 border: 'none',

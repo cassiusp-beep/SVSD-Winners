@@ -54,6 +54,7 @@ export const NetworkNode = memo(({ id, data }: NetworkNodeProps) => {
           {/* Ring / List toggle */}
           <button
             onClick={() => setViewMode(viewMode === 'ring' ? 'list' : 'ring')}
+            className="nodrag"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -71,12 +72,14 @@ export const NetworkNode = memo(({ id, data }: NetworkNodeProps) => {
           </button>
           <button
             onClick={() => branchStore.togglePinNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: isPinned ? 'var(--color-ink)' : 'var(--color-ink-muted)' }}
           >
             {isPinned ? <Pin size={14} fill="var(--color-ink)" /> : <PinOff size={14} />}
           </button>
           <button
             onClick={() => branchStore.closeNode(id)}
+            className="nodrag"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--color-ink-muted)' }}
           >
             <X size={14} />
@@ -126,6 +129,7 @@ export const NetworkNode = memo(({ id, data }: NetworkNodeProps) => {
               <div
                 key={c.id}
                 onClick={() => handleSelectCollaborator(c.id)}
+                className="nodrag"
                 style={{
                   position: 'absolute',
                   transform: `translate(${x}px, ${y}px)`,
@@ -178,6 +182,7 @@ export const NetworkNode = memo(({ id, data }: NetworkNodeProps) => {
               <div
                 key={c.id}
                 onClick={() => handleSelectCollaborator(c.id)}
+                className="nodrag"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -201,6 +206,7 @@ export const NetworkNode = memo(({ id, data }: NetworkNodeProps) => {
                 </div>
                 <button
                   onClick={(e) => toggleFavorite(c.id, e)}
+                  className="nodrag"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
                 >
                   <Star size={14} fill={isFav ? '#E5A11A' : 'none'} color={isFav ? '#E5A11A' : 'var(--color-ink-muted)'} />
