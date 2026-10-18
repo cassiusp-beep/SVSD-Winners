@@ -11,13 +11,13 @@ Team Fester's entry for the Silicon Valley School of Design (SVSD) design compet
 
 ## What We're Building
 
-**Branch is a proposed live semantic map for multidisciplinary teams developing new ideas together.** It connects expressed ideas, assumptions and constraints while people collaborate, helping teams examine differences, discover complementary contributions and keep alternative directions open.
+**Branch establishes value for individuals first:** capture or import thinking, build personal context, then explore how ideas connect. Team integration follows after the individual product is established; team context may be supplied during Import work without joining or sharing with a team.
 
-**Creative discovery before commitment.** Capture and draft organization should be effortless; participants control accepted meaning, decisions and sharing. Project history should make each later session more useful. These are product hypotheses, not claims that the current application implements or validates them. Read [CONTEXT.md](CONTEXT.md) and the [current product definition](docs/context/product-definition.md).
+The latest [UIUX.md](UIUX.md) translates the new onboarding whiteboard into screens and interactions. Older Figma work is UI/UX precedent only. Start with [CONTEXT.md](CONTEXT.md); the [earlier product definition](docs/context/product-definition.md) preserves team-first strategy and is superseded for audience/entry flow. The new experience is a proposal, not something this documentation update implements or validates.
 
 ## Existing Prototype and Design History
 
-The application and mechanics described below belong to the earlier creative-exchange concept. They remain in place as prototype work and history; the documentation sync has not rebuilt them for the live team product. The original description is preserved here:
+The application and mechanics described below belong to the earlier creative-exchange concept. They remain in place as prototype work and history; this documentation update has not rebuilt them for the new individual-first experience. The original description is preserved here:
 
 **Branch** is a creative exchange for student makers who want to share unfinished work and discover what it could become in someone else's hands.
 
@@ -73,7 +73,7 @@ VERCEL_NO_UPDATE_NOTIFIER=1 npx --yes vercel --yes --name svsd-branch --prod
 
 ## Documentation & Precedence
 
-Start at [CONTEXT.md](CONTEXT.md), then [the product definition](docs/context/product-definition.md). [docs/README.md](docs/README.md) defines precedence: latest direct user instructions govern the current direction; the official brief governs competition requirements; AGENTS.md retains the workflow. Older whiteboard, UIUX, interaction and visual documents are historical prototype references. The [archived individual-first system and maps](docs/archive/2026-10-17-individual-first/SYSTEM_DESIGN.md) are also historical, not the new team-app blueprint.
+Start at [CONTEXT.md](CONTEXT.md), then [UIUX.md](UIUX.md). [docs/README.md](docs/README.md) defines precedence: latest direct user instructions govern the current direction; the official brief governs competition requirements; AGENTS.md retains the workflow. Earlier whiteboard transcripts, interaction and visual documents are historical prototype references. The current UIUX.md follows the newest onboarding whiteboard; Figma informs UI/UX only. The [archived individual-first system and maps](docs/archive/2026-10-17-individual-first/SYSTEM_DESIGN.md) are also historical, not the latest individual onboarding blueprint.
 
 This repository contains a selective source-workspace snapshot dated 18 October 2026. It is not automatic synchronization, a new implementation, or a deployment.
 
@@ -83,8 +83,8 @@ This repository contains a selective source-workspace snapshot dated 18 October 
 
 | Path | What it holds |
 |---|---|
-| [CONTEXT.md](CONTEXT.md) | Current team-first agent entry and source-sync provenance |
-| [Product definition](docs/context/product-definition.md) | Current positioning, interaction tradeoffs and accumulated value |
+| [CONTEXT.md](CONTEXT.md) | Current individual-first agent entry and source-sync provenance |
+| [Product definition](docs/context/product-definition.md) | Earlier team-first strategy; audience/entry superseded by UIUX.md |
 | [Collective-emergence references](docs/references/collective-emergence/) | Supplied PDF, direction image and evidence notes |
 | [Individual-first archive](docs/archive/2026-10-17-individual-first/) | Historical system design and five editable Draw.io maps |
 | [`AGENTS.md`](AGENTS.md) | Team rules, Required Agent Pipeline, and agent role definitions |
@@ -93,7 +93,7 @@ This repository contains a selective source-workspace snapshot dated 18 October 
 | [`LESSONS.md`](LESSONS.md) | Retrospective learnings from builds and multi-lens critiques |
 | [`interaction-model.md`](interaction-model.md) | Spatial canvas rules, bloom/fade mechanics, hot corners, and mobile adaptations |
 | [`whiteboard-transcript.md`](whiteboard-transcript.md) | Workspace root copy of Cassius's whiteboard walkthrough |
-| [`UIUX.md`](UIUX.md) | Screen-by-screen specification, visual tokens, and interface contracts |
+| [`UIUX.md`](UIUX.md) | Current individual-first screens, states, interactions and UI/UX references |
 | [`docs/README.md`](docs/README.md) | Documentation index, directory inventory, and precedence rules |
 | [`docs/context/whiteboard-transcript.md`](docs/context/whiteboard-transcript.md) | Historical source for the earlier living-canvas prototype |
 | [`docs/context/brief.md`](docs/context/brief.md) | Official SVSD brief, judging criteria, challenge theme, and dates |

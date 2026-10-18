@@ -2,6 +2,18 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 18, 2026, later clarification: Individual first; newest onboarding whiteboard governs
+
+**Decided:** Establish Branch for individuals before team integration. Follow the latest onboarding whiteboard: A, anonymous two-minute recording trial → sign up → quiz → create context → profile → build/explore; B, sign up → quiz → import work → profile → build/explore; C, sign up → import work → profile → build/explore. Team context can enter through Import work; that does not grant team access or join a workspace. The new UIUX.md records screen/state details and labels proposed defaults and open decisions.
+
+**Why:** The user explicitly clarified audience and precedence. The Figma board represents older ideas and is a UI/UX reference, not the current flow specification. The earlier team-first product statement remains available as strategy history, with its audience and entry flow superseded.
+
+**Alternatives considered:** Keeping team onboarding as the default would contradict the clarification. Rebuilding the old profile/discovery flow from Figma would override the new whiteboard. Keeping both old and new source UIUX guides active would leave agents uncertain. Preserve exact old documents in dated archives and maintain one current UIUX.md per workspace.
+
+**Scope and preservation:** UI/UX documentation and source-photo copies only. Existing application, CLAUDE/roles and source AGENTS are preserved. No app implementation, Figma edits, commit, push or deployment. Pre-edit copies are under `docs/archive/2026-10-18-before-individual-uiux/Repository/` and source `07 MD Files/Archive/2026-10-18 Individual UIUX/{Repository,Source}/`.
+
+**Familiar or new:** an explicit change to the first-use flow and audience sequence; existing research remains background, not validation of the new experience.
+
 ## October 18, 2026: Team-first collective emergence and portable agent context
 
 **Decided:** Sync the source workspace's current product direction into this repository. Branch now proposes a live shared semantic map for multidisciplinary concept-development teams, prioritizing creative discovery before commitment. Keep possible tensions, complementary contributions and alternatives visible; participants decide what is accepted or acted on. Preserve the five positioning answers and repeated-session value loop in `docs/context/product-definition.md`, with `CONTEXT.md` as the short agent entry.

@@ -25,6 +25,8 @@ _Not written yet._
 
 Collect these as they happen, so we don't have to reconstruct them on Monday.
 
+- **18 October, later clarification: Establish the individual experience first.** The latest onboarding whiteboard governs three entry paths; team context can be imported, while team integration comes later. Figma remains a UI/UX precedent rather than a flow specification.
+
 - **18 October: Creative discovery before commitment.** We shifted from a maker exchange and individual memory toward a live team map that keeps differences, possible collaborations and alternative directions open. This is the new product hypothesis; the existing prototype has not yet been rebuilt for it.
 
 - Prediction versus assistance. The team chose assistance because the product should reveal potential, not decide for people.

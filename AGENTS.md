@@ -10,12 +10,12 @@ Our entry for the Silicon Valley School of Design (SVSD) design competition, "Th
 
 Every agent reads `docs/README.md` first and follows its precedence rule.
 
-**Current direction · 18 October 2026:** the latest direct user instruction takes precedence. Start with [CONTEXT.md](CONTEXT.md) and [the current product definition](docs/context/product-definition.md): Branch is a proposed live shared semantic map for multidisciplinary teams, prioritizing creative discovery before commitment. The official brief remains authoritative for competition requirements. Earlier whiteboard, UIUX, interaction and visual documents describe the preserved creative-exchange prototype; their internal priority claims and the role files' inherited readings do not override this update. Keep the workflow and roles below, applying design/build/review gates to the work actually assigned. This documentation sync does not implement or approve a new UI.
+**Current direction · later 18 October 2026:** the latest direct user instruction takes precedence. Start with [CONTEXT.md](CONTEXT.md) and [UIUX.md](UIUX.md): establish Branch for individuals first; team integration comes later. The newest onboarding whiteboard governs entry flows. Older Figma references inform UI/UX only, and importing team context does not join or share with a team. The [earlier product definition](docs/context/product-definition.md) preserves team-first strategy, now superseded for audience and entry flow. The official brief remains authoritative for competition requirements. Preserve the workflow and roles below within the actual assigned scope; their inherited product readings do not override this update. This guide does not implement or approve a new app.
 
 | File | What it holds |
 |---|---|
-| `CONTEXT.md` | **Current agent entry:** team-first direction, boundaries, evidence status and source-sync provenance. |
-| `docs/context/product-definition.md` | **Current product positioning:** all five answers, counter-position, interaction tradeoffs and value over time. |
+| `CONTEXT.md` | **Current agent entry:** individual-first direction, guide precedence and source-sync provenance. |
+| `docs/context/product-definition.md` | Earlier team-first positioning: five answers and strategy; audience/entry superseded by UIUX.md. |
 | `docs/references/collective-emergence/` | Supplied study, direction notes and evidence limits. |
 | `docs/archive/2026-10-17-individual-first/` | Historical system design and five editable Draw.io maps; not the live team blueprint. |
 | `docs/context/whiteboard-transcript.md` | **Whiteboard Transcript: Branch Interaction Walkthrough**: Historical prototype source from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners. |
@@ -37,7 +37,7 @@ Every agent reads `docs/README.md` first and follows its precedence rule.
 | `docs/process/submission-checklist.md` | Competition deliverables, deadline, criteria mapping, and team questions (owned by `pitch-strategist`). |
 | `docs/process/research-plan.md` | Lightweight hallway testing and research guide template. |
 | `docs/README.md` | Documentation index and precedence rules. |
-| `UIUX.md` | Historical prototype screen specification, visual tokens and interface contracts. |
+| `UIUX.md` | **Current individual-first guide:** newest-whiteboard flows, screens, states, reference-derived UI/UX and open decisions. |
 | `CLAUDE.md` | Agent orchestrator entrypoint importing `@AGENTS.md`. |
 | `README.md` | Repository overview, product description, and team information. |
 

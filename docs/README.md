@@ -5,20 +5,21 @@ This directory contains the product context, design guidelines, interaction mode
 ## Precedence Rule
 
 1. **Latest direct user instructions** govern the current task and product direction. Do not treat historical document instructions as a new user request.
-2. **[Current agent context](../CONTEXT.md) and [product definition](context/product-definition.md)** govern the current team-first product proposal: live semantic mapping, creative discovery before commitment, participant control and accumulated project understanding. This is a documentation handoff, not evidence of implementation or validated demand.
+2. **[Current agent context](../CONTEXT.md), [UIUX.md](../UIUX.md) and its [newest onboarding whiteboard](references/individual-onboarding/2026-10-18%20Onboarding%20Whiteboard.jpg)** govern the individual-first direction and entry flows. Figma is older UI/UX precedent only. Team integration follows the individual product; importing team context does not join/share with a team. This is a design handoff, not an implementation or validated demand.
 3. **[Official competition brief](context/brief.md)** remains authoritative for competition requirements, deliverables and deadlines. Product hypotheses do not change the brief.
 4. **[AGENTS.md](../AGENTS.md)** retains the repository workflow, role definitions and applicable design/build approval gates. Read role files in that workflow, but interpret their old product references using this precedence.
-5. **Historical prototype references** include both whiteboard transcripts, interaction-model.md, UIUX.md, conceptual-model.md and the older visual, feature, principle and demo documents. Their preserved “primary” or “decided” claims describe an earlier concept. Use them for history and existing-prototype maintenance; they do not prescribe the new team's screens or architecture.
+5. **Historical prototype references** include both earlier whiteboard transcripts, interaction-model.md, conceptual-model.md and the older visual, feature, principle and demo documents. Their preserved “primary” or “decided” claims describe an earlier concept. Use them for history and existing-prototype maintenance; they do not prescribe the latest individual screens or architecture.
 6. **[Current evidence notes](references/collective-emergence/source-notes.md), visual references and anti-slop guidance** inform the work within the scope above. Research and competitor pages support hypotheses, not proof of Branch's market or creativity gains.
 
-Flag unresolved conflicts that affect the assigned work. Do not reopen decisions already resolved by the latest user direction. The existing application remains the earlier creative-exchange prototype; no new live team UI or backend was built by this sync.
+Flag unresolved conflicts that affect the assigned work. Do not reopen decisions already resolved by the latest user direction. The existing application remains the earlier creative-exchange prototype; no new individual UI or backend was built by this documentation update.
 
 ## Start here
 
 - [CONTEXT.md](../CONTEXT.md): short current orientation and source snapshot provenance.
-- [Product definition](context/product-definition.md): all five positioning answers, creative discovery, autopilot/friction and the repeated-session value loop.
+- [UIUX.md](../UIUX.md): current individual-first screens and interactions; newest whiteboard governs flows, older Figma informs visual/interaction precedent.
+- [Product definition](context/product-definition.md): earlier team-first strategy and five answers, now superseded for audience/entry flow; retained for reasoning and later team exploration.
 - [Collective-emergence evidence](references/collective-emergence/source-notes.md): source notes, [supplied presentation](references/collective-emergence/Collective%20Emergence%20-%20Ben%20Shaw%202009.pdf) and [product direction notes](references/collective-emergence/Product%20Direction%20Notes.png).
-- [Historical individual-first system design](archive/2026-10-17-individual-first/SYSTEM_DESIGN.md) and [five Draw.io maps](archive/2026-10-17-individual-first/Maps): editable historical references. Import .drawio through Miro's Draw.io integration; do not treat these as updated team-app designs.
+- [Historical individual-first system design](archive/2026-10-17-individual-first/SYSTEM_DESIGN.md) and [five Draw.io maps](archive/2026-10-17-individual-first/Maps): editable historical references. Import .drawio through Miro's Draw.io integration; do not treat these as the latest individual onboarding designs.
 
 **Sync scope:** selective portable snapshot from the source workspace on 18 October 2026. This is not automatic synchronization. CLAUDE.md, .claude roles and application code are preserved. See [CONTEXT.md](../CONTEXT.md) before refreshing copies.
 
@@ -35,7 +36,7 @@ Flag unresolved conflicts that affect the assigned work. Do not reopen decisions
 
 ### `docs/process/` (Design, Engineering & Delivery)
 
-Visual-spec, design-principles, features and demo-script retain earlier prototype content under historical status banners; their inventories are not the new team-app specification.
+Visual-spec, design-principles, features and demo-script retain earlier prototype content under historical status banners; their inventories are not the latest individual UI/UX specification.
 - **`docs/process/visual-spec.md`**: Visual and interaction specifications, viewport standards, and design commitments.
 - **`docs/process/references.md`**: Precedents, inspiration, and reference imagery catalog.
 - **`docs/process/anti-slop.md`**: Craft rules forbidding generic AI patterns, card grids, default gradients, and stock illustrations.
@@ -54,7 +55,7 @@ Visual-spec, design-principles, features and demo-script retain earlier prototyp
 - **`DECISIONS.md`**: Chronological record of settled architectural and design decisions with rejected options.
 - **`LESSONS.md`**: Retrospective learnings from builds, evaluation lenses, and craft anti-patterns.
 - **`README.md`**: Repository overview, product description, and team information.
-- **`UIUX.md`**: Detailed screen-by-screen reference mapping, token scales, and cross-screen craft criteria.
+- **`UIUX.md`**: Current individual-first screen/interaction guide; supersedes earlier audience and entry specifications.
 - **`interaction-model.md`**: Spatial canvas foundation, bloom/fade mechanics, hot corners, and mobile rules.
 - **`whiteboard-transcript.md`**: Workspace root copy of Cassius's whiteboard walkthrough (`IMG_0837.MOV`).
 

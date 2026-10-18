@@ -1,5 +1,7 @@
 # Branch — collective emergence
 
+**Superseded audience and entry flow · later 18 October 2026:** the latest user direction establishes the individual product first, with team integration later and optional team context during Import work. Follow [the current UIUX guide](../../UIUX.md) and its newest-whiteboard entry paths. The team-first strategy below is preserved as earlier reasoning; it does not override that guide or authorize an implementation.
+
 Updated 18 October 2026. Working product positioning based on the user's new team-first direction. The product and audience below are proposals to test, not implemented capabilities or established market demand. This supersedes the individual-first positioning from 17 October; the earlier document is archived.
 
 ## 1. Our product is (competitor) for (target user)
