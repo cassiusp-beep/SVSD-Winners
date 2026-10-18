@@ -11,6 +11,14 @@ Team Fester's entry for the Silicon Valley School of Design (SVSD) design compet
 
 ## What We're Building
 
+**Branch is a proposed live semantic map for multidisciplinary teams developing new ideas together.** It connects expressed ideas, assumptions and constraints while people collaborate, helping teams examine differences, discover complementary contributions and keep alternative directions open.
+
+**Creative discovery before commitment.** Capture and draft organization should be effortless; participants control accepted meaning, decisions and sharing. Project history should make each later session more useful. These are product hypotheses, not claims that the current application implements or validates them. Read [CONTEXT.md](CONTEXT.md) and the [current product definition](docs/context/product-definition.md).
+
+## Existing Prototype and Design History
+
+The application and mechanics described below belong to the earlier creative-exchange concept. They remain in place as prototype work and history; the documentation sync has not rebuilt them for the live team product. The original description is preserved here:
+
 **Branch** is a creative exchange for student makers who want to share unfinished work and discover what it could become in someone else's hands.
 
 Instead of static portfolios or isolated card feeds, you land as a node at the center of an **infinite, living canvas**. Projects and collaborators surface and pulse around you. Connections are animated and carry real dialogue: comment snippets, contributions, and shared sources. 
@@ -65,15 +73,9 @@ VERCEL_NO_UPDATE_NOTIFIER=1 npx --yes vercel --yes --name svsd-branch --prod
 
 ## Documentation & Precedence
 
-All agents and contributors follow the precedence rule in [`docs/README.md`](docs/README.md). When documents conflict, higher files take precedence:
+Start at [CONTEXT.md](CONTEXT.md), then [the product definition](docs/context/product-definition.md). [docs/README.md](docs/README.md) defines precedence: latest direct user instructions govern the current direction; the official brief governs competition requirements; AGENTS.md retains the workflow. Older whiteboard, UIUX, interaction and visual documents are historical prototype references. The [archived individual-first system and maps](docs/archive/2026-10-17-individual-first/SYSTEM_DESIGN.md) are also historical, not the new team-app blueprint.
 
-1. **`docs/context/whiteboard-transcript.md`** — Primary source of truth from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners.
-2. **`interaction-model.md`** — Spatial node-based canvas foundation, bloom/fade mechanics, hot corners, left/right spatial rules, and phone adaptations.
-3. **`docs/process/visual-spec.md`** — Visual and interaction specifications, viewports (1440px / 390px), and canonical "Color: Night Lab" design tokens.
-4. **`docs/process/references.md` and `docs/references/images/`** — Precedents, visual benchmarks, and 32 reference assets from Miro mapping.
-5. **`docs/process/anti-slop.md`** — Anti-slop constraints: eliminates generic AI output, cards-in-a-grid, default gradients, and filler copy.
-6. **`UIUX.md`** — Detailed screen-by-screen reference mapping, token scales, and interface contracts.
-7. **Everything else** — Supporting notes, brainstorms, and templates.
+This repository contains a selective source-workspace snapshot dated 18 October 2026. It is not automatic synchronization, a new implementation, or a deployment.
 
 ---
 
@@ -81,6 +83,10 @@ All agents and contributors follow the precedence rule in [`docs/README.md`](doc
 
 | Path | What it holds |
 |---|---|
+| [CONTEXT.md](CONTEXT.md) | Current team-first agent entry and source-sync provenance |
+| [Product definition](docs/context/product-definition.md) | Current positioning, interaction tradeoffs and accumulated value |
+| [Collective-emergence references](docs/references/collective-emergence/) | Supplied PDF, direction image and evidence notes |
+| [Individual-first archive](docs/archive/2026-10-17-individual-first/) | Historical system design and five editable Draw.io maps |
 | [`AGENTS.md`](AGENTS.md) | Team rules, Required Agent Pipeline, and agent role definitions |
 | [`CLAUDE.md`](CLAUDE.md) | Agent orchestrator entrypoint importing `@AGENTS.md` |
 | [`DECISIONS.md`](DECISIONS.md) | Chronological record of settled architectural decisions and rejected alternatives |
@@ -89,10 +95,10 @@ All agents and contributors follow the precedence rule in [`docs/README.md`](doc
 | [`whiteboard-transcript.md`](whiteboard-transcript.md) | Workspace root copy of Cassius's whiteboard walkthrough |
 | [`UIUX.md`](UIUX.md) | Screen-by-screen specification, visual tokens, and interface contracts |
 | [`docs/README.md`](docs/README.md) | Documentation index, directory inventory, and precedence rules |
-| [`docs/context/whiteboard-transcript.md`](docs/context/whiteboard-transcript.md) | Primary source of truth for the living canvas architecture |
+| [`docs/context/whiteboard-transcript.md`](docs/context/whiteboard-transcript.md) | Historical source for the earlier living-canvas prototype |
 | [`docs/context/brief.md`](docs/context/brief.md) | Official SVSD brief, judging criteria, challenge theme, and dates |
 | [`docs/context/judging.md`](docs/context/judging.md) | Research on judges, scoring criteria (Product Thinking, Depth of Thinking, Craft) |
-| [`docs/context/conceptual-model.md`](docs/context/conceptual-model.md) | Branch conceptual model: users, core concepts, six journeys, and edge cases |
+| [`docs/context/conceptual-model.md`](docs/context/conceptual-model.md) | Historical creative-exchange model: users, journeys and edge cases |
 | [`docs/context/concept.md`](docs/context/concept.md) | Initial October 15 brainstorm notes on cross-disciplinary collaboration |
 | [`docs/process/visual-spec.md`](docs/process/visual-spec.md) | Visual and interaction spec, including canonical "Color: Night Lab" palette |
 | [`docs/process/references.md`](docs/process/references.md) | Precedents, inspiration catalog, and board notes |

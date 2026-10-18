@@ -2,6 +2,18 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 18, 2026: Team-first collective emergence and portable agent context
+
+**Decided:** Sync the source workspace's current product direction into this repository. Branch now proposes a live shared semantic map for multidisciplinary concept-development teams, prioritizing creative discovery before commitment. Keep possible tensions, complementary contributions and alternatives visible; participants decide what is accepted or acted on. Preserve the five positioning answers and repeated-session value loop in `docs/context/product-definition.md`, with `CONTEXT.md` as the short agent entry.
+
+**Why:** The source workspace had advanced beyond the repository's student-maker exchange. Agents need one clear current entry without mistaking earlier screen contracts for the new product. This is a documentation change, not a validated market claim or implementation.
+
+**Alternatives considered:** Retaining the old whiteboard as current product authority would obscure the pivot. Replacing all agent files or deleting old designs would lose workflow and design history. Instead, preserve CLAUDE.md and role files, retain prior document bodies with status banners, and import the individual-first system/maps under a dated historical archive.
+
+**Preservation and scope:** Exact pre-edit repository/source documents are backed up in the source workspace's `Archive/2026-10-18 Repository Context Sync`, separated into `Repository/` and `Source/` paths. This is a selective portable snapshot, not automatic synchronization. Application source, tests and existing assets are unchanged; no commit, push or deployment is part of the sync. The shared live screen inventory, permissions experience and architecture need a later explicit design task.
+
+**Familiar or new:** the team-first live-mapping direction is a new product hypothesis for Branch; a documentation snapshot with explicit precedence preserves the existing workflow.
+
 ## October 17, 2026: TouchDesigner Modular Operator Hierarchy & Studio Drafting Bed (Decision 010)
 
 **Decided:**

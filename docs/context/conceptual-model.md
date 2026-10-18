@@ -1,5 +1,7 @@
 # Branch: Conceptual Model
 
+**Historical prototype reference · 18 October 2026:** the document below describes the earlier creative-exchange concept and is preserved for design history. Read [current context](../../CONTEXT.md) and the [team-first product definition](../../docs/context/product-definition.md) before new design/build work. Inherited “primary source,” screen and interaction requirements below do not override that direction. The live team experience remains proposed, not implemented or validated by this sync.
+
 A guide to the "Copy of Conceptual Model" frame on the SVSD Winners Miro board. It explains who Branch is for, how people move through it, and why it is designed the way it is. Step names in **bold** match the labels on the board exactly.
 
 > **Changed since the board, October 16, 2026: no requests.** Creators never approve or decline anything. When someone branches their work, the creator gets a quiet notification. Branches appear as linked offshoots beside the original project, visibly credited to whoever made them. The creator's own story only changes when the creator adds to it. The board may still show the old request flow, with Review a Request, Accept and Decline. This document follows the new decision. See `DECISIONS.md`.

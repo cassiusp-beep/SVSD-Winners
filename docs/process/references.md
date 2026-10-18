@@ -1,5 +1,9 @@
 # References
 
+## Current product evidence · 18 October 2026
+
+Read [collective-emergence source notes](../references/collective-emergence/source-notes.md), the [supplied Ben Shaw presentation](../references/collective-emergence/Collective%20Emergence%20-%20Ben%20Shaw%202009.pdf) and [product direction notes](../references/collective-emergence/Product%20Direction%20Notes.png) alongside the [current product definition](../context/product-definition.md). These inform hypotheses, not validated product outcomes. The visual and interaction references preserved below relate to earlier prototype explorations; use their status in [the documentation index](../README.md).
+
 ## Past SVSD work
 
 - **Figma Mobile Live Comments**, the competition winner: https://www.rachelchen.tech/projects/figma. Study how three principles drive every decision.

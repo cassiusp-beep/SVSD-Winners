@@ -1,5 +1,7 @@
 # Visual and interaction spec
 
+**Historical prototype reference · 18 October 2026:** the document below describes the earlier creative-exchange concept and is preserved for design history. Read [current context](../../CONTEXT.md) and the [team-first product definition](../../docs/context/product-definition.md) before new design/build work. Inherited “primary source,” screen and interaction requirements below do not override that direction. The live team experience remains proposed, not implemented or validated by this sync.
+
 Source for product decisions: `docs/context/conceptual-model.md`. An empty section means it has not been decided yet. Agents should propose an option, label it provisional and flag it for the team rather than treat a guess as the spec.
 
 ## Platform and viewports

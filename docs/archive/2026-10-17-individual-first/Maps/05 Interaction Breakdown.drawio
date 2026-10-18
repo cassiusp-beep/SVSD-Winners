@@ -1,0 +1,1168 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="Branch UIUX handoff" version="24.7.17" type="device">
+  <diagram id="flow" name="01 Screen flow">
+    <mxGraphModel dx="2200" dy="1400" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2500" pageHeight="1700" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="branch_flow_cell_1" value="BRANCH  /  UIUX HANDOFF" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=17;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="35" width="1000" height="25" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_2" value="Capture first. Make sense of it when you are ready." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=38;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="78" width="2340" height="60" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_3" value="One continuous core flow. Buttons name the next screen; matching U-numbers reuse the same layout." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="151" width="2320" height="32" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_4" value="MACRO 01   CAPTURE" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="221" width="820" height="26" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_5" value="MACRO 02   UNDERSTAND  ·  AI route is optional" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1060" y="221" width="1320" height="26" />
+        </mxCell>
+        <object id="branch_flow_U08" label="" screenId="U08" kind="Screen" interactionIds="I01 I02 I03 I06 I23" assetIds="C01 C02 C09" description="Record button; timer; audio level&#10;Pause / Resume / Stop; mic status | Ready · active · paused&#10;Interrupted · permission denied | Record → active; Stop → U04&#10;Library U01 · Import U03 · Updates U06">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="290" width="340" height="510" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_6" value="U08  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U08">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_7" value="Recorder" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U08">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_8" value="App opens here. No setup first." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U08">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_9" value="READY" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U08">
+          <mxGeometry as="geometry" x="22" y="158" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_10" vertex="1" parent="branch_flow_U08" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="190" width="296" height="54" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_11" value="●  Record" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=23;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_10">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_12" value="tap Record → active state below" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U08">
+          <mxGeometry as="geometry" x="22" y="258" width="296" height="27" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_13" vertex="1" parent="branch_flow_U08" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#F4F7F5;strokeColor=none;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="300" width="296" height="129" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_14" value="RECORDING     00:24" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_13">
+          <mxGeometry as="geometry" x="16" y="14" width="264" height="25" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_15" vertex="1" parent="branch_flow_cell_13" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="16" y="57" width="122" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_16" value="Pause" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_15">
+          <mxGeometry as="geometry" x="8" y="11" width="106" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_17" vertex="1" parent="branch_flow_cell_13" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="154" y="57" width="126" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_18" value="Stop" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_17">
+          <mxGeometry as="geometry" x="8" y="11" width="110" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_19" value="Pause ↔ Resume · same session" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=17;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U08">
+          <mxGeometry as="geometry" x="22" y="449" width="296" height="28" />
+        </mxCell>
+        <object id="branch_flow_U04" label="" screenId="U04" kind="Screen" interactionIds="I03 I04 I05" assetIds="C03 C07 C09" description="Saved confirmation; audio preview&#10;Build idea map; Keep audio only | Saving → saved; failed save&#10;Optional rename / project later | Build → U05 (first use U07)&#10;Keep audio → U05; no extra Save">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="560" y="290" width="340" height="510" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_20" value="U04  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U04">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_21" value="Source saved" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U04">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_22" value="Stop saves automatically." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U04">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_23" value="✓   Recording saved" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U04">
+          <mxGeometry as="geometry" x="22" y="164" width="296" height="32" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_24" value="Today, 10:42 AM&#10;00:24  ·  Unfiled" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U04">
+          <mxGeometry as="geometry" x="22" y="214" width="296" height="55" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_25" vertex="1" parent="branch_flow_U04" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="290" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_26" value="▶  Play recording" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_25">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_27" vertex="1" parent="branch_flow_U04" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="352" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_28" value="Build idea map" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_27">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_29" vertex="1" parent="branch_flow_U04" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="414" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_30" value="Keep audio only → U05" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_29">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <object id="branch_flow_U05" label="" screenId="U05" kind="Screen" interactionIds="I04 I05 I07 I12 I23" assetIds="C03 C07 C09" description="Original source / playback; job status&#10;Review ideas; Add idea manually | Saved only · processing · ready&#10;Failed / cancelled; source retained | Review → U11; Add idea → U10&#10;Retry in place; leave safely">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1060" y="290" width="340" height="510" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_31" value="U05  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U05">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_32" value="Source detail" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U05">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_33" value="The original stays accessible." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U05">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_34" value="▶  Original recording" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U05">
+          <mxGeometry as="geometry" x="22" y="160" width="296" height="35" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_35" value="OPTIONAL AI STATUS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#315C83;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U05">
+          <mxGeometry as="geometry" x="22" y="222" width="296" height="24" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_36" value="Preparing ideas → Ideas ready" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#315C83;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U05">
+          <mxGeometry as="geometry" x="22" y="261" width="296" height="54" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_37" vertex="1" parent="branch_flow_U05" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="352" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_38" value="Review ideas" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_37">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_39" vertex="1" parent="branch_flow_U05" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="414" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_40" value="Add idea manually" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_39">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <object id="branch_flow_U11" label="" screenId="U11" kind="Screen" interactionIds="I07 I08 I09 I10 I11" assetIds="C03 C04 C05 C06 C09" description="Proposals + links; select checkboxes&#10;Evidence; Edit; Dismiss; Accept count | None / some selected; empty&#10;Partial acceptance · stale change | Accept selected → U14&#10;Edit U10 · Evidence U16 · Dismiss stays">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1560" y="290" width="340" height="510" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_41" value="U11  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U11">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_42" value="Draft review" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U11">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_43" value="Nothing is accepted yet." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U11">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_44" vertex="1" parent="branch_flow_U11" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#F4F7F5;strokeColor=none;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="157" width="296" height="133" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_45" value="☑  Reduce material waste" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_44">
+          <mxGeometry as="geometry" x="15" y="16" width="266" height="28" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_46" value="Idea  ·  from 00:12–00:19" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_44">
+          <mxGeometry as="geometry" x="15" y="58" width="266" height="27" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_47" value="View evidence ↓" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#315C83;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_44">
+          <mxGeometry as="geometry" x="15" y="98" width="266" height="25" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_48" value="Edit → U10    Dismiss → stay" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U11">
+          <mxGeometry as="geometry" x="22" y="316" width="296" height="36" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_49" vertex="1" parent="branch_flow_U11" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="375" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_50" value="Accept selected (1)" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_49">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_51" value="Unselected proposals stay drafts." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=17;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U11">
+          <mxGeometry as="geometry" x="22" y="448" width="296" height="30" />
+        </mxCell>
+        <object id="branch_flow_U14" label="" screenId="U14" kind="Screen" interactionIds="I10 I12 I13 I15 I18 I19 I24 I27 I28" assetIds="C01 C04 C05 C08 C10" description="Nodes + labeled links; map / list&#10;Add; select; fit; filter; Reuse | Empty / populated; focused / filtered&#10;Missing evidence; saved changes | Select U15 · Add U10 · Reuse U18&#10;Related U13 · Filter U17 · Export U25">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="2060" y="290" width="340" height="510" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_52" value="U14  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U14">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_53" value="Idea map" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U14">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_54" value="Only accepted ideas appear here." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U14">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_55" vertex="1" parent="branch_flow_U14" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#F4F7F5;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="26" y="170" width="157" height="64" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_56" value="Reduce waste" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_55">
+          <mxGeometry as="geometry" x="12" y="21" width="133" height="24" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_57" vertex="1" parent="branch_flow_U14" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#F4F7F5;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="120" y="278" width="190" height="64" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_58" value="Reuse offcuts" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_57">
+          <mxGeometry as="geometry" x="12" y="21" width="166" height="24" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_59" value="supports" edge="1" parent="branch_flow_U14" source="branch_flow_cell_55" target="branch_flow_cell_57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;strokeColor=#53645E;fontSize=15;fontFamily=Arial;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_60" value="Tap idea → Details U15&#10;Add idea → Editor U10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U14">
+          <mxGeometry as="geometry" x="22" y="361" width="296" height="58" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_61" vertex="1" parent="branch_flow_U14" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="437" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_62" value="Reuse selected idea" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_61">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_63" value="Stop&#10;auto-save" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#235B47;strokeWidth=2;dashed=0;fontSize=19;fontFamily=Arial;fontColor=#235B47;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U08" target="branch_flow_U04">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_64" value="Build map&#10;AI enabled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#315C83;strokeWidth=2;dashed=1;fontSize=19;fontFamily=Arial;fontColor=#315C83;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U04" target="branch_flow_U05">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_65" value="Ready →&#10;Review ideas" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#315C83;strokeWidth=2;dashed=1;fontSize=19;fontFamily=Arial;fontColor=#315C83;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U05" target="branch_flow_U11">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_66" value="Accept&#10;selected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#235B47;strokeWidth=2;dashed=0;fontSize=19;fontFamily=Arial;fontColor=#235B47;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U11" target="branch_flow_U14">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_67" value="Library U01 · Import U03&#10;Updates U06" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="832" width="340" height="65" />
+        </mxCell>
+        <object id="branch_flow_U07" label="" screenId="U07" kind="Screen" interactionIds="I05 I22" assetIds="C07 C09" description="Processing scope; what is sent&#10;Enable / keep off; current preference | First-use choice after capture&#10;Enabled / disabled; existing job status | First use → source U05&#10;Ordinary settings → caller">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="560" y="1030" width="340" height="460" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_68" value="U07  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U07">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_69" value="AI choice" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U07">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_70" value="First AI use only. After capture." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U07">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_71" value="Explain processing scope&#10;and what will be sent." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U07">
+          <mxGeometry as="geometry" x="22" y="164" width="296" height="64" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_72" vertex="1" parent="branch_flow_U07" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="252" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_73" value="Enable → Source U05" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_72">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_74" vertex="1" parent="branch_flow_U07" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="316" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_75" value="Keep off → Source U05" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_74">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_76" value="AI off keeps audio + manual editing." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U07">
+          <mxGeometry as="geometry" x="22" y="391" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_77" value="First AI use" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#315C83;strokeWidth=2;dashed=1;fontSize=19;fontFamily=Arial;fontColor=#315C83;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U04" target="branch_flow_U07">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <object id="branch_flow_U10" label="" screenId="U10" kind="Screen" interactionIds="I09 I12 I13" assetIds="C03 C04 C05 C07 C09" description="Title / meaning; type; evidence&#10;Relationship source / target / type | New idea · draft edit · accepted edit&#10;Unsaved · validation · save conflict | Save draft → U11; Save idea → U14&#10;Cancel → caller; recover unsaved work">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1060" y="1030" width="340" height="460" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_78" value="U10  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U10">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_79" value="Idea editor" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U10">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_80" value="One editor. Three modes." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U10">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_81" value="Title / meaning&#10;Type / evidence&#10;Connection type + target" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U10">
+          <mxGeometry as="geometry" x="22" y="156" width="296" height="102" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_82" vertex="1" parent="branch_flow_U10" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="282" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_83" value="Save idea → Map U14" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_82">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_84" value="Draft mode: Save draft → U11&#10;Cancel → screen you came from" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U10">
+          <mxGeometry as="geometry" x="22" y="354" width="296" height="70" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_85" value="Add idea&#10;no AI needed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#235B47;strokeWidth=2;dashed=0;fontSize=19;fontFamily=Arial;fontColor=#235B47;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U05" target="branch_flow_U10">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <object id="branch_flow_U16" label="" screenId="U16" kind="Screen" interactionIds="I08 I16 I17 I26" assetIds="C01 C03 C09 C10" description="Audio player / text; cited excerpt&#10;Real timestamp; source action menu | Available / loading / missing&#10;Playback; highlighted evidence | Back → caller U11 or U15&#10;Menu: Delete → U20">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1560" y="1030" width="340" height="460" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_86" value="U16  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U16">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_87" value="Source viewer" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U16">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_88" value="Open the exact cited moment." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U16">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_89" value="▶   00:12 / 00:24" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=23;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U16">
+          <mxGeometry as="geometry" x="22" y="159" width="296" height="35" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_90" vertex="1" parent="branch_flow_U16" style="rounded=0;arcSize=8;whiteSpace=wrap;html=0;fillColor=#F4F7F5;strokeColor=none;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="212" width="296" height="5" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_91" value="“We could keep the offcuts&#10;for the next prototype.”" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U16">
+          <mxGeometry as="geometry" x="22" y="251" width="296" height="76" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_92" vertex="1" parent="branch_flow_U16" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="358" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_93" value="Back → same review U11" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_92">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_94" value="View&#10;evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#235B47;strokeWidth=2;dashed=0;fontSize=19;fontFamily=Arial;fontColor=#235B47;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U11" target="branch_flow_U16">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <object id="branch_flow_U18" label="" screenId="U18" kind="Screen" interactionIds="I19 I20" assetIds="C04 C07 C09" description="Selected idea; destination picker&#10;Link this idea / Create a derivative | Destination unset / selected&#10;New project inline; saving / failed | Confirm → destination map U14&#10;Cancel → same original map">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="2060" y="1030" width="340" height="460" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_flow_cell_95" value="U18  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U18">
+          <mxGeometry as="geometry" x="22" y="20" width="296" height="22" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_96" value="Reuse idea" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=29;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U18">
+          <mxGeometry as="geometry" x="22" y="51" width="296" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_97" value="MACRO 03  /  USE IT AGAIN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U18">
+          <mxGeometry as="geometry" x="22" y="97" width="296" height="46" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_98" value="Choose destination project" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U18">
+          <mxGeometry as="geometry" x="22" y="157" width="296" height="35" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_99" value="○  Link this idea&#10;○  Create a derivative" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U18">
+          <mxGeometry as="geometry" x="22" y="222" width="296" height="74" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_100" vertex="1" parent="branch_flow_U18" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#235B47;strokeColor=#235B47;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="22" y="328" width="296" height="44" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_101" value="Confirm → Map U14" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#FFFFFF;fontStyle=1;align=center;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_cell_100">
+          <mxGeometry as="geometry" x="8" y="11" width="280" height="30" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_102" value="Destination map opens.&#10;The origin is preserved." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_flow_U18">
+          <mxGeometry as="geometry" x="22" y="393" width="296" height="52" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_103" value="Reuse" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#235B47;strokeWidth=2;dashed=0;fontSize=19;fontFamily=Arial;fontColor=#235B47;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="branch_flow_U14" target="branch_flow_U18">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_104" value="HOW TO READ" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=17;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="1040" width="340" height="26" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_105" value="Arrows = a user action.&#10;Blue dashes = optional AI.&#10;U-number = a reusable screen.&#10;Button destinations = explicit returns." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="1090" width="340" height="158" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_106" value="Microinteractions live inside screens:&#10;Record / Pause / Stop, select,&#10;edit, inspect, dismiss and confirm." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=21;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="1284" width="340" height="116" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_107" value="NEXT PAGE  →  Exact layouts, assets, states and secondary destinations for the UIUX team." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=24;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="1565" width="2340" height="40" />
+        </mxCell>
+        <mxCell id="branch_flow_cell_108" value="Illustrative wireframe cues. Record + Stop = two taps after mic permission. Review and choices take additional effort." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=19;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="1620" width="2340" height="32" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="checklist" name="02 Screen and asset checklist">
+    <mxGraphModel dx="2200" dy="1400" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2360" pageHeight="3370" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="branch_checklist_cell_1" value="BRANCH  /  DESIGN CHECKLIST" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=17;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="35" width="2200" height="26" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_2" value="What the team needs to draw" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=40;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="78" width="2200" height="56" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_3" value="17 full screens  +  3 overlays  +  1 shared recovery pattern. States and modes reuse these layouts." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=23;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="151" width="2240" height="34" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_4" value="DRAW = visible elements   ·   STATES = variants   ·   ACTIONS = next screen   ·   C-numbers = shared assets below" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=19;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="200" width="2240" height="30" />
+        </mxCell>
+        <object id="branch_check_U08" label="" screenId="U08" kind="Screen" assetIds="C01 C02 C09" interactionIds="I01 I02 I03 I06 I23" description="DRAW: Record button; timer; audio level&#10;Pause / Resume / Stop; mic status | STATES: Ready · active · paused&#10;Interrupted · permission denied | ACTIONS: Record → active; Stop → U04&#10;Library U01 · Import U03 · Updates U06">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="265" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_5" value="U08  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_6" value="Recorder" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_7" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_8" value="Record button; timer; audio level&#10;Pause / Resume / Stop; mic status" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_9" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_10" value="Ready · active · paused&#10;Interrupted · permission denied" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_11" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_12" value="Record → active; Stop → U04&#10;Library U01 · Import U03 · Updates U06" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_13" value="ASSETS  C01 C02 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U08">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U04" label="" screenId="U04" kind="Screen" assetIds="C03 C07 C09" interactionIds="I03 I04 I05" description="DRAW: Saved confirmation; audio preview&#10;Build idea map; Keep audio only | STATES: Saving → saved; failed save&#10;Optional rename / project later | ACTIONS: Build → U05 (first use U07)&#10;Keep audio → U05; no extra Save">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="630" y="265" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_14" value="U04  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_15" value="Source saved" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_16" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_17" value="Saved confirmation; audio preview&#10;Build idea map; Keep audio only" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_18" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_19" value="Saving → saved; failed save&#10;Optional rename / project later" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_20" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_21" value="Build → U05 (first use U07)&#10;Keep audio → U05; no extra Save" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_22" value="ASSETS  C03 C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U04">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U05" label="" screenId="U05" kind="Screen" assetIds="C03 C07 C09" interactionIds="I04 I05 I07 I12 I23" description="DRAW: Original source / playback; job status&#10;Review ideas; Add idea manually | STATES: Saved only · processing · ready&#10;Failed / cancelled; source retained | ACTIONS: Review → U11; Add idea → U10&#10;Retry in place; leave safely">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1200" y="265" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_23" value="U05  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_24" value="Source detail" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_25" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_26" value="Original source / playback; job status&#10;Review ideas; Add idea manually" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_27" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_28" value="Saved only · processing · ready&#10;Failed / cancelled; source retained" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_29" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_30" value="Review → U11; Add idea → U10&#10;Retry in place; leave safely" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_31" value="ASSETS  C03 C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U05">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U11" label="" screenId="U11" kind="Screen" assetIds="C03 C04 C05 C06 C09" interactionIds="I07 I08 I09 I10 I11" description="DRAW: Proposals + links; select checkboxes&#10;Evidence; Edit; Dismiss; Accept count | STATES: None / some selected; empty&#10;Partial acceptance · stale change | ACTIONS: Accept selected → U14&#10;Edit U10 · Evidence U16 · Dismiss stays">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1770" y="265" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_32" value="U11  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_33" value="Draft review" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_34" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_35" value="Proposals + links; select checkboxes&#10;Evidence; Edit; Dismiss; Accept count" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_36" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_37" value="None / some selected; empty&#10;Partial acceptance · stale change" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_38" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_39" value="Accept selected → U14&#10;Edit U10 · Evidence U16 · Dismiss stays" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_40" value="ASSETS  C03 C04 C05 C06 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U11">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U14" label="" screenId="U14" kind="Screen" assetIds="C01 C04 C05 C08 C10" interactionIds="I10 I12 I13 I15 I18 I19 I24 I27 I28" description="DRAW: Nodes + labeled links; map / list&#10;Add; select; fit; filter; Reuse | STATES: Empty / populated; focused / filtered&#10;Missing evidence; saved changes | ACTIONS: Select U15 · Add U10 · Reuse U18&#10;Related U13 · Filter U17 · Export U25">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="665" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_41" value="U14  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_42" value="Idea map" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_43" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_44" value="Nodes + labeled links; map / list&#10;Add; select; fit; filter; Reuse" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_45" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_46" value="Empty / populated; focused / filtered&#10;Missing evidence; saved changes" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_47" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_48" value="Select U15 · Add U10 · Reuse U18&#10;Related U13 · Filter U17 · Export U25" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_49" value="ASSETS  C01 C04 C05 C08 C10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U14">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U18" label="" screenId="U18" kind="Screen" assetIds="C04 C07 C09" interactionIds="I19 I20" description="DRAW: Selected idea; destination picker&#10;Link this idea / Create a derivative | STATES: Destination unset / selected&#10;New project inline; saving / failed | ACTIONS: Confirm → destination map U14&#10;Cancel → same original map">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="630" y="665" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_50" value="U18  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_51" value="Reuse idea" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_52" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_53" value="Selected idea; destination picker&#10;Link this idea / Create a derivative" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_54" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_55" value="Destination unset / selected&#10;New project inline; saving / failed" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_56" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_57" value="Confirm → destination map U14&#10;Cancel → same original map" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_58" value="ASSETS  C04 C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U18">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U10" label="" screenId="U10" kind="Screen" assetIds="C03 C04 C05 C07 C09" interactionIds="I09 I12 I13" description="DRAW: Title / meaning; type; evidence&#10;Relationship source / target / type | STATES: New idea · draft edit · accepted edit&#10;Unsaved · validation · save conflict | ACTIONS: Save draft → U11; Save idea → U14&#10;Cancel → caller; recover unsaved work">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1200" y="665" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_59" value="U10  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_60" value="Idea editor" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_61" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_62" value="Title / meaning; type; evidence&#10;Relationship source / target / type" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_63" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_64" value="New idea · draft edit · accepted edit&#10;Unsaved · validation · save conflict" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_65" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_66" value="Save draft → U11; Save idea → U14&#10;Cancel → caller; recover unsaved work" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_67" value="ASSETS  C03 C04 C05 C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U10">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U16" label="" screenId="U16" kind="Screen" assetIds="C01 C03 C09 C10" interactionIds="I08 I16 I17 I26" description="DRAW: Audio player / text; cited excerpt&#10;Real timestamp; source action menu | STATES: Available / loading / missing&#10;Playback; highlighted evidence | ACTIONS: Back → caller U11 or U15&#10;Menu: Delete → U20">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1770" y="665" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_68" value="U16  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_69" value="Source viewer" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_70" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_71" value="Audio player / text; cited excerpt&#10;Real timestamp; source action menu" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_72" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_73" value="Available / loading / missing&#10;Playback; highlighted evidence" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_74" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_75" value="Back → caller U11 or U15&#10;Menu: Delete → U20" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_76" value="ASSETS  C01 C03 C09 C10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U16">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U01" label="" screenId="U01" kind="Screen" assetIds="C01 C03 C08" interactionIds="I06 I14 I21 I22" description="DRAW: Sources / project list; search&#10;Add; pending updates; AI settings | STATES: Empty / populated; saved material&#10;Preserved scroll and search context | ACTIONS: Search U12 · Project U14 · Source U05&#10;Add U02 · Updates U06 · Settings U07">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="1065" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_77" value="U01  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_78" value="Library" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_79" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_80" value="Sources / project list; search&#10;Add; pending updates; AI settings" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_81" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_82" value="Empty / populated; saved material&#10;Preserved scroll and search context" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_83" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_84" value="Search U12 · Project U14 · Source U05&#10;Add U02 · Updates U06 · Settings U07" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_85" value="ASSETS  C01 C03 C08" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U01">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U12" label="" screenId="U12" kind="Screen" assetIds="C01 C04 C08 C09" interactionIds="I14 I15 I17" description="DRAW: Search field; result + source context&#10;Matched snippet; result selection | STATES: Query / results / no results&#10;Loading; query retained on Back | ACTIONS: Select idea → U15&#10;Text search works with AI off">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="630" y="1065" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_86" value="U12  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_87" value="Search results" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_88" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_89" value="Search field; result + source context&#10;Matched snippet; result selection" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_90" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_91" value="Query / results / no results&#10;Loading; query retained on Back" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_92" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_93" value="Select idea → U15&#10;Text search works with AI off" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_94" value="ASSETS  C01 C04 C08 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U12">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U06" label="" screenId="U06" kind="Screen" assetIds="C03 C06 C09" interactionIds="I06 I07" description="DRAW: Pending change sets; source + date&#10;Ready / processing badges | STATES: No updates · processing · ready&#10;Failed; saved ideas kept separate | ACTIONS: Open ready draft → U11&#10;Optional return-later entry">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1200" y="1065" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_95" value="U06  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_96" value="Updates" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_97" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_98" value="Pending change sets; source + date&#10;Ready / processing badges" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_99" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_100" value="No updates · processing · ready&#10;Failed; saved ideas kept separate" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_101" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_102" value="Open ready draft → U11&#10;Optional return-later entry" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_103" value="ASSETS  C03 C06 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U06">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U13" label="" screenId="U13" kind="Screen · optional AI" assetIds="C03 C04 C08 C09" interactionIds="I18" description="DRAW: Suggestion cards; reason + evidence&#10;Inspect / dismiss; source context | STATES: AI off · loading · suggestions&#10;None / failed; no silent links | ACTIONS: Inspect → U15; dismiss stays&#10;Back → U14; search is the fallback">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1770" y="1065" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_104" value="U13  /  SCREEN · OPTIONAL AI" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_105" value="Related ideas" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_106" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_107" value="Suggestion cards; reason + evidence&#10;Inspect / dismiss; source context" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_108" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_109" value="AI off · loading · suggestions&#10;None / failed; no silent links" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_110" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_111" value="Inspect → U15; dismiss stays&#10;Back → U14; search is the fallback" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_112" value="ASSETS  C03 C04 C08 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U13">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U03" label="" screenId="U03" kind="Screen" assetIds="C03 C07 C09" interactionIds="I06 I21 I23" description="DRAW: File / paste / write input; preview&#10;Supported-format hint; Save | STATES: Empty / filled; unsupported / failed&#10;Keep entered material on failure | ACTIONS: Save → U04; Cancel → caller&#10;OS file picker is platform UI">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="1465" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_113" value="U03  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_114" value="Import / write" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_115" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_116" value="File / paste / write input; preview&#10;Supported-format hint; Save" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_117" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_118" value="Empty / filled; unsupported / failed&#10;Keep entered material on failure" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_119" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_120" value="Save → U04; Cancel → caller&#10;OS file picker is platform UI" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_121" value="ASSETS  C03 C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U03">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U07" label="" screenId="U07" kind="Screen" assetIds="C07 C09" interactionIds="I05 I22" description="DRAW: Processing scope; what is sent&#10;Enable / keep off; current preference | STATES: First-use choice after capture&#10;Enabled / disabled; existing job status | ACTIONS: First use → source U05&#10;Ordinary settings → caller">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="630" y="1465" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_122" value="U07  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_123" value="AI settings" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_124" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_125" value="Processing scope; what is sent&#10;Enable / keep off; current preference" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_126" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_127" value="First-use choice after capture&#10;Enabled / disabled; existing job status" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_128" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_129" value="First use → source U05&#10;Ordinary settings → caller" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_130" value="ASSETS  C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U07">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U15" label="" screenId="U15" kind="Screen" assetIds="C01 C03 C04 C09" interactionIds="I15 I16 I17 I25" description="DRAW: Idea title / type / meaning; evidence&#10;Source; History; Edit; Back | STATES: Accepted / tentative / disputed&#10;Missing evidence; updated revision | ACTIONS: Source U16 · History U19 · Edit U10&#10;Back → same map / results / suggestion">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1200" y="1465" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_131" value="U15  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_132" value="Idea details" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_133" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_134" value="Idea title / type / meaning; evidence&#10;Source; History; Edit; Back" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_135" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_136" value="Accepted / tentative / disputed&#10;Missing evidence; updated revision" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_137" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_138" value="Source U16 · History U19 · Edit U10&#10;Back → same map / results / suggestion" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_139" value="ASSETS  C01 C03 C04 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U15">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U19" label="" screenId="U19" kind="Screen" assetIds="C03 C07 C09" interactionIds="I16 I17 I25" description="DRAW: Version list; author / time; compare&#10;Restore target + effect preview | STATES: Current / selected revision&#10;Restoring / restored / conflict | ACTIONS: Restore → updated idea U15&#10;Back → U15; old history retained">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1770" y="1465" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_140" value="U19  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_141" value="History" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_142" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_143" value="Version list; author / time; compare&#10;Restore target + effect preview" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_144" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_145" value="Current / selected revision&#10;Restoring / restored / conflict" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_146" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_147" value="Restore → updated idea U15&#10;Back → U15; old history retained" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_148" value="ASSETS  C03 C07 C09" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U19">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U25" label="" screenId="U25" kind="Screen" assetIds="C07 C09 C10" interactionIds="I27" description="DRAW: Included ideas / links / references&#10;Scope selection; missing-asset notice | STATES: Ready / preparing / failed&#10;Cancelled; permitted content only | ACTIONS: Export → OS save / share → U14&#10;Cancel → same map; AI not required">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="1865" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_149" value="U25  /  SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_150" value="Export preview" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_151" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_152" value="Included ideas / links / references&#10;Scope selection; missing-asset notice" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_153" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_154" value="Ready / preparing / failed&#10;Cancelled; permitted content only" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_155" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_156" value="Export → OS save / share → U14&#10;Cancel → same map; AI not required" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_157" value="ASSETS  C07 C09 C10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U25">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U02" label="" screenId="U02" kind="Bottom sheet" assetIds="C10" interactionIds="I06 I21" description="DRAW: Record / Import / Write options&#10;Dismiss / close | STATES: Open / closed; caller retained&#10;Never required before first Record | ACTIONS: Record → U08; Import / Write → U03&#10;Dismiss → Library U01">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="630" y="1865" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_158" value="U02  /  BOTTOM SHEET" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_159" value="Add material" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_160" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_161" value="Record / Import / Write options&#10;Dismiss / close" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_162" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_163" value="Open / closed; caller retained&#10;Never required before first Record" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_164" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_165" value="Record → U08; Import / Write → U03&#10;Dismiss → Library U01" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_166" value="ASSETS  C10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U02">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U17" label="" screenId="U17" kind="Bottom sheet" assetIds="C08 C10" interactionIds="I24" description="DRAW: Filter choices; active chip / count&#10;Apply; Clear; Cancel | STATES: No filter / active / no matches&#10;Visible scope only; records unchanged | ACTIONS: Apply / Clear → map U14&#10;Cancel → unchanged map">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1200" y="1865" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_167" value="U17  /  BOTTOM SHEET" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_168" value="Filters" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_169" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_170" value="Filter choices; active chip / count&#10;Apply; Clear; Cancel" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_171" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_172" value="No filter / active / no matches&#10;Visible scope only; records unchanged" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_173" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_174" value="Apply / Clear → map U14&#10;Cancel → unchanged map" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_175" value="ASSETS  C08 C10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U17">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U20" label="" screenId="U20" kind="Dialog" assetIds="C03 C09 C10" interactionIds="I26" description="DRAW: Affected references; impact summary&#10;Delete / Cancel | STATES: Confirming / deleting / failed&#10;Retained ideas show missing evidence | ACTIONS: Delete → prior idea / map; close source&#10;Cancel → U16; no false Undo promise">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="1770" y="1865" width="530" height="365" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_176" value="U20  /  DIALOG" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="20" y="17" width="490" height="22" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_177" value="Delete source?" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="20" y="50" width="490" height="37" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_178" value="DRAW" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="20" y="102" width="70" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_179" value="Affected references; impact summary&#10;Delete / Cancel" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="105" y="99" width="405" height="58" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_180" value="STATES" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="20" y="177" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_181" value="Confirming / deleting / failed&#10;Retained ideas show missing evidence" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="105" y="174" width="405" height="54" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_182" value="ACTIONS" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=14;fontColor=#53645E;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="20" y="251" width="80" height="23" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_183" value="Delete → prior idea / map; close source&#10;Cancel → U16; no false Undo promise" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="105" y="248" width="405" height="61" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_184" value="ASSETS  C03 C09 C10" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=15;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U20">
+          <mxGeometry as="geometry" x="20" y="330" width="490" height="22" />
+        </mxCell>
+        <object id="branch_check_U09" label="" screenId="U09" kind="Shared recovery pattern" interactionIds="I01 I03 I13 I21 I23" assetIds="C09" description="Contextual recovery, not a new destination screen. Keep work, explain actual failure, retry without duplication.">
+          <mxCell vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+            <mxGeometry as="geometry" x="60" y="2310" width="1100" height="235" />
+          </mxCell>
+        </object>
+        <mxCell id="branch_checklist_cell_185" value="U09  /  SHARED PATTERN, NOT ANOTHER SCREEN" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=16;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U09">
+          <mxGeometry as="geometry" x="22" y="20" width="1056" height="25" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_186" value="Recovery stays where the problem happened" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U09">
+          <mxGeometry as="geometry" x="22" y="60" width="1056" height="40" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_187" value="Draw: clear error + retained-work status + Retry / fallback.&#10;Apply to mic denial, interrupted capture, save failure, processing failure and stale edits.&#10;Success returns to the same task; never show “saved” before persistence succeeds." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_check_U09">
+          <mxGeometry as="geometry" x="22" y="118" width="1056" height="96" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_188" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="1200" y="2310" width="1100" height="235" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_189" value="SHARED NAVIGATION RULE" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=16;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_188">
+          <mxGeometry as="geometry" x="22" y="20" width="1056" height="25" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_190" value="Back returns to the actual caller" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=28;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_188">
+          <mxGeometry as="geometry" x="22" y="60" width="1056" height="40" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_191" value="Keep query, selection, draft, scroll and map position.&#10;Permission prompts, file pickers and native sharing are platform UI.&#10;U21–U24 collaboration comes later; it is not first-release design work." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#182A25;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_188">
+          <mxGeometry as="geometry" x="22" y="118" width="1056" height="96" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_192" value="SHARED ASSET KIT  /  Design once; use the C-numbers on each screen card." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=25;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="2600" width="2240" height="34" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_193" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="60" y="2670" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_194" value="C01  Navigation" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_193">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_195" value="Header · Back · Library entry&#10;Focus / scroll restoration" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_193">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_196" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="516" y="2670" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_197" value="C02  Recording" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_196">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_198" value="Record / Pause / Resume / Stop&#10;Timer · level indicator · mic status" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_196">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_199" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="972" y="2670" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_200" value="C03  Source &amp; evidence" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_199">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_201" value="Audio player · transcript / excerpt&#10;Attachment · citation · missing source" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_199">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_202" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="1428" y="2670" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_203" value="C04  Idea cards" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_202">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_204" value="Title · type · status · selection&#10;Empty / accepted / disputed variants" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_202">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_205" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="1884" y="2670" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_206" value="C05  Connections" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_205">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_207" value="Labeled edge · proposed / accepted&#10;Connect form · focused map / list" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_205">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_208" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="60" y="2876" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_209" value="C06  Review" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_208">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_210" value="Proposal · checkbox · selection count&#10;Accept · dismiss · reversible Undo" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_208">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_211" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="516" y="2876" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_212" value="C07  Forms &amp; choices" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_211">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_213" value="Field · picker · radio choice&#10;Validation · draft / saved edit modes" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_211">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_214" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="972" y="2876" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_215" value="C08  Find &amp; filter" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_214">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_216" value="Search · result · filter chip&#10;No results · active filter / clear" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_214">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_217" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="1428" y="2876" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_218" value="C09  Status &amp; recovery" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_217">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_219" value="Saving · saved · processing · retry&#10;Interrupted · failed · stale change" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_217">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_220" vertex="1" parent="1" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A7B5AE;strokeWidth=1.5;shadow=0;">
+          <mxGeometry as="geometry" x="1884" y="2876" width="426" height="180" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_221" value="C10  Sheets &amp; menus" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=22;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_220">
+          <mxGeometry as="geometry" x="18" y="18" width="390" height="33" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_222" value="Action sheet · impact confirmation&#10;Export scope · cancel / confirm" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=18;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="branch_checklist_cell_220">
+          <mxGeometry as="geometry" x="18" y="72" width="390" height="84" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_223" value="FIRST PROTOTYPE" style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=17;fontColor=#235B47;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="3130" width="2240" height="24" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_224" value="U08 → U04 → U05 → U11 → U14. Include first-use AI U07, manual editor U10 and source evidence U16." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=23;fontColor=#182A25;fontStyle=1;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="3178" width="2240" height="34" />
+        </mxCell>
+        <mxCell id="branch_checklist_cell_225" value="Design listed states, not extra screens. Source of truth: 07 MD Files / SYSTEM_DESIGN.md. All objects remain editable." style="text;html=0;whiteSpace=wrap;overflow=visible;fillColor=none;strokeColor=none;fontFamily=Arial;fontSize=20;fontColor=#53645E;fontStyle=0;align=left;verticalAlign=top;spacing=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="3240" width="2240" height="34" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

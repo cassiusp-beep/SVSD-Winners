@@ -1,5 +1,7 @@
 # The concept so far
 
+**Historical prototype reference · 18 October 2026:** the document below describes the earlier creative-exchange concept and is preserved for design history. Read [current context](../../CONTEXT.md) and the [team-first product definition](../../docs/context/product-definition.md) before new design/build work. Inherited “primary source,” screen and interaction requirements below do not override that direction. The live team experience remains proposed, not implemented or validated by this sync.
+
 > **Superseded in part.** The product now has a name, Branch, and a full conceptual model in `conceptual-model.md`. Where the two disagree, follow the conceptual model. This file keeps the original brainstorm reasoning for the video's "how we got here" section.
 
 Source: the team's first brainstorm on Thursday, October 15, 2026, transcribed from a recording. This is a direction, not a decision. Most of it is still open.

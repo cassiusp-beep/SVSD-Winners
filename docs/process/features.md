@@ -1,5 +1,7 @@
 # Features
 
+**Historical prototype reference · 18 October 2026:** the document below describes the earlier creative-exchange concept and is preserved for design history. Read [current context](../../CONTEXT.md) and the [team-first product definition](../../docs/context/product-definition.md) before new design/build work. Inherited “primary source,” screen and interaction requirements below do not override that direction. The live team experience remains proposed, not implemented or validated by this sync.
+
 Source: `docs/context/conceptual-model.md`. Step names in **bold** match the Miro board. The deadline is Monday, October 19 at 11:59 PM Pacific, so scope hard.
 
 ## Hero path: build these first

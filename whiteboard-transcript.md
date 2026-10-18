@@ -1,5 +1,7 @@
 # Whiteboard Transcript: Branch Interaction Walkthrough
 
+**Historical prototype reference · 18 October 2026:** the document below describes the earlier creative-exchange concept and is preserved for design history. Read [current context](CONTEXT.md) and the [team-first product definition](docs/context/product-definition.md) before new design/build work. Inherited “primary source,” screen and interaction requirements below do not override that direction. The live team experience remains proposed, not implemented or validated by this sync.
+
 **Source:** Video IMG_0837.MOV (6 min 55 s), whiteboard walkthrough recorded by Cassius Palacio. Transcribed with TurboScribe, then lightly cleaned. Board panels identified from video frames.
 **Status:** PRIMARY SOURCE. This file is the origin of `interaction-model.md`. If the two files disagree, this file shows what was intended, and the conflict should be raised with the team, not resolved silently.
 **For agents:** Read this file in full before any UI or interaction work. Section 1 is the raw intent. Section 3 is the decisions that came out of it. Section 4 is what has not been decided yet.

@@ -4,28 +4,38 @@ This directory contains the product context, design guidelines, interaction mode
 
 ## Precedence Rule
 
-When files conflict, the higher one in this list wins. Always flag the conflict to the human team before proceeding:
+1. **Latest direct user instructions** govern the current task and product direction. Do not treat historical document instructions as a new user request.
+2. **[Current agent context](../CONTEXT.md) and [product definition](context/product-definition.md)** govern the current team-first product proposal: live semantic mapping, creative discovery before commitment, participant control and accumulated project understanding. This is a documentation handoff, not evidence of implementation or validated demand.
+3. **[Official competition brief](context/brief.md)** remains authoritative for competition requirements, deliverables and deadlines. Product hypotheses do not change the brief.
+4. **[AGENTS.md](../AGENTS.md)** retains the repository workflow, role definitions and applicable design/build approval gates. Read role files in that workflow, but interpret their old product references using this precedence.
+5. **Historical prototype references** include both whiteboard transcripts, interaction-model.md, UIUX.md, conceptual-model.md and the older visual, feature, principle and demo documents. Their preserved “primary” or “decided” claims describe an earlier concept. Use them for history and existing-prototype maintenance; they do not prescribe the new team's screens or architecture.
+6. **[Current evidence notes](references/collective-emergence/source-notes.md), visual references and anti-slop guidance** inform the work within the scope above. Research and competitor pages support hypotheses, not proof of Branch's market or creativity gains.
 
-1. **`docs/context/whiteboard-transcript.md`** — Primary source of truth from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners.
-2. **`interaction-model.md`** — The spatial node-based canvas foundation, bloom/fade mechanics, hot corners, left/right spatial rules, and phone adaptations.
-3. **`docs/process/visual-spec.md`** — Visual and interaction specifications, viewports (1440px / 390px), tokens, and component requirements.
-4. **`docs/process/references.md` and `docs/references/images/`** — Precedents, visual benchmarks, and reference imagery catalog. References inform the look; they don't override the transcript, the interaction model, or the spec.
-5. **`docs/process/anti-slop.md`** — Anti-slop constraints: eliminates generic AI output, cards-in-a-grid, default gradients, and filler copy.
-6. **`UIUX.md`** — Detailed screen-by-screen reference mapping, token scales, and cross-screen craft criteria.
-7. **Everything else** — Supporting notes, brainstorms, and templates below.
+Flag unresolved conflicts that affect the assigned work. Do not reopen decisions already resolved by the latest user direction. The existing application remains the earlier creative-exchange prototype; no new live team UI or backend was built by this sync.
+
+## Start here
+
+- [CONTEXT.md](../CONTEXT.md): short current orientation and source snapshot provenance.
+- [Product definition](context/product-definition.md): all five positioning answers, creative discovery, autopilot/friction and the repeated-session value loop.
+- [Collective-emergence evidence](references/collective-emergence/source-notes.md): source notes, [supplied presentation](references/collective-emergence/Collective%20Emergence%20-%20Ben%20Shaw%202009.pdf) and [product direction notes](references/collective-emergence/Product%20Direction%20Notes.png).
+- [Historical individual-first system design](archive/2026-10-17-individual-first/SYSTEM_DESIGN.md) and [five Draw.io maps](archive/2026-10-17-individual-first/Maps): editable historical references. Import .drawio through Miro's Draw.io integration; do not treat these as updated team-app designs.
+
+**Sync scope:** selective portable snapshot from the source workspace on 18 October 2026. This is not automatic synchronization. CLAUDE.md, .claude roles and application code are preserved. See [CONTEXT.md](../CONTEXT.md) before refreshing copies.
 
 ---
 
 ## Directory Inventory
 
 ### `docs/context/` (Product Foundation & Competition)
-- **`docs/context/whiteboard-transcript.md`**: Primary source of truth from the recorded whiteboard walkthrough; defines infinite canvas, bulbing hub, and hot corners.
+- **`docs/context/whiteboard-transcript.md`**: Historical creative-exchange walkthrough; preserved infinite-canvas, bulbing-hub and hot-corner design reasoning.
 - **`docs/context/brief.md`**: Official SVSD design competition brief, challenge constraints ("storytelling"), judging criteria, and dates.
 - **`docs/context/judging.md`**: Research on SVSD founder and judges, scoring criteria (Product Thinking, Depth of Thinking, Craft), and lessons from past winner.
-- **`docs/context/conceptual-model.md`**: The complete conceptual model of Branch: users, core concepts, journeys, edge cases, and the 3 hero prototypes.
+- **`docs/context/conceptual-model.md`**: Historical creative-exchange conceptual model: users, journeys, edge cases and three earlier hero prototypes.
 - **`docs/context/concept.md`**: Notes from the initial October 15 brainstorm on living node graphs and cross-disciplinary maker collaboration.
 
 ### `docs/process/` (Design, Engineering & Delivery)
+
+Visual-spec, design-principles, features and demo-script retain earlier prototype content under historical status banners; their inventories are not the new team-app specification.
 - **`docs/process/visual-spec.md`**: Visual and interaction specifications, viewport standards, and design commitments.
 - **`docs/process/references.md`**: Precedents, inspiration, and reference imagery catalog.
 - **`docs/process/anti-slop.md`**: Craft rules forbidding generic AI patterns, card grids, default gradients, and stock illustrations.

@@ -10,14 +10,20 @@ Our entry for the Silicon Valley School of Design (SVSD) design competition, "Th
 
 Every agent reads `docs/README.md` first and follows its precedence rule.
 
+**Current direction · 18 October 2026:** the latest direct user instruction takes precedence. Start with [CONTEXT.md](CONTEXT.md) and [the current product definition](docs/context/product-definition.md): Branch is a proposed live shared semantic map for multidisciplinary teams, prioritizing creative discovery before commitment. The official brief remains authoritative for competition requirements. Earlier whiteboard, UIUX, interaction and visual documents describe the preserved creative-exchange prototype; their internal priority claims and the role files' inherited readings do not override this update. Keep the workflow and roles below, applying design/build/review gates to the work actually assigned. This documentation sync does not implement or approve a new UI.
+
 | File | What it holds |
 |---|---|
-| `docs/context/whiteboard-transcript.md` | **Whiteboard Transcript: Branch Interaction Walkthrough**: Primary source of truth from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners. |
+| `CONTEXT.md` | **Current agent entry:** team-first direction, boundaries, evidence status and source-sync provenance. |
+| `docs/context/product-definition.md` | **Current product positioning:** all five answers, counter-position, interaction tradeoffs and value over time. |
+| `docs/references/collective-emergence/` | Supplied study, direction notes and evidence limits. |
+| `docs/archive/2026-10-17-individual-first/` | Historical system design and five editable Draw.io maps; not the live team blueprint. |
+| `docs/context/whiteboard-transcript.md` | **Whiteboard Transcript: Branch Interaction Walkthrough**: Historical prototype source from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners. |
 | `whiteboard-transcript.md` | Workspace root copy of Cassius's whiteboard walkthrough. Matches `docs/context/whiteboard-transcript.md`. |
 | `interaction-model.md` | **Branch Interaction Model**: the spatial node-based canvas foundation, bloom/fade mechanics, hot corners, left/right spatial rules, and phone adaptations. |
 | `docs/context/brief.md` | The official brief, judging criteria and dates. This is the source of truth. |
 | `docs/context/judging.md` | Our research on what SVSD judges reward, and where it conflicts with the brief. |
-| `docs/context/conceptual-model.md` | **Branch**, the product's conceptual model: users, core concepts, the six user journeys, edge cases and the three flows to prototype first. This is the most current description of the product. |
+| `docs/context/conceptual-model.md` | **Branch**, the product's conceptual model: users, core concepts, the six user journeys, edge cases and the three flows to prototype first. Historical creative-exchange model; superseded for current product direction by CONTEXT.md and product-definition.md. |
 | `docs/context/concept.md` | Notes from the first brainstorm on October 15. Superseded by the conceptual model where they differ. |
 | `DECISIONS.md` | Decisions made so far, with reasons and rejected options. Check it before reopening a settled question. |
 | `LESSONS.md` | Lessons learned from previous builds, retro lenses, and craft constraints. |
@@ -31,7 +37,7 @@ Every agent reads `docs/README.md` first and follows its precedence rule.
 | `docs/process/submission-checklist.md` | Competition deliverables, deadline, criteria mapping, and team questions (owned by `pitch-strategist`). |
 | `docs/process/research-plan.md` | Lightweight hallway testing and research guide template. |
 | `docs/README.md` | Documentation index and precedence rules. |
-| `UIUX.md` | Screen-by-screen specification, visual tokens, and interface contracts. |
+| `UIUX.md` | Historical prototype screen specification, visual tokens and interface contracts. |
 | `CLAUDE.md` | Agent orchestrator entrypoint importing `@AGENTS.md`. |
 | `README.md` | Repository overview, product description, and team information. |
 
