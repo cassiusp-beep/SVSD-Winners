@@ -7,7 +7,14 @@
     <key>CFBundleIdentifier</key>
     <string>design.svsd.branch</string>
     <key>CFBundleName</key>
-    <string>Branch</string>
+    <string>Ya Ya</string>
+    <key>CFBundleDisplayName</key>
+    <string>Ya Ya</string>
+    <key>UIAppFonts</key>
+    <array>
+        <string>BerkeleyMono-Regular.ttf</string>
+        <string>BerkeleyMono-Bold.ttf</string>
+    </array>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>

@@ -18,7 +18,11 @@ struct BranchApp: App {
             SignInView(store: DemoStore())
         } else if CommandLine.arguments.contains("-onboardingProfileEmpty") {
             OnboardingFlowView(store: emptySessionStore, initialStep: .profile)
-        } else if CommandLine.arguments.contains("-onboardingProfile") {
+        } else if CommandLine.arguments.contains("-onboardingProfileKeyboardEmpty") {
+            OnboardingFlowView(store: emptySessionStore, initialStep: .profile)
+        } else if CommandLine.arguments.contains("-onboardingProfileKeyboardMidTyping") {
+            OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
+        } else if CommandLine.arguments.contains("-onboardingProfileFilled") || CommandLine.arguments.contains("-onboardingProfile") {
             OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
         } else if CommandLine.arguments.contains("-onboardingIntegrations") {
             OnboardingFlowView(store: mockFilledStore, initialStep: .integrations)
@@ -52,11 +56,41 @@ struct BranchApp: App {
             CollaborationSessionView(initialMode: .meeting)
         } else if CommandLine.arguments.contains("-collaborationTakeaways") {
             CollaborationSessionView(initialMode: .takeaways)
+        } else if CommandLine.arguments.contains("-guestReady") {
+            CollaborationSessionView(store: guestStore, initialMode: .ready)
+        } else if CommandLine.arguments.contains("-guestTakeaways") {
+            CollaborationSessionView(store: guestStore, initialMode: .takeaways)
+        } else if CommandLine.arguments.contains("-profileTab") || CommandLine.arguments.contains("-tabProfile") {
+            CollaborationSessionView(store: mockFilledStore, initialMode: .ready)
+        } else if CommandLine.arguments.contains("-tabLiveMap") ||
+                  CommandLine.arguments.contains("-liveMapTab") ||
+                  CommandLine.arguments.contains("-tabLiveMapLive") ||
+                  CommandLine.arguments.contains("-liveMapLive") ||
+                  CommandLine.arguments.contains("-tabLiveMapEmpty") ||
+                  CommandLine.arguments.contains("-tabLiveMapPast") ||
+                  CommandLine.arguments.contains("-testDetailSheet") ||
+                  CommandLine.arguments.contains("-testFrictionSheet") ||
+                  CommandLine.arguments.contains("-testActorIsolated") ||
+                  CommandLine.arguments.contains("-testCombinationMoment") {
+            let store = CommandLine.arguments.contains("-tabLiveMapEmpty") ? emptySessionStore : mockFilledStore
+            CollaborationSessionView(store: store, initialMode: .ready)
+        } else if CommandLine.arguments.contains("-tabKnowledge") ||
+                  CommandLine.arguments.contains("-knowledgeTab") ||
+                  CommandLine.arguments.contains("-tabKnowledgeDated") ||
+                  CommandLine.arguments.contains("-tabKnowledgeLive") ||
+                  CommandLine.arguments.contains("-tabKnowledgeHandoff") {
+            CollaborationSessionView(store: mockFilledStore, initialMode: .ready)
         } else {
             // Standard end-to-end launch routing:
             // Continuous OnboardingFlowView -> HomeView
             AppRootView(store: DemoStore.shared)
         }
+    }
+    
+    private var guestStore: DemoStore {
+        let store = DemoStore()
+        store.startGuestSession()
+        return store
     }
     
     private var emptySessionStore: DemoStore {
@@ -68,12 +102,24 @@ struct BranchApp: App {
     private var mockFilledStore: DemoStore {
         let store = DemoStore()
         store.session = UserSession(providerName: "Apple")
+        let (name, nick): (String, String) = {
+            if CommandLine.arguments.contains("-profileShort") {
+                return ("CJ", "cj")
+            } else if CommandLine.arguments.contains("-profileLong") {
+                return ("Cassius Palacio", "cassiuspalacio_22")
+            } else if CommandLine.arguments.contains("-descenderTest") {
+                return ("Cassius Palacio", "cassiuspalacio")
+            } else {
+                return ("Cassius", "cassius")
+            }
+        }()
         store.profile = UserProfile(
-            fullName: "Cassius Palacio",
-            nickname: CommandLine.arguments.contains("-descenderTest") ? "cassiuspalacio" : "Cash",
+            fullName: name,
+            nickname: nick,
             avatarType: .sprite,
-            spriteColorHex: "#26C6DA"
+            spriteColorHex: "#F5A623"
         )
+        store.hasCompletedSync = true
         return store
     }
     

@@ -45,6 +45,25 @@ public struct UserProfile: Codable, Sendable, Equatable {
     }
 }
 
+// MARK: - Session Declared Actions Model (for Thinking Style Radar)
+public struct SessionDeclaredActions: Codable, Sendable, Equatable {
+    public var processing: Int = 0 // Systematic (Cloud)
+    public var building: Int = 0   // Tinkering (Spark)
+    public var reframing: Int = 0  // Creative (Prism)
+    public var questions: Int = 0  // Observant (Bloom)
+    
+    public init(processing: Int = 0, building: Int = 0, reframing: Int = 0, questions: Int = 0) {
+        self.processing = processing
+        self.building = building
+        self.reframing = reframing
+        self.questions = questions
+    }
+    
+    public var total: Int {
+        processing + building + reframing + questions
+    }
+}
+
 // MARK: - Demo Store Persistence & Mock Backend
 @Observable
 @MainActor
@@ -58,6 +77,7 @@ public final class DemoStore {
     private let integrationTimestampsKey = "branch_demo_integration_timestamps"
     private let integrationsCompletedKey = "branch_demo_integrations_completed"
     private let syncCompletedKey = "branch_demo_sync_completed"
+    private let isGuestKey = "branch_demo_is_guest"
     
     // MARK: - Published State
     public var session: UserSession?
@@ -66,6 +86,96 @@ public final class DemoStore {
     public var connectedTimestamps: [String: Date] = [:]
     public var hasCompletedIntegrations: Bool = false
     public var hasCompletedSync: Bool = false
+    public var isGuest: Bool = false
+    public var completedSessionActions: [SessionDeclaredActions] = []
+    public var knowledgeEntries: [KnowledgeEntry] = KnowledgeEntry.seededEntries
+    public var selectedKnowledgeProjectID: String? = nil // nil = All projects
+    public var liveKnowledgeEntries: [KnowledgeEntry] = []
+    
+    // Live Map (Collective Emergence) state
+    public var selectedSessionID: String = "session_3"
+    public var resolvedFrictionEntries: [String: KnowledgeResolution] = [:]
+    public var extraResolvedFrictionCount: Int = 0
+    
+    public func resolveFriction(entryID: String, resolution: KnowledgeResolution) {
+        resolvedFrictionEntries[entryID] = resolution
+        if resolution != .unresolved {
+            extraResolvedFrictionCount += 1
+        }
+    }
+    
+    public func entriesForSelectedSession() -> [KnowledgeEntry] {
+        if CommandLine.arguments.contains("-tabLiveMapEmpty") || selectedSessionID == "empty" {
+            return []
+        }
+        
+        let entries: [KnowledgeEntry]
+        switch selectedSessionID {
+        case "session_1":
+            entries = KnowledgeEntry.session1Entries
+        case "session_2":
+            entries = KnowledgeEntry.session2Entries
+        case "session_3":
+            entries = KnowledgeEntry.session3Entries
+        default:
+            entries = KnowledgeEntry.session3Entries
+        }
+        
+        // Apply any live resolutions
+        return entries.map { entry in
+            if let res = resolvedFrictionEntries[entry.id] {
+                var updated = entry
+                updated.resolution = res
+                return updated
+            }
+            return entry
+        }
+    }
+    
+    // 8 weeks of historical session action counts (56 days, Mon-Sun across 8 weeks)
+    // Seeded with realistic activity pattern, with today (index 55) accumulating new sessions.
+    public var sessionHistoryDays: [Int] = [
+        0, 1, 3, 0, 4, 2, 0,
+        1, 0, 2, 5, 3, 0, 0,
+        0, 3, 4, 1, 2, 0, 0,
+        2, 4, 0, 3, 6, 1, 0,
+        1, 2, 4, 2, 0, 0, 0,
+        3, 0, 5, 2, 4, 1, 0,
+        0, 2, 3, 6, 4, 0, 0,
+        1, 4, 2, 5, 3, 0, 0
+    ]
+    
+    public func recordCompletedSession(declaredActionsCount: Int, actions: SessionDeclaredActions? = nil) {
+        if !sessionHistoryDays.isEmpty {
+            sessionHistoryDays[sessionHistoryDays.count - 1] += declaredActionsCount
+        }
+        if let actions = actions {
+            completedSessionActions.append(actions)
+        }
+    }
+    
+    public func commitLiveKnowledgeEntriesToSeeded(for projectID: String = "yaya") {
+        guard !liveKnowledgeEntries.isEmpty else { return }
+        let converted = liveKnowledgeEntries.map { entry in
+            KnowledgeEntry(
+                id: entry.id,
+                projectID: projectID,
+                type: entry.type,
+                text: entry.text,
+                timestamp: entry.timestamp,
+                dateDisplay: "TODAY",
+                sessionID: entry.sessionID,
+                agentId: entry.agentId,
+                agentName: entry.agentName,
+                agentSprite: entry.agentSprite,
+                media: entry.media,
+                relatedEntryIDs: entry.relatedEntryIDs
+            )
+        }
+        knowledgeEntries.append(contentsOf: converted)
+        liveKnowledgeEntries = []
+        selectedKnowledgeProjectID = projectID
+    }
     
     // Loaded avatar image cached in memory
     #if canImport(UIKit)
@@ -83,6 +193,16 @@ public final class DemoStore {
     public init() {
         // Every cold launch starts fresh at sign-in with all data cleared
         resetDemo()
+        
+        if CommandLine.arguments.contains("-skipAuth") ||
+           CommandLine.arguments.contains("-sessionLive") ||
+           CommandLine.arguments.contains("-modeMeeting") ||
+           CommandLine.arguments.contains("-tabKnowledge") ||
+           CommandLine.arguments.contains("-tabProfile") {
+            self.hasCompletedSync = true
+            self.session = UserSession(providerName: "Apple")
+            self.profile = UserProfile(fullName: "Alex Mercer", nickname: "alexm", avatarType: .sprite, spriteColorHex: "#6366F1")
+        }
     }
     
     // MARK: - Persistence Lifecycle
@@ -182,6 +302,36 @@ public final class DemoStore {
         // Profile and integrations are intentionally preserved so signing back in skips setup!
     }
     
+    // MARK: - Guest Mode Actions
+    public func startGuestSession() {
+        self.isGuest = true
+        self.session = nil
+        self.profile = nil
+        self.hasCompletedIntegrations = true
+        self.hasCompletedSync = true
+        UserDefaults.standard.set(true, forKey: isGuestKey)
+    }
+    
+    public func endGuestSessionAndStartSignUp() {
+        self.isGuest = false
+        self.session = nil
+        self.profile = nil
+        self.hasCompletedIntegrations = false
+        self.hasCompletedSync = false
+        // Discard sessions from guest period
+        self.sessionHistoryDays = [
+            0, 1, 3, 0, 4, 2, 0,
+            1, 0, 2, 5, 3, 0, 0,
+            0, 3, 4, 1, 2, 0, 0,
+            2, 4, 0, 3, 6, 1, 0,
+            1, 2, 4, 2, 0, 0, 0,
+            3, 0, 5, 2, 4, 1, 0,
+            0, 2, 3, 6, 4, 0, 0,
+            1, 4, 2, 5, 3, 0, 0
+        ]
+        UserDefaults.standard.removeObject(forKey: isGuestKey)
+    }
+    
     // MARK: - Profile Actions
     #if canImport(UIKit)
     public func saveProfile(
@@ -236,6 +386,11 @@ public final class DemoStore {
         self.connectedTimestamps = [:]
         self.hasCompletedIntegrations = false
         self.hasCompletedSync = false
+        self.isGuest = false
+        self.completedSessionActions = []
+        self.knowledgeEntries = KnowledgeEntry.seededEntries
+        self.selectedKnowledgeProjectID = nil
+        self.liveKnowledgeEntries = []
         #if canImport(UIKit)
         self.loadedPhotoImage = nil
         #endif
@@ -247,6 +402,7 @@ public final class DemoStore {
         UserDefaults.standard.removeObject(forKey: integrationTimestampsKey)
         UserDefaults.standard.removeObject(forKey: integrationsCompletedKey)
         UserDefaults.standard.removeObject(forKey: syncCompletedKey)
+        UserDefaults.standard.removeObject(forKey: isGuestKey)
     }
     
     // MARK: - Nickname Validation Logic

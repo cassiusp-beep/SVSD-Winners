@@ -15,6 +15,37 @@ public enum OnboardingStep: String, CaseIterable, Sendable {
     case complete
 }
 
+// MARK: - Arrow Slot Preference Key
+public struct ArrowSlotFrameKey: PreferenceKey {
+    public static let defaultValue: CGRect? = nil
+    public static func reduce(value: inout CGRect?, nextValue: () -> CGRect?) {
+        value = nextValue() ?? value
+    }
+}
+
+// MARK: - Shared Arrow Slot View
+public struct ArrowSlotView: View {
+    public var minHeight: CGFloat
+    
+    public init(minHeight: CGFloat = 104) {
+        self.minHeight = minHeight
+    }
+    
+    public var body: some View {
+        Color.clear
+            .frame(minHeight: minHeight, maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(
+                        key: ArrowSlotFrameKey.self,
+                        value: geo.frame(in: .named("OnboardingFlowSpace"))
+                    )
+                }
+            )
+    }
+}
+
 // MARK: - Unified Onboarding Flow View
 public struct OnboardingFlowView: View {
     @Bindable public var store: DemoStore = DemoStore.shared
@@ -47,6 +78,52 @@ public struct OnboardingFlowView: View {
         case fullName, nickname
     }
     @FocusState private var focusedField: FocusField?
+    @State private var editingField: FocusField? = nil
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var arrowSlotFrame: CGRect? = nil
+    
+    private var isTyping: Bool {
+        currentStep == .profile && (focusedField != nil || editingField != nil)
+    }
+    
+    private var effectiveKeyboardHeight: CGFloat {
+        if keyboardHeight > 0 { return keyboardHeight }
+        if isTyping {
+            return UIScreen.main.bounds.height < 700 ? 260 : 336
+        }
+        return 0
+    }
+    
+    private func profileHubCenterY(h: CGFloat, topInset: CGFloat) -> CGFloat {
+        if isTyping {
+            let topBarBottom = topInset + UsernameBanner.bannerHeight + 36
+            let effectiveKeyboardTop = h - effectiveKeyboardHeight
+            // Required clearance below name block: 96pt (for arrow 48pt + 24pt above + 24pt below)
+            // Identity block extends ~80pt below its center
+            let maxHubCenterY = effectiveKeyboardTop - 96 - 80
+            let minHubCenterY = topBarBottom + 12 + 80
+            let idealHubCenterY = topBarBottom + (h < 700 ? 8 : 16) + 80
+            return max(minHubCenterY, min(idealHubCenterY, maxHubCenterY))
+        } else {
+            return h * 0.32
+        }
+    }
+    
+    private func profileArrowCenterY(h: CGFloat, topInset: CGFloat) -> CGFloat {
+        let hubY = profileHubCenterY(h: h, topInset: topInset)
+        let nameBottomY = hubY + 80 // bottom of full name text
+        
+        if isTyping {
+            let effectiveKeyboardTop = h - effectiveKeyboardHeight
+            // Centered between bottom of name block and top of keyboard
+            return (nameBottomY + effectiveKeyboardTop) / 2
+        } else {
+            let spriteLabelTop = h - 174 // "Sprite Selection" label top (padding bottom 160 + font size 11 + margin)
+            // Centered in empty space between bottom of full name and "Sprite Selection"
+            return (nameBottomY + spriteLabelTop) / 2
+        }
+    }
+
     
     // MARK: - Step 3: Integrations State
     @State private var searchText: String = ""
@@ -109,6 +186,9 @@ public struct OnboardingFlowView: View {
         }
         self._currentStep = State(initialValue: resolvedStep)
         self._currentSyncBeat = State(initialValue: startFromSyncBeat)
+        if CommandLine.arguments.contains("-onboardingProfileKeyboardEmpty") || CommandLine.arguments.contains("-onboardingProfileKeyboardMidTyping") || CommandLine.arguments.contains("-profileMidTyping") {
+            self._editingField = State(initialValue: .nickname)
+        }
     }
     
     // MARK: - Body
@@ -116,20 +196,23 @@ public struct OnboardingFlowView: View {
         GeometryReader { geo in
             let w = geo.size.width
             let h = geo.size.height
+            let topInset = geo.safeAreaInsets.top
             
             ZStack(alignment: .top) {
                 // 1. PERSISTENT BACKGROUND LAYER
                 persistentBackgroundLayer
+                    .ignoresSafeArea(.keyboard)
                 
                 // 2. PERSISTENT TOP USERNAME BANNER & CONTINUE BUTTON (Structured vertically)
                 VStack(spacing: 0) {
-                    Spacer().frame(height: geo.safeAreaInsets.top)
+                    Spacer().frame(height: topInset)
                     persistentBannerView
                         .frame(height: UsernameBanner.bannerHeight)
                     persistentTopContinueRow
                         .frame(height: 36)
                 }
                 .zIndex(20)
+                .ignoresSafeArea(.keyboard)
                 
                 // 4. STEP-SPECIFIC CONTENT LAYERS (The only things that enter and exit)
                 ZStack {
@@ -143,7 +226,7 @@ public struct OnboardingFlowView: View {
                     }
                     
                     if currentStep == .profile {
-                        profileStepContent(w: w, h: h)
+                        profileStepContent(w: w, h: h, topInset: topInset)
                             .transition(.asymmetric(
                                 insertion: .opacity.combined(with: .offset(y: 20)),
                                 removal: .opacity.combined(with: .offset(y: -20))
@@ -152,7 +235,7 @@ public struct OnboardingFlowView: View {
                     }
                     
                     if currentStep == .integrations {
-                        integrationsStepContent(w: w, h: h, topInset: geo.safeAreaInsets.top)
+                        integrationsStepContent(w: w, h: h, topInset: topInset)
                             .transition(.asymmetric(
                                 insertion: .opacity.combined(with: .offset(y: 20)),
                                 removal: .opacity.combined(with: .offset(y: -20))
@@ -174,23 +257,54 @@ public struct OnboardingFlowView: View {
                 
                 // 5. PERSISTENT NEXT ARROW BUTTON (Smoothly travels to current step anchor)
                 if currentStep == .profile || currentStep == .integrations {
-                    persistentNextArrowButton(w: w, h: h)
+                    persistentNextArrowButton(w: w, h: h, topInset: topInset)
                         .zIndex(15)
                 }
                 
                 // 6. PERSISTENT SPRITE INSTANCE (Single instance for the entire flow)
                 persistentSpriteLayer(w: w, h: h)
                     .zIndex(12)
+                    .ignoresSafeArea(.keyboard)
             }
             .frame(width: w, height: h)
-            .ignoresSafeArea(edges: .bottom)
+            .coordinateSpace(name: "OnboardingFlowSpace")
+            .onPreferenceChange(ArrowSlotFrameKey.self) { newFrame in
+                if let newFrame = newFrame {
+                    withAnimation(BranchMotion.sharedSpring) {
+                        self.arrowSlotFrame = newFrame
+                    }
+                }
+            }
+            .ignoresSafeArea()
         }
+        .ignoresSafeArea()
         .onAppear {
             initializeFlow()
             startContinuousBlinkLoop()
             startJuggleClock()
             if currentStep == .syncing || currentStep == .complete {
                 startSyncSequence()
+            }
+            if CommandLine.arguments.contains("-onboardingProfileKeyboardEmpty") {
+                self.nickname = ""
+                self.fullName = ""
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    withAnimation(BranchMotion.sharedSpring) {
+                        editingField = .nickname
+                        focusedField = .nickname
+                    }
+                }
+            } else if CommandLine.arguments.contains("-onboardingProfileKeyboardMidTyping") || CommandLine.arguments.contains("-profileMidTyping") {
+                if nickname.isEmpty {
+                    self.nickname = "cassius"
+                    self.fullName = "Cassius"
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    withAnimation(BranchMotion.sharedSpring) {
+                        editingField = .nickname
+                        focusedField = .nickname
+                    }
+                }
             }
         }
         .onDisappear {
@@ -199,6 +313,13 @@ public struct OnboardingFlowView: View {
             syncPhysicsTimer?.invalidate()
             syncTask?.cancel()
             connectionTask?.cancel()
+        }
+        .onChange(of: focusedField) { _, newFocus in
+            if newFocus != editingField {
+                withAnimation(BranchMotion.sharedSpring) {
+                    editingField = newFocus
+                }
+            }
         }
         .onChange(of: currentStep) { oldStep, newStep in
             handleStepChange(from: oldStep, to: newStep)
@@ -210,18 +331,43 @@ public struct OnboardingFlowView: View {
                 }
             }
         }
+        #if canImport(UIKit)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notif in
+            if let frame = notif.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                let screenH = UIScreen.main.bounds.height
+                let newH = frame.minY >= screenH ? 0 : frame.height
+                withAnimation(BranchMotion.sharedSpring) {
+                    keyboardHeight = newH
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            withAnimation(BranchMotion.sharedSpring) {
+                keyboardHeight = 0
+            }
+        }
+        #endif
     }
     
     // MARK: - 1. Persistent Background Layer
     private var persistentBackgroundLayer: some View {
-        (colorScheme == .dark ? Color.black : Color.white)
-            .ignoresSafeArea()
+        ZStack {
+            (colorScheme == .dark ? Color.black : Color.white)
+                .ignoresSafeArea()
+            
+            if currentStep == .signIn {
+                WelcomeSoftWashBackground()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.35), value: currentStep == .signIn)
+        .ignoresSafeArea()
     }
     
     // MARK: - 2. Persistent Username Banner
     private var persistentBannerView: some View {
         let displayNickname = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-        let shouldShowBanner = currentStep != .signIn && !displayNickname.isEmpty
+        let shouldShowBanner = currentStep != .signIn && !displayNickname.isEmpty && !store.isGuest
         
         return UsernameBanner(nickname: displayNickname)
             .opacity(shouldShowBanner ? 1.0 : 0.0)
@@ -279,10 +425,10 @@ public struct OnboardingFlowView: View {
     
     // MARK: - 5. Persistent Next Arrow Button
     private var persistentNextArrowButton: some View {
-        persistentNextArrowButton(w: 393, h: 852)
+        persistentNextArrowButton(w: 393, h: 852, topInset: 59)
     }
     
-    private func persistentNextArrowButton(w: CGFloat, h: CGFloat) -> some View {
+    private func persistentNextArrowButton(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
         let isEnabled: Bool = {
             switch currentStep {
             case .profile:
@@ -294,11 +440,14 @@ public struct OnboardingFlowView: View {
             }
         }()
         
-        // Dynamic position interpolation
+        let arrowX: CGFloat = arrowSlotFrame?.midX ?? (w * 0.50)
         let arrowY: CGFloat = {
+            if let slot = arrowSlotFrame {
+                return slot.midY
+            }
             switch currentStep {
             case .profile:
-                return h * 0.58
+                return profileArrowCenterY(h: h, topInset: topInset)
             case .integrations:
                 return h * 0.65
             case .syncing, .complete:
@@ -307,15 +456,16 @@ public struct OnboardingFlowView: View {
                 return h * 1.2
             }
         }()
-        
         return NextArrowButton(
             isEnabled: isEnabled,
             accessibilityLabel: "Continue to next step"
         ) {
             handleContinueTap()
         }
-        .position(x: w * 0.50, y: arrowY)
+        .position(x: arrowX, y: arrowY)
+        .animation(BranchMotion.sharedSpring, value: arrowSlotFrame)
         .animation(BranchMotion.sharedSpring, value: currentStep)
+        .animation(BranchMotion.sharedSpring, value: isTyping)
         .animation(BranchMotion.quickSpring, value: isEnabled)
     }
     
@@ -363,7 +513,11 @@ public struct OnboardingFlowView: View {
             }
         }()
         
-        let spriteOpacity: Double = (currentStep == .signIn) ? 0.0 : 1.0
+        let spriteOpacity: Double = {
+            if currentStep == .signIn { return 0.0 }
+            if currentStep == .profile && isTyping { return 0.0 }
+            return 1.0
+        }()
         let showsArms: Bool = (currentStep != .profile && currentStep != .signIn)
         
         // Arm poses
@@ -375,31 +529,26 @@ public struct OnboardingFlowView: View {
                     // Big toss: both arms push high
                     SpriteArmShape(pose: 1.0, isLeft: true, sprite: activeSprite)
                         .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW * 0.34, height: spriteH * 0.98)
-                        .position(x: spriteW * activeSprite.leftArmAnchorNormalized.x, y: spriteH * activeSprite.leftArmAnchorNormalized.y)
+                        .frame(width: spriteW, height: spriteH)
                     
                     SpriteArmShape(pose: 1.0, isLeft: false, sprite: activeSprite)
                         .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW * 0.34, height: spriteH * 0.98)
-                        .position(x: spriteW * activeSprite.rightArmAnchorNormalized.x, y: spriteH * activeSprite.rightArmAnchorNormalized.y)
+                        .frame(width: spriteW, height: spriteH)
                 } else if currentSyncBeat >= .beat2Gathering {
                     // Beats 2-4: left arm resting -> bicep flex
-                    SpriteFlexArmShape(flexProgress: leftArmFlexProgress)
+                    SpriteFlexArmShape(flexProgress: leftArmFlexProgress, sprite: activeSprite)
                         .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                        .frame(width: 80, height: 110)
-                        .position(x: -30, y: spriteH * 0.44)
+                        .frame(width: spriteW, height: spriteH)
                 }
             } else if showsArms {
                 // Juggling arms in Step 3 (Integrations) & Beat 0
                 SpriteArmShape(pose: armL, isLeft: true, sprite: activeSprite)
                     .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                    .frame(width: spriteW * 0.34, height: spriteH * 0.98)
-                    .position(x: spriteW * activeSprite.leftArmAnchorNormalized.x, y: spriteH * activeSprite.leftArmAnchorNormalized.y)
+                    .frame(width: spriteW, height: spriteH)
                 
                 SpriteArmShape(pose: armR, isLeft: false, sprite: activeSprite)
                     .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                    .frame(width: spriteW * 0.34, height: spriteH * 0.98)
-                    .position(x: spriteW * activeSprite.rightArmAnchorNormalized.x, y: spriteH * activeSprite.rightArmAnchorNormalized.y)
+                    .frame(width: spriteW, height: spriteH)
             }
             
             // Central Vector Sprite Body with Dual-Layer Eyes
@@ -453,8 +602,9 @@ public struct OnboardingFlowView: View {
         .frame(width: spriteW, height: spriteH)
         .position(x: spriteX, y: spriteY)
         .opacity(spriteOpacity)
-        .allowsHitTesting(currentStep == .profile || currentStep == .integrations)
+        .allowsHitTesting((currentStep == .profile && !isTyping) || currentStep == .integrations)
         .animation(BranchMotion.sharedSpring, value: currentStep)
+        .animation(BranchMotion.sharedSpring, value: isTyping)
         .animation(BranchMotion.sharedSpring, value: spriteSlideProgress)
         .animation(BranchMotion.quickSpring, value: spriteTapBounce)
     }
@@ -470,112 +620,173 @@ public struct OnboardingFlowView: View {
     }
     
     // MARK: - STEP CONTENT 2: Profile Setup
-    private func profileStepContent(w: CGFloat, h: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            Spacer().frame(height: 72)
-            
-            // Center Identity Hub
+    private func profileStepContent(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
+        let hubY = profileHubCenterY(h: h, topInset: topInset)
+        
+        return ZStack(alignment: .top) {
+            // Center Identity Hub (avatar + @nickname + Full Name)
             VStack(spacing: 12) {
                 // 96pt Avatar Circle
-                PhotosPicker(
-                    selection: $selectedPhotoItem,
-                    matching: .images,
-                    photoLibrary: .shared()
-                ) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.gray.opacity(colorScheme == .dark ? 0.22 : 0.08))
-                            .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
-                        
-                        if avatarType == .photo {
-                            #if canImport(UIKit)
-                            if let image = localPhotoImage {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
-                                    .clipShape(Circle())
-                            }
-                            #endif
-                        } else if hasSelectedAvatar {
-                            VStack {
-                                Spacer()
-                                DomeSpriteView(sprite: activeSprite, isBlinking: isSpriteBlinking)
-                                    .frame(width: 82, height: 72)
-                                    .offset(y: 8)
-                            }
-                            .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
-                            .clipShape(Circle())
-                            .matchedGeometryEffect(id: "avatar_orb_visual", in: flowNamespace)
-                        } else {
-                            Image(systemName: "plus")
-                                .font(.system(size: 26, weight: .ultraLight))
-                                .foregroundStyle(Color.gray.opacity(0.85))
-                        }
-                        
-                        Circle()
-                            .stroke(Color.gray.opacity(0.35), lineWidth: 1)
-                            .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
-                    }
-                }
-                .buttonStyle(.plain)
-                .onChange(of: selectedPhotoItem) { _, newItem in
-                    handlePhotoSelected(newItem)
-                }
+                avatarPickerView
                 
                 // Name & Nickname Displays (Single perfectly centered unit)
                 inlineNameEditorView
                 
-                // Helper text in empty state: disappears once the user starts interacting
-                if focusedField == nil && nickname.isEmpty && fullName.isEmpty {
-                    Text("Tap to enter name & nickname")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .transition(.opacity)
-                }
-                
                 // Validation feedback
                 validationFeedbackCaption
             }
-            .position(x: w * 0.50, y: h * 0.32)
+            .frame(width: w)
+            .position(x: w * 0.50, y: hubY)
+            .animation(BranchMotion.sharedSpring, value: isTyping)
             
-            Spacer()
+            // Profile Step Arrow Slot: between full name and "Sprite Selection"
+            let nameBottomY = hubY + 80
+            let slotBottomY = isTyping ? (h - effectiveKeyboardHeight) : (h - 174)
+            let slotHeight = max(slotBottomY - nameBottomY, 104)
+            let slotCenterY = (nameBottomY + slotBottomY) / 2
             
-            // "Sprite Selection" label
-            Text("Sprite Selection")
-                .font(.system(size: 11, weight: .regular))
-                .foregroundStyle(Color.secondary.opacity(0.8))
-                .padding(.bottom, 160)
+            Color.clear
+                .frame(width: w, height: slotHeight)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: ArrowSlotFrameKey.self,
+                            value: geo.frame(in: .named("OnboardingFlowSpace"))
+                        )
+                    }
+                )
+                .position(x: w * 0.50, y: slotCenterY)
+            
+            // Bottom "Sprite Selection" label
+            VStack(spacing: 0) {
+                Spacer(minLength: 24)
+                Text("Sprite Selection")
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color.secondary.opacity(0.8))
+                    .padding(.bottom, 160)
+            }
+            .frame(width: w, height: h)
+            .opacity(isTyping ? 0.0 : 1.0)
+            .animation(BranchMotion.sharedSpring, value: isTyping)
+            .allowsHitTesting(!isTyping)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: w, height: h)
         .contentShape(Rectangle())
         .onTapGesture {
+            withAnimation(BranchMotion.sharedSpring) {
+                editingField = nil
+            }
             focusedField = nil
         }
     }
     
-    private var inlineNameEditorView: some View {
-        VStack(spacing: 8) {
-            // Nickname row: perfectly centered unit
-            ZStack(alignment: .center) {
-                // Measurement text defining exact tight width of "@" + (nickname or placeholder)
-                HStack(spacing: 0) {
-                    Text("@")
-                        .font(.system(size: 20, weight: .bold))
-                    Text(nickname.isEmpty ? "nickname" : nickname)
-                        .font(.system(size: 20, weight: .bold))
-                }
-                .opacity(0)
-                .padding(.trailing, 2)
-                .accessibilityHidden(true)
+    private var avatarPickerView: some View {
+        PhotosPicker(
+            selection: $selectedPhotoItem,
+            matching: .images,
+            photoLibrary: .shared()
+        ) {
+            ZStack {
+                Circle()
+                    .fill(Color.gray.opacity(colorScheme == .dark ? 0.22 : 0.08))
+                    .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
                 
-                // Centered unit: "@" directly against text, cursor right after "@"
+                if avatarType == .photo {
+                    #if canImport(UIKit)
+                    if let image = localPhotoImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
+                            .clipShape(Circle())
+                    }
+                    #endif
+                } else if hasSelectedAvatar {
+                    VStack {
+                        Spacer(minLength: 0)
+                        DomeSpriteView(sprite: activeSprite, isBlinking: isSpriteBlinking)
+                            .frame(width: 82, height: 72)
+                            .offset(y: 8)
+                    }
+                    .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
+                    .clipShape(Circle())
+                    .matchedGeometryEffect(id: "avatar_orb_visual", in: flowNamespace)
+                } else {
+                    Image(systemName: "plus")
+                        .font(.system(size: 26, weight: .ultraLight))
+                        .foregroundStyle(Color.gray.opacity(0.85))
+                }
+                
+                Circle()
+                    .stroke(Color.gray.opacity(0.35), lineWidth: 1)
+                    .frame(width: avatarCircleDiameter, height: avatarCircleDiameter)
+            }
+        }
+        .buttonStyle(.plain)
+        .onChange(of: selectedPhotoItem) { _, newItem in
+            handlePhotoSelected(newItem)
+        }
+    }
+    
+    // MARK: - Text Measurement Helpers
+    private func measureTextWidth(_ text: String, fontSize: CGFloat, weight: Font.Weight) -> CGFloat {
+        #if canImport(UIKit)
+        let uiWeight: UIFont.Weight = {
+            switch weight {
+            case .bold: return .bold
+            case .semibold: return .semibold
+            case .medium: return .medium
+            case .regular: return .regular
+            case .light: return .light
+            case .ultraLight: return .ultraLight
+            case .heavy: return .heavy
+            case .black: return .black
+            default: return .regular
+            }
+        }()
+        let font = UIFont.systemFont(ofSize: fontSize, weight: uiWeight)
+        let size = (text as NSString).size(withAttributes: [.font: font])
+        return ceil(size.width)
+        #else
+        return CGFloat(text.count) * (fontSize * 0.6)
+        #endif
+    }
+    
+    private var nicknameDisplayOrEditView: some View {
+        let isEditing = (editingField == .nickname)
+        
+        return Group {
+            if !isEditing {
+                // Resting: Single plain Text view, centered. No TextField.
+                Group {
+                    if nickname.isEmpty {
+                        (Text("@").foregroundStyle(Color.secondary.opacity(0.65))
+                         + Text("nickname").foregroundStyle(Color.secondary.opacity(0.35)))
+                    } else {
+                        Text("@\(nickname)")
+                            .foregroundStyle(Color.primary)
+                    }
+                }
+                .font(.system(size: 20, weight: .bold))
+                .multilineTextAlignment(.center)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(BranchMotion.sharedSpring) {
+                        editingField = .nickname
+                    }
+                    focusedField = .nickname
+                }
+            } else {
+                // Editing: "@" prefix + TextField sized to typed text only.
+                let textWidth = measureTextWidth(nickname, fontSize: 20, weight: .bold)
+                let fieldWidth = max(textWidth + 2, 8)
+                
                 HStack(spacing: 0) {
                     Text("@")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(nickname.isEmpty ? Color.secondary.opacity(0.65) : Color.primary)
                     
-                    TextField("", text: $nickname, prompt: Text("nickname").foregroundStyle(Color.secondary.opacity(0.35)))
+                    TextField("", text: $nickname)
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(Color.primary)
                         .focused($focusedField, equals: .nickname)
@@ -584,40 +795,78 @@ public struct OnboardingFlowView: View {
                         .textInputAutocapitalization(.never)
                         #endif
                         .autocorrectionDisabled()
-                        .onSubmit { focusedField = .fullName }
+                        .frame(width: fieldWidth, alignment: .leading)
+                        .onSubmit {
+                            withAnimation(BranchMotion.sharedSpring) {
+                                editingField = .fullName
+                            }
+                            focusedField = .fullName
+                        }
                         .onChange(of: nickname) { _, val in validateNicknameLive(val) }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    focusedField = .nickname
+                }
             }
-            .fixedSize(horizontal: true, vertical: false)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                focusedField = .nickname
-            }
-            
-            // Full Name row: perfectly centered unit
-            ZStack(alignment: .center) {
-                Text(fullName.isEmpty ? "Full Name" : fullName)
-                    .font(.system(size: 15, weight: .regular))
-                    .opacity(0)
-                    .padding(.horizontal, 4)
-                    .accessibilityHidden(true)
+        }
+    }
+    
+    private var fullNameDisplayOrEditView: some View {
+        let isEditing = (editingField == .fullName)
+        
+        return Group {
+            if !isEditing {
+                // Resting: Single plain Text view, centered. No TextField.
+                Group {
+                    if fullName.isEmpty {
+                        Text("Full Name")
+                            .foregroundStyle(Color.secondary.opacity(0.35))
+                    } else {
+                        Text(fullName)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+                .font(.system(size: 15, weight: .regular))
+                .multilineTextAlignment(.center)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(BranchMotion.sharedSpring) {
+                        editingField = .fullName
+                    }
+                    focusedField = .fullName
+                }
+            } else {
+                // Editing: TextField sized to typed text only.
+                let textWidth = measureTextWidth(fullName, fontSize: 15, weight: .regular)
+                let fieldWidth = max(textWidth + 2, 8)
                 
-                TextField("", text: $fullName, prompt: Text("Full Name").foregroundStyle(Color.secondary.opacity(0.35)))
+                TextField("", text: $fullName)
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(Color.secondary)
                     .multilineTextAlignment(.center)
                     .focused($focusedField, equals: .fullName)
                     .submitLabel(.done)
                     .autocorrectionDisabled()
+                    .frame(width: fieldWidth, alignment: .center)
                     .onSubmit {
+                        withAnimation(BranchMotion.sharedSpring) {
+                            editingField = nil
+                        }
                         focusedField = nil
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        focusedField = .fullName
+                    }
             }
-            .fixedSize(horizontal: true, vertical: false)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                focusedField = .fullName
-            }
+        }
+    }
+    
+    private var inlineNameEditorView: some View {
+        VStack(spacing: 8) {
+            nicknameDisplayOrEditView
+            fullNameDisplayOrEditView
         }
     }
     
@@ -644,7 +893,7 @@ public struct OnboardingFlowView: View {
     // MARK: - STEP CONTENT 3: Integrations
     private func integrationsStepContent(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: topInset + UsernameBanner.bannerHeight + 36 + 6)
+            Spacer().frame(height: topInset + UsernameBanner.bannerHeight + 36 + (h < 700 ? 4 : 8))
             
             // Search underline field
             VStack(spacing: 6) {
@@ -706,9 +955,11 @@ public struct OnboardingFlowView: View {
                 .padding(.bottom, 6)
             
             // Paged Grid (13 supported items)
-            integrationsGridArea
+            integrationsGridArea(h: h)
             
-            Spacer(minLength: 8)
+            // Arrow Slot: Between page dots and "Connected"
+            // Has minimum height of arrow size (56) + 24pt above + 24pt below = 104pt
+            ArrowSlotView(minHeight: 104)
             
             // "Connected" label
             Text("Connected")
@@ -716,20 +967,21 @@ public struct OnboardingFlowView: View {
                 .foregroundStyle(colorScheme == .dark ? Color(white: 0.65) : Color(white: 0.45))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 26)
-                .padding(.bottom, 12)
+                .padding(.bottom, h < 700 ? 6 : 12)
             
             // Juggling stage space (orbs rendered in juggle loop)
-            juggleOrbsOverlay(w: w, h: 165)
-                .frame(height: 165)
+            juggleOrbsOverlay(w: w, h: h < 700 ? 125 : 165)
+                .frame(height: h < 700 ? 125 : 165)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     @ViewBuilder
-    private var integrationsGridArea: some View {
+    private func integrationsGridArea(h: CGFloat) -> some View {
         let items = filteredIntegrations
         let p1 = Array(items.prefix(12))
         let p2 = Array(items.dropFirst(12))
+        let gridH: CGFloat = (h < 700 ? 218 : 236)
         
         if items.isEmpty {
             VStack {
@@ -739,7 +991,7 @@ public struct OnboardingFlowView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
             }
-            .frame(height: 240)
+            .frame(height: gridH)
         } else {
             VStack(spacing: 6) {
                 TabView(selection: $currentPage) {
@@ -749,9 +1001,8 @@ public struct OnboardingFlowView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: 240)
-            
-            if !p2.isEmpty {
+                .frame(height: gridH)
+                
                 HStack(spacing: 6) {
                     Circle()
                         .fill(currentPage == 0 ? Color.primary : Color.secondary.opacity(0.3))
@@ -760,11 +1011,12 @@ public struct OnboardingFlowView: View {
                         .fill(currentPage == 1 ? Color.primary : Color.secondary.opacity(0.3))
                         .frame(width: 5, height: 5)
                 }
+                .opacity(p2.isEmpty ? 0.0 : 1.0)
+                .frame(height: 10)
                 .padding(.top, 2)
             }
         }
     }
-}
     
     private func pageGridView(for items: [Integration]) -> some View {
         let rows = items.chunked(into: 4)
@@ -1149,16 +1401,19 @@ public struct OnboardingFlowView: View {
             }
             .prefix(5)
         
-        let avatarOrb = JuggleItem.avatar(store.profile, activeSprite)
         if items.isEmpty {
-            return [avatarOrb]
-        } else {
-            return [avatarOrb] + items.map { .integration($0) }
+            return []
         }
+        let avatarOrb = JuggleItem.avatar(store.profile, activeSprite)
+        return [avatarOrb] + items.map { .integration($0) }
     }
     
     private var syncOrbsList: [JuggleItem] {
-        juggleItems
+        if juggleItems.isEmpty {
+            let avatarOrb = JuggleItem.avatar(store.profile, activeSprite)
+            return [avatarOrb]
+        }
+        return juggleItems
     }
     
     private var isProfileValid: Bool {

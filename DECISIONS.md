@@ -2,6 +2,29 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 19, 2026: Live Map Actor-Discourse Network & Cognitive Emergence (Decision 013)
+
+**Decided:**
+1. **Ben Shaw Cognitive Emergence Architecture:**
+   - Grounded the Live Map tab in Ben Shaw's "A Cognitive Account of Collective Emergence in Design" (slides 46, 49, 52–56).
+   - Positioned the four team agents at perimeter quadrants (Maya, Theo, Sam, Alex) with the user anchor at the center ("You"), visualizing real-time discourse evolution and idea genesis.
+   - Implemented discourse links with distinct visual and semantic weights: solid directional links for `buildsOn`, subtle curved links for `transforms`, bold contrasting links for `challenges`, and converging multi-actor links for `combines`.
+   - Highlighted emergent combination ideas (e.g. `s3_08` "Stories from dialogue") with iridescent dual-gradient bloom rings (`◎`) and two-line merging iconography.
+2. **Pinned Throughline Card & Interactive Filtering:**
+   - Designed a frosted glass Throughline Card beneath the header showing `◎ YOUR THROUGHLINE` in Berkeley Mono plus the user's latest emergent insight, answering the designer's primary orientation question in one glance.
+   - Added filter chips (`+ 5`, `− 2`, `? 1`, `// 2`, `◎ 1`) that isolate specific move types and dim the remainder of the graph to 10% opacity.
+   - Actor isolation mode: Tapping any actor (User or Agent) isolates their discourse trajectory and dims other actors and unlinked ideas.
+3. **Friction Resolution Sheet (M4 Pattern):**
+   - Implemented the friction resolution sheet directly modeled on teammate frame M4 layout with strictly four non-AI actions: "Keep mine" (primary bold filled), "Use Ya Ya's", "Keep both", and "Not now". Strictly eliminated generic chatbot prompts like "Talk it through".
+   - Resolving friction dynamically updates node appearance (red counterpoint stroke turns into resolved state with checkmark) and immediately updates live takeaways.
+4. **Shared KnowledgeEntry Data Model:**
+   - Unified `LiveMapView` and `KnowledgeView` around the shared `KnowledgeEntry` model, with live resolution state synced across tabs via `DemoStore`.
+5. **Anti-Slop Craft Standards:**
+   - Plain white/black backgrounds (zero dot grids, zero web-like colored washes), black/white ink, Berkeley Mono for small labels, original sprite proportions, 44pt touch targets, and full clearance for the floating liquid glass tab bar.
+
+**Why:** Creative emergence in interdisciplinary teams happens through conversational moves and synthesis, not retroactive meeting notes. The Live Map makes this cognitive phenomenon legible, interactive, and actionable for human designers.
+
+
 ## October 18, 2026: Shared Navigation Arrow & Elevated Sprite Juggle (Decision 012)
 
 **Decided:**

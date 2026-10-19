@@ -31,12 +31,25 @@ public struct IntegrationOrbView: View {
         self.onToggle = onToggle
     }
     
+    private var isDarkMonochromeLogo: Bool {
+        let id = integration.id
+        return id == "autodesk_fusion" || id == "github" || id == "arena" || id == "cosmos" || id == "savee" || id == "thingiverse"
+    }
+    
+    private var orbFillColor: Color {
+        if colorScheme == .dark {
+            return isDarkMonochromeLogo ? Color(white: 0.26) : Color(white: 0.22)
+        } else {
+            return Color.white
+        }
+    }
+    
     public var body: some View {
         Button(action: onToggle) {
             ZStack {
                 // Orb circular base
                 Circle()
-                    .fill(colorScheme == .dark ? Color(white: 0.22) : Color.white)
+                    .fill(orbFillColor)
                     .overlay(
                         Circle()
                             .stroke(
@@ -67,23 +80,12 @@ public struct IntegrationOrbView: View {
                         .padding(2)
                 }
                 
-                
                 // Service Logo Image / Fallback Initial
-                Group {
-                    if let image = resolvedLogoImage {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 32, height: 32)
-                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                    } else {
-                        fallbackInitialView
-                    }
-                }
+                logoView
             }
             .frame(width: 62, height: 62)
             .scaleEffect(isConnecting ? 1.05 : 1.0)
-            .opacity(isConnected || isConnecting ? 1.0 : 0.25)
+            .opacity(isConnected || isConnecting ? 1.0 : (colorScheme == .dark && isDarkMonochromeLogo ? 0.35 : 0.25))
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -91,6 +93,28 @@ public struct IntegrationOrbView: View {
         .accessibilityLabel("\(integration.name) integration")
         .accessibilityValue(isConnected ? "Connected" : (isConnecting ? "Connecting" : "Not connected"))
         .accessibilityHint(isConnected ? "Double tap to disconnect" : "Double tap to connect")
+    }
+    
+    @ViewBuilder
+    private var logoView: some View {
+        if let image = resolvedLogoImage {
+            if colorScheme == .dark && isDarkMonochromeLogo {
+                image
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(Color.white)
+                    .frame(width: 32, height: 32)
+            } else {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 32, height: 32)
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            }
+        } else {
+            fallbackInitialView
+        }
     }
     
     private var resolvedLogoImage: Image? {

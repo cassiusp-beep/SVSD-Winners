@@ -9,7 +9,7 @@ public struct AppRootView: View {
     
     public var body: some View {
         ZStack {
-            if store.hasCompletedSync {
+            if store.hasCompletedSync || store.isGuest {
                 HomeView(store: store)
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .scale(scale: 0.98)),
@@ -23,7 +23,7 @@ public struct AppRootView: View {
                     ))
             }
         }
-        .animation(BranchMotion.sharedSpring, value: store.hasCompletedSync)
+        .animation(BranchMotion.sharedSpring, value: store.hasCompletedSync || store.isGuest)
     }
 }
 

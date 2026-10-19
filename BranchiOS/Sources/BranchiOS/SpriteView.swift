@@ -48,19 +48,19 @@ public enum BranchSprite: String, CaseIterable, Identifiable, Sendable {
     // Normalized arm anchor points (sides of body near mid-height)
     public var leftArmAnchorNormalized: CGPoint {
         switch self {
-        case .cloud: return CGPoint(x: 0.08, y: 0.52)
-        case .bloom: return CGPoint(x: 0.08, y: 0.50)
-        case .prism: return CGPoint(x: 0.14, y: 0.60)
-        case .spark: return CGPoint(x: 0.08, y: 0.50)
+        case .cloud: return CGPoint(x: 0.06, y: 0.50)
+        case .bloom: return CGPoint(x: 0.04, y: 0.50)
+        case .prism: return CGPoint(x: 0.12, y: 0.54)
+        case .spark: return CGPoint(x: 0.05, y: 0.50)
         }
     }
     
     public var rightArmAnchorNormalized: CGPoint {
         switch self {
-        case .cloud: return CGPoint(x: 0.92, y: 0.52)
-        case .bloom: return CGPoint(x: 0.92, y: 0.50)
-        case .prism: return CGPoint(x: 0.86, y: 0.60)
-        case .spark: return CGPoint(x: 0.92, y: 0.50)
+        case .cloud: return CGPoint(x: 0.94, y: 0.50)
+        case .bloom: return CGPoint(x: 0.96, y: 0.50)
+        case .prism: return CGPoint(x: 0.88, y: 0.54)
+        case .spark: return CGPoint(x: 0.95, y: 0.50)
         }
     }
     
@@ -101,13 +101,43 @@ public enum BranchSprite: String, CaseIterable, Identifiable, Sendable {
         gradientColors[0]
     }
     
+    public func takeawayGradient(for colorScheme: ColorScheme) -> LinearGradient {
+        if colorScheme == .dark {
+            return self.gradient
+        } else {
+            // Rich high-contrast gradients for pure white background in light mode
+            switch self {
+            case .cloud:
+                return LinearGradient(
+                    colors: [Color(red: 0.490, green: 0.350, blue: 0.630), Color(red: 0.640, green: 0.480, blue: 0.760)],
+                    startPoint: .leading, endPoint: .trailing
+                )
+            case .bloom:
+                return LinearGradient(
+                    colors: [Color(red: 0.780, green: 0.360, blue: 0.160), Color(red: 0.860, green: 0.540, blue: 0.220)],
+                    startPoint: .leading, endPoint: .trailing
+                )
+            case .prism:
+                return LinearGradient(
+                    colors: [Color(red: 0.160, green: 0.480, blue: 0.620), Color(red: 0.280, green: 0.640, blue: 0.700)],
+                    startPoint: .leading, endPoint: .trailing
+                )
+            case .spark:
+                return LinearGradient(
+                    colors: [Color(red: 0.350, green: 0.530, blue: 0.320), Color(red: 0.520, green: 0.680, blue: 0.420)],
+                    startPoint: .leading, endPoint: .trailing
+                )
+            }
+        }
+    }
+    
     // Backward compatibility with older CMYK hexes
     public static func from(hex: String) -> BranchSprite {
         let lower = hex.lowercased()
         if lower.contains("a083bc") || lower.contains("d6c7e2") || lower.contains("cloud") {
             return .cloud
         }
-        if lower.contains("d67746") || lower.contains("e8bb68") || lower.contains("bloom") || lower.contains("ffd600") || lower.contains("yellow") {
+        if lower.contains("d67746") || lower.contains("e8bb68") || lower.contains("bloom") || lower.contains("ffd600") || lower.contains("yellow") || lower.contains("f5a623") || lower.contains("orange") {
             return .bloom
         }
         if lower.contains("4598bb") || lower.contains("8ed4da") || lower.contains("prism") || lower.contains("26c6da") || lower.contains("cyan") {
@@ -133,28 +163,32 @@ public typealias CMYKSprite = BranchSprite
 public enum SpritePathVault {
     public static func path(for sprite: BranchSprite, in rect: CGRect) -> Path {
         let vb = sprite.viewBoxSize
-        let scaleX = rect.width / vb.width
-        let scaleY = rect.height / vb.height
+        let scale = min(rect.width / vb.width, rect.height / vb.height)
+        let offsetX = (rect.width - vb.width * scale) / 2
+        let offsetY = (rect.height - vb.height * scale) / 2
+        
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+        }
         
         var path = Path()
         
         switch sprite {
         case .cloud:
-            // M65.73,34.1c-1.62,2.29-2.01,5.22-1.04,7.84.36.97.53,1.97.53,2.94,0,3.53-2.22,6.83-5.77,8.03-2.65.89-4.69,3.04-5.45,5.73-1.05,3.75-4.46,6.18-8.16,6.18-.84,0-1.69-.13-2.53-.39-2.67-.83-5.58-.3-7.78,1.44-1.56,1.23-3.41,1.82-5.24,1.82-2.58,0-5.14-1.17-6.81-3.41-1.67-2.25-4.34-3.52-7.14-3.41-.12,0-.23,0-.35,0-4.62,0-8.41-3.72-8.46-8.38-.03-2.8-1.44-5.4-3.77-6.95-3.97-2.65-4.97-8.06-2.21-11.95,1.03-1.45,1.56-3.17,1.56-4.9,0-.99-.18-1.99-.53-2.95-1.65-4.48.71-9.44,5.24-10.97,1.33-.45,2.5-1.21,3.44-2.19.94-.99,1.64-2.2,2.01-3.54,1.29-4.59,6.13-7.22,10.69-5.8.83.26,1.69.39,2.54.39,1.88,0,3.73-.63,5.24-1.82,3.75-2.96,9.2-2.24,12.05,1.59h0c1.67,2.25,4.34,3.52,7.14,3.41.12,0,.23,0,.35,0,4.62,0,8.41,3.72,8.47,8.38.01,1.4.38,2.75,1.03,3.94.64,1.19,1.58,2.23,2.75,3.01,2.45,1.64,3.77,4.32,3.77,7.06,0,1.69-.51,3.41-1.57,4.9Z
-            path.move(to: CGPoint(x: 65.73 * scaleX, y: 34.1 * scaleY))
+            path.move(to: pt(65.73, 34.1))
             path.addCurve(
-                to: CGPoint(x: (65.73 - 1.04) * scaleX, y: (34.1 + 7.84) * scaleY),
-                control1: CGPoint(x: (65.73 - 1.62) * scaleX, y: (34.1 + 2.29) * scaleY),
-                control2: CGPoint(x: (65.73 - 2.01) * scaleX, y: (34.1 + 5.22) * scaleY)
+                to: pt(65.73 - 1.04, 34.1 + 7.84),
+                control1: pt(65.73 - 1.62, 34.1 + 2.29),
+                control2: pt(65.73 - 2.01, 34.1 + 5.22)
             )
-            var cur = CGPoint(x: (65.73 - 1.04) * scaleX, y: (34.1 + 7.84) * scaleY)
+            var cur = pt(65.73 - 1.04, 34.1 + 7.84)
             
             func addC(_ dc1x: CGFloat, _ dc1y: CGFloat, _ dc2x: CGFloat, _ dc2y: CGFloat, _ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addCurve(
                     to: end,
-                    control1: CGPoint(x: cur.x + dc1x * scaleX, y: cur.y + dc1y * scaleY),
-                    control2: CGPoint(x: cur.x + dc2x * scaleX, y: cur.y + dc2y * scaleY)
+                    control1: CGPoint(x: cur.x + dc1x * scale, y: cur.y + dc1y * scale),
+                    control2: CGPoint(x: cur.x + dc2x * scale, y: cur.y + dc2y * scale)
                 )
                 cur = end
             }
@@ -191,20 +225,20 @@ public enum SpritePathVault {
             path.closeSubpath()
             
         case .bloom:
-            path.move(to: CGPoint(x: 73.64 * scaleX, y: 38.68 * scaleY))
-            var cur = CGPoint(x: 73.64 * scaleX, y: 38.68 * scaleY)
+            path.move(to: pt(73.64, 38.68))
+            var cur = pt(73.64, 38.68)
             
             func addL(_ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addLine(to: end)
                 cur = end
             }
             func addC(_ dc1x: CGFloat, _ dc1y: CGFloat, _ dc2x: CGFloat, _ dc2y: CGFloat, _ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addCurve(
                     to: end,
-                    control1: CGPoint(x: cur.x + dc1x * scaleX, y: cur.y + dc1y * scaleY),
-                    control2: CGPoint(x: cur.x + dc2x * scaleX, y: cur.y + dc2y * scaleY)
+                    control1: CGPoint(x: cur.x + dc1x * scale, y: cur.y + dc1y * scale),
+                    control2: CGPoint(x: cur.x + dc2x * scale, y: cur.y + dc2y * scale)
                 )
                 cur = end
             }
@@ -229,7 +263,7 @@ public enum SpritePathVault {
             addC(2.25, 1.03, 4.84, 1.03, 7.1, 0)
             
             // L51.63, 0.55
-            cur = CGPoint(x: 51.63 * scaleX, y: 0.55 * scaleY)
+            cur = pt(51.63, 0.55)
             path.addLine(to: cur)
             
             addC(3.76, -1.72, 8.08, 0.78, 8.47, 4.9)
@@ -240,20 +274,20 @@ public enum SpritePathVault {
             path.closeSubpath()
             
         case .prism:
-            path.move(to: CGPoint(x: 52.75 * scaleX, y: 65.54 * scaleY))
-            var cur = CGPoint(x: 52.75 * scaleX, y: 65.54 * scaleY)
+            path.move(to: pt(52.75, 65.54))
+            var cur = pt(52.75, 65.54)
             
             func addL(_ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addLine(to: end)
                 cur = end
             }
             func addC(_ dc1x: CGFloat, _ dc1y: CGFloat, _ dc2x: CGFloat, _ dc2y: CGFloat, _ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addCurve(
                     to: end,
-                    control1: CGPoint(x: cur.x + dc1x * scaleX, y: cur.y + dc1y * scaleY),
-                    control2: CGPoint(x: cur.x + dc2x * scaleX, y: cur.y + dc2y * scaleY)
+                    control1: CGPoint(x: cur.x + dc1x * scale, y: cur.y + dc1y * scale),
+                    control2: CGPoint(x: cur.x + dc2x * scale, y: cur.y + dc2y * scale)
                 )
                 cur = end
             }
@@ -273,20 +307,20 @@ public enum SpritePathVault {
             path.closeSubpath()
             
         case .spark:
-            path.move(to: CGPoint(x: 67.42 * scaleX, y: 46.74 * scaleY))
-            var cur = CGPoint(x: 67.42 * scaleX, y: 46.74 * scaleY)
+            path.move(to: pt(67.42, 46.74))
+            var cur = pt(67.42, 46.74)
             
             func addL(_ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addLine(to: end)
                 cur = end
             }
             func addC(_ dc1x: CGFloat, _ dc1y: CGFloat, _ dc2x: CGFloat, _ dc2y: CGFloat, _ dx: CGFloat, _ dy: CGFloat) {
-                let end = CGPoint(x: cur.x + dx * scaleX, y: cur.y + dy * scaleY)
+                let end = CGPoint(x: cur.x + dx * scale, y: cur.y + dy * scale)
                 path.addCurve(
                     to: end,
-                    control1: CGPoint(x: cur.x + dc1x * scaleX, y: cur.y + dc1y * scaleY),
-                    control2: CGPoint(x: cur.x + dc2x * scaleX, y: cur.y + dc2y * scaleY)
+                    control1: CGPoint(x: cur.x + dc1x * scale, y: cur.y + dc1y * scale),
+                    control2: CGPoint(x: cur.x + dc2x * scale, y: cur.y + dc2y * scale)
                 )
                 cur = end
             }
@@ -307,7 +341,6 @@ public enum SpritePathVault {
             addC(2.06, 5.56, 6.44, 9.95, 12, 12.01)
             addL(6.33, 2.34)
             addC(8.97, 3.32, 8.97, 16, 0, 19.33)
-            path.closeSubpath()
         }
         
         return path
@@ -351,13 +384,17 @@ public struct SpriteArmShape: Shape {
         let p = pose
         
         if isLeft {
-            let start = CGPoint(x: w, y: h * 0.72)
-            let tipX = w * (0.20 + 0.52 * p)
-            let tipY = h * (0.46 - 0.76 * p)
-            let c1X = w * (0.44 - 0.28 * p)
-            let c1Y = h * (0.84 - 0.18 * p)
-            let c2X = w * (-0.06 - 0.08 * p)
-            let c2Y = h * (0.58 - 0.52 * p)
+            let anchor = sprite.leftArmAnchorNormalized
+            let start = CGPoint(x: w * anchor.x, y: h * anchor.y)
+            
+            // Juggling arm kinematics: reaches outward to the left and upward
+            let tipX = start.x - w * (0.16 + 0.08 * p)
+            let tipY = start.y - h * (0.20 + 0.45 * p)
+            
+            let c1X = start.x - w * (0.10 + 0.08 * p)
+            let c1Y = start.y + h * (0.14 - 0.18 * p)
+            let c2X = start.x - w * (0.24 + 0.04 * p)
+            let c2Y = start.y - h * (0.05 + 0.35 * p)
             
             path.move(to: start)
             path.addCurve(
@@ -366,13 +403,17 @@ public struct SpriteArmShape: Shape {
                 control2: CGPoint(x: c2X, y: c2Y)
             )
         } else {
-            let start = CGPoint(x: 0, y: h * 0.72)
-            let tipX = w * (0.80 - 0.52 * p)
-            let tipY = h * (0.46 - 0.76 * p)
-            let c1X = w * (0.56 + 0.28 * p)
-            let c1Y = h * (0.84 - 0.18 * p)
-            let c2X = w * (1.06 + 0.08 * p)
-            let c2Y = h * (0.58 - 0.52 * p)
+            let anchor = sprite.rightArmAnchorNormalized
+            let start = CGPoint(x: w * anchor.x, y: h * anchor.y)
+            
+            // Juggling arm kinematics: reaches outward to the right and upward
+            let tipX = start.x + w * (0.16 + 0.08 * p)
+            let tipY = start.y - h * (0.20 + 0.45 * p)
+            
+            let c1X = start.x + w * (0.10 + 0.08 * p)
+            let c1Y = start.y + h * (0.14 - 0.18 * p)
+            let c2X = start.x + w * (0.24 + 0.04 * p)
+            let c2Y = start.y - h * (0.05 + 0.35 * p)
             
             path.move(to: start)
             path.addCurve(
@@ -406,14 +447,16 @@ public struct SpriteFlexArmShape: Shape {
         let h = rect.height
         let p = flexProgress
         
-        let start = CGPoint(x: w, y: h * (0.70 + 0.02 * p))
-        let tipX = w * (0.12 + 0.16 * p)
-        let tipY = h * (0.75 - 0.62 * p)
+        let anchor = sprite.leftArmAnchorNormalized
+        let start = CGPoint(x: w * anchor.x, y: h * anchor.y)
         
-        let c1X = w * (0.68 - 0.22 * p)
-        let c1Y = h * (0.82 + 0.14 * p)
-        let c2X = w * (0.32 - 0.38 * p)
-        let c2Y = h * (0.90 - 0.48 * p)
+        let tipX = start.x - w * (0.08 + 0.10 * p)
+        let tipY = start.y - h * (0.10 + 0.45 * p)
+        
+        let c1X = start.x - w * (0.16 + 0.02 * p)
+        let c1Y = start.y + h * (0.18 - 0.06 * p)
+        let c2X = start.x - w * (0.24 - 0.06 * p)
+        let c2Y = start.y - h * (0.05 + 0.28 * p)
         
         path.move(to: start)
         path.addCurve(
@@ -473,12 +516,8 @@ public struct SpriteView: View {
             ZStack {
                 // 1. ARMS LAYER (Behind or aligned with body)
                 if showsArms {
-                    let armWidth = w * 0.34
-                    let armHeight = h * 0.98
                     let effectiveLeft = reduceMotion ? 0.25 : leftArmPose
                     let effectiveRight = reduceMotion ? 0.25 : rightArmPose
-                    let leftAnchor = sprite.leftArmAnchorNormalized
-                    let rightAnchor = sprite.rightArmAnchorNormalized
                     
                     // Left Arm
                     SpriteArmShape(pose: effectiveLeft, isLeft: true, sprite: sprite)
@@ -486,8 +525,7 @@ public struct SpriteView: View {
                             sprite.gradient,
                             style: StrokeStyle(lineWidth: max(w * 0.055, 9), lineCap: .round, lineJoin: .round)
                         )
-                        .frame(width: armWidth, height: armHeight)
-                        .position(x: w * leftAnchor.x, y: h * leftAnchor.y)
+                        .frame(width: w, height: h)
                     
                     // Right Arm
                     SpriteArmShape(pose: effectiveRight, isLeft: false, sprite: sprite)
@@ -495,8 +533,7 @@ public struct SpriteView: View {
                             sprite.gradient,
                             style: StrokeStyle(lineWidth: max(w * 0.055, 9), lineCap: .round, lineJoin: .round)
                         )
-                        .frame(width: armWidth, height: armHeight)
-                        .position(x: w * rightAnchor.x, y: h * rightAnchor.y)
+                        .frame(width: w, height: h)
                 }
                 
                 // 2. BODY LAYER (Gradient path transformed by rotation, scale, skew)

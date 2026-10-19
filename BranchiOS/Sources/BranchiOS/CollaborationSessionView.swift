@@ -80,6 +80,40 @@ public struct ScriptStep {
     public let caption: String
 }
 
+// MARK: - Takeaway Action Enum (Tie-break precedence: friction > reframes > questions > agreements)
+public enum TakeawayAction: String, CaseIterable, Comparable, Sendable {
+    case friction = "friction"
+    case reframes = "reframes"
+    case questions = "questions"
+    case agreements = "agreements"
+    
+    public var priority: Int {
+        switch self {
+        case .friction: return 0
+        case .reframes: return 1
+        case .questions: return 2
+        case .agreements: return 3
+        }
+    }
+    
+    public static func < (lhs: TakeawayAction, rhs: TakeawayAction) -> Bool {
+        lhs.priority < rhs.priority
+    }
+    
+    public func label(for count: Int) -> String {
+        switch self {
+        case .friction:
+            return count == 1 ? "1 point of friction" : "\(count) points of friction"
+        case .reframes:
+            return count == 1 ? "1 reframe" : "\(count) reframes"
+        case .questions:
+            return count == 1 ? "1 open question" : "\(count) open questions"
+        case .agreements:
+            return count == 1 ? "1 agreement" : "\(count) agreements"
+        }
+    }
+}
+
 // MARK: - CollaborationSessionView
 public struct CollaborationSessionView: View {
     @Bindable var store: DemoStore = DemoStore.shared
@@ -87,8 +121,23 @@ public struct CollaborationSessionView: View {
     @State public var mode: CollaborationMode = .ready
     @State public var selectedTab: AppTab = .session
     
-    // Extra attendees counter (0 to 9)
-    @State private var extraAttendees: Int = 2
+    // Total people in room counter (min 1, max 9, includes user)
+    @State private var peopleCount: Int = 3
+    
+    // Live Session Counts (frozen on stop)
+    @State private var frictionCount: Int = 0
+    @State private var futureOpportunitiesCount: Int = 0
+    @State private var artifactsAddedCount: Int = 0
+    @State private var sessionQuestionsCount: Int = 0
+    @State private var sessionAgreementsCount: Int = 0
+    @State private var agentActionTallies: [Int: [TakeawayAction: Int]] = [:]
+    
+    // Knowledge handoff context from contribution grid tap
+    @State private var passedKnowledgeContext: ContributionCellContext? = nil
+    
+    // Guest Mode SSO & Profile Setup Sheets
+    @State private var isShowingSSOSheet: Bool = false
+    @State private var isShowingProfileSetupSheet: Bool = false
     
     // Virtual animation clock
     @State private var clock: Double = 0
@@ -107,6 +156,11 @@ public struct CollaborationSessionView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
+    // MARK: - Play / Primary Button Layout Tuning
+    /// Tuning offset for the primary play / stop button from canvas anchor (x: w * 0.35, y: h * 0.52).
+    /// Defaults to 24pt up and 24pt left as requested.
+    public static let playButtonOffset: CGSize = CGSize(width: -24, height: -24)
+    
     // Collaborator definitions matching the motion study & SVG frames
     @State private var collaborators: [AgentCollaborator] = [
         AgentCollaborator(
@@ -116,10 +170,10 @@ public struct CollaborationSessionView: View {
             sprite: .cloud,
             state: .talking,
             energy: 0.55,
-            xFraction: -0.04,
-            yFraction: 0.16,
+            xFraction: 0.17,
+            yFraction: 0.18,
             widthFraction: 0.58,
-            tagOffset: CGSize(width: 85, height: 45),
+            tagOffset: CGSize(width: 45, height: 50),
             takeawayLabel: "most artifacts added"
         ),
         AgentCollaborator(
@@ -129,10 +183,10 @@ public struct CollaborationSessionView: View {
             sprite: .bloom,
             state: .friction,
             energy: 0.40,
-            xFraction: 0.88,
-            yFraction: 0.26,
+            xFraction: 0.82,
+            yFraction: 0.28,
             widthFraction: 0.60,
-            tagOffset: CGSize(width: -60, height: 55),
+            tagOffset: CGSize(width: -50, height: 60),
             takeawayLabel: "solutions expert"
         ),
         AgentCollaborator(
@@ -142,10 +196,10 @@ public struct CollaborationSessionView: View {
             sprite: .prism,
             state: .processing,
             energy: 0.35,
-            xFraction: 0.86,
-            yFraction: 0.62,
+            xFraction: 0.81,
+            yFraction: 0.59,
             widthFraction: 0.58,
-            tagOffset: CGSize(width: -60, height: 55),
+            tagOffset: CGSize(width: -45, height: 50),
             takeawayLabel: "observer extraordinaire"
         ),
         AgentCollaborator(
@@ -155,10 +209,10 @@ public struct CollaborationSessionView: View {
             sprite: .spark,
             state: .agree,
             energy: 0.45,
-            xFraction: -0.04,
-            yFraction: 0.74,
+            xFraction: 0.16,
+            yFraction: 0.77,
             widthFraction: 0.62,
-            tagOffset: CGSize(width: 85, height: -45),
+            tagOffset: CGSize(width: 50, height: -72),
             takeawayLabel: "top conversationalist"
         )
     ]
@@ -209,7 +263,138 @@ public struct CollaborationSessionView: View {
     
     public init(store: DemoStore = DemoStore.shared, initialMode: CollaborationMode = .ready) {
         self.store = store
-        self._mode = State(initialValue: initialMode)
+        var resolvedMode = initialMode
+        if CommandLine.arguments.contains("-modeMeeting") || CommandLine.arguments.contains("-sessionLive") {
+            resolvedMode = .meeting
+            self._isSequenceRunning = State(initialValue: true)
+        }
+        self._mode = State(initialValue: resolvedMode)
+        if CommandLine.arguments.contains("-tabKnowledgeLive") || CommandLine.arguments.contains("-knowledgeLive") {
+            self._selectedTab = State(initialValue: .knowledge)
+            self._mode = State(initialValue: .meeting)
+            store.liveKnowledgeEntries = [
+                KnowledgeEntry(
+                    id: "live_04",
+                    projectID: "yaya",
+                    type: .question,
+                    text: "What if individuals need spatial synthesis before the room gathers?",
+                    timestamp: Date().addingTimeInterval(-24),
+                    dateDisplay: "0:04",
+                    agentId: 1,
+                    agentName: "Theo",
+                    agentSprite: .bloom,
+                    elapsedSeconds: 4.0
+                ),
+                KnowledgeEntry(
+                    id: "live_07",
+                    projectID: "yaya",
+                    type: .addition,
+                    text: "Auto-link whiteboards when two people cite the same diagram",
+                    timestamp: Date().addingTimeInterval(-21),
+                    dateDisplay: "0:07",
+                    agentId: 3,
+                    agentName: "Sam",
+                    agentSprite: .spark,
+                    media: KnowledgeMedia(
+                        title: "Spatial linking diagram",
+                        source: "WHITEBOARD",
+                        dateString: "0:07",
+                        assetName: "whiteboard_1",
+                        previewSnippet: "Link whiteboards when citations match."
+                    ),
+                    elapsedSeconds: 7.0
+                ),
+                KnowledgeEntry(
+                    id: "live_11",
+                    projectID: "yaya",
+                    type: .counterpoint,
+                    text: "Real-time speech transcription creates premature convergence",
+                    timestamp: Date().addingTimeInterval(-17),
+                    dateDisplay: "0:11",
+                    agentId: 0,
+                    agentName: "Maya",
+                    agentSprite: .cloud,
+                    elapsedSeconds: 11.0
+                ),
+                KnowledgeEntry(
+                    id: "live_15",
+                    projectID: "yaya",
+                    type: .reframe,
+                    text: "Treat session logs as living branches rather than meeting minutes",
+                    timestamp: Date().addingTimeInterval(-13),
+                    dateDisplay: "0:15",
+                    agentId: 3,
+                    agentName: "Sam",
+                    agentSprite: .spark,
+                    media: KnowledgeMedia(
+                        title: "Living branch lineage",
+                        source: "FIGMA",
+                        dateString: "0:15",
+                        assetName: "figma_agents",
+                        previewSnippet: "Branches rather than minutes."
+                    ),
+                    elapsedSeconds: 15.0
+                )
+            ]
+        } else if CommandLine.arguments.contains("-tabKnowledgeHandoff") {
+            self._selectedTab = State(initialValue: .knowledge)
+            self._passedKnowledgeContext = State(initialValue: ContributionCellContext(
+                agentId: 1,
+                agentName: "Theo",
+                agentSprite: .bloom,
+                sliceIndex: 5,
+                startTime: 10.0,
+                endTime: 12.0,
+                actions: [.friction: 1]
+            ))
+        } else if CommandLine.arguments.contains("-tabLiveMapLive") || CommandLine.arguments.contains("-liveMapLive") {
+            self._selectedTab = State(initialValue: .liveMap)
+            self._mode = State(initialValue: .meeting)
+            self._isSequenceRunning = State(initialValue: true)
+        } else if CommandLine.arguments.contains("-tabLiveMap") ||
+                  CommandLine.arguments.contains("-liveMapTab") ||
+                  CommandLine.arguments.contains("-tabLiveMapEmpty") ||
+                  CommandLine.arguments.contains("-tabLiveMapPast") ||
+                  CommandLine.arguments.contains("-testDetailSheet") ||
+                  CommandLine.arguments.contains("-testFrictionSheet") ||
+                  CommandLine.arguments.contains("-testActorIsolated") ||
+                  CommandLine.arguments.contains("-testCombinationMoment") {
+            self._selectedTab = State(initialValue: .liveMap)
+            if CommandLine.arguments.contains("-tabLiveMapPast") {
+                store.selectedSessionID = "session_2"
+            }
+        } else if CommandLine.arguments.contains("-tabProfile") || CommandLine.arguments.contains("-profileTab") || CommandLine.arguments.contains("-guestProfile") {
+            self._selectedTab = State(initialValue: .profile)
+        }
+        
+        if initialMode == .takeaways {
+            if CommandLine.arguments.contains("-sessionRun2") || CommandLine.arguments.contains("-collaborationTakeawaysRun2") {
+                self._frictionCount = State(initialValue: 1)
+                self._futureOpportunitiesCount = State(initialValue: 4)
+                self._artifactsAddedCount = State(initialValue: 2)
+                self._sessionQuestionsCount = State(initialValue: 3)
+                self._sessionAgreementsCount = State(initialValue: 1)
+                self._agentActionTallies = State(initialValue: [
+                    0: [.reframes: 2, .agreements: 1],  // Maya: 2 reframes
+                    1: [.questions: 3, .reframes: 1],   // Alex: 3 open questions
+                    2: [.friction: 1],                  // Theo: 1 point of friction (singular!)
+                    3: [.agreements: 1]                 // Sam: 1 agreement (singular!)
+                ])
+            } else {
+                self._frictionCount = State(initialValue: 3)
+                self._futureOpportunitiesCount = State(initialValue: 2)
+                self._artifactsAddedCount = State(initialValue: 5)
+                self._sessionQuestionsCount = State(initialValue: 6)
+                self._sessionAgreementsCount = State(initialValue: 5)
+                self._agentActionTallies = State(initialValue: [
+                    0: [.reframes: 4, .agreements: 2],
+                    1: [.questions: 6, .reframes: 2],
+                    2: [.friction: 3, .reframes: 1],
+                    3: [.agreements: 5, .questions: 2]
+                ])
+            }
+            self._isTakeawaysNodding = State(initialValue: true)
+        }
     }
     
     public var body: some View {
@@ -217,31 +402,34 @@ public struct CollaborationSessionView: View {
             // Background: plain white in light mode, plain black in dark mode (global rule)
             (colorScheme == .dark ? Color.black : Color.white)
                 .ignoresSafeArea()
+                .allowsHitTesting(false)
             
             // Main Content Area depending on selected tab
             GeometryReader { geo in
                 let w = geo.size.width
                 let h = geo.size.height
+                let topInset = geo.safeAreaInsets.top
+                let bottomInset = geo.safeAreaInsets.bottom
                 
                 ZStack {
                     switch selectedTab {
                     case .session:
                         switch mode {
                         case .ready:
-                            readyCanvas(w: w, h: h)
+                            readyCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
                                 .transition(.opacity)
                         case .meeting:
-                            meetingCanvas(w: w, h: h)
+                            meetingCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
                                 .transition(.opacity)
                         case .takeaways:
                             takeawaysCanvas(w: w, h: h)
                                 .transition(.opacity)
                         }
                     case .liveMap:
-                        liveMapCanvas(w: w, h: h)
+                        liveMapCanvas(w: w, h: h, topInset: topInset)
                             .transition(.opacity)
                     case .knowledge:
-                        knowledgeCanvas(w: w, h: h)
+                        knowledgeCanvas(w: w, h: h, topInset: topInset)
                             .transition(.opacity)
                     case .profile:
                         profileCanvas(w: w, h: h)
@@ -250,19 +438,44 @@ public struct CollaborationSessionView: View {
                 }
                 .frame(width: w, height: h)
             }
+            .zIndex(1)
             
-            // Overlay Navigation Bar (Frosted Liquid Glass)
-            if mode != .takeaways {
-                VStack {
-                    Spacer()
-                    liquidGlassTabBar
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 12)
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+            // Liquid Glass Navigation Bar: always visible, highest zIndex, strictly hit-testable only on its capsule
+            VStack {
+                Spacer()
+                liquidGlassTabBar
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .allowsHitTesting(false)
+            .overlay(alignment: .bottom) {
+                liquidGlassTabBar
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
+                    .allowsHitTesting(true)
+            }
+            .zIndex(100)
         }
         .animation(.spring(response: 0.45, dampingFraction: 0.82), value: mode)
+        .sheet(isPresented: $isShowingSSOSheet) {
+            SSOSignInSheet(store: store) { provider in
+                store.endGuestSessionAndStartSignUp()
+                isShowingProfileSetupSheet = true
+            }
+        }
+        .sheet(isPresented: $isShowingProfileSetupSheet) {
+            NavigationStack {
+                ProfileSetupView(store: store) {
+                    isShowingProfileSetupSheet = false
+                    store.hasCompletedSync = true
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                        selectedTab = .session
+                        mode = .ready
+                    }
+                }
+            }
+        }
         .onAppear {
             startPhysicsClock()
         }
@@ -272,15 +485,29 @@ public struct CollaborationSessionView: View {
     }
     
     // MARK: - 1. Ready Canvas (Recording_1.png)
-    private func readyCanvas(w: CGFloat, h: CGFloat) -> some View {
+    private func readyCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat, bottomInset: CGFloat) -> some View {
         ZStack {
-            // Edge-cropped sprites with Role pill tags
+            // Edge-cropped decorative sprites (non-interactive)
             ForEach(collaborators) { collab in
                 collaboratorSpriteNode(collab: collab, in: CGSize(width: w, height: h), isLive: false)
+                    .allowsHitTesting(false)
             }
             
+            // Top Right Wordmark (decorative, Berkeley Mono Bold, reads once as "Ya Ya")
+            VStack {
+                HStack {
+                    Spacer()
+                    YaYaWordmark(size: 24, showsPeriod: false)
+                        .padding(.top, max(topInset, 44) + 6)
+                        .padding(.trailing, 24)
+                }
+                Spacer()
+            }
+            .allowsHitTesting(false)
+            .zIndex(20)
+            
             // Centered Play Button (large circle)
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 Button {
                     startMeeting()
                 } label: {
@@ -295,70 +522,58 @@ public struct CollaborationSessionView: View {
                             .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
                             .offset(x: 3)
                     }
+                    .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Start Collaboration Session")
+                .contentShape(Circle())
+                .accessibilityLabel("Start session")
                 
                 Text("Ready")
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
+                    .allowsHitTesting(false)
             }
-            .position(x: w * 0.35, y: h * 0.52)
+            .position(
+                x: w * 0.35 + Self.playButtonOffset.width,
+                y: h * 0.52 + Self.playButtonOffset.height
+            )
+            .zIndex(10)
             
-            // Extra Attendees Stepper Pill (e.g. 2+ / 0–9)
-            HStack(spacing: 8) {
-                Button {
-                    if extraAttendees > 0 { extraAttendees -= 1 }
-                } label: {
-                    Image(systemName: "minus")
-                        .font(.system(size: 11, weight: .bold))
-                        .frame(width: 22, height: 22)
+            // People Counter in Bottom Right, just above the tab bar, aligned to right content margin
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    PeopleCounterView(peopleCount: $peopleCount)
+                        .padding(.trailing, 24)
+                        .padding(.bottom, max(bottomInset, 16) + 74)
                 }
-                .buttonStyle(.plain)
-                
-                Text("\(extraAttendees)+")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .frame(minWidth: 26)
-                
-                Button {
-                    if extraAttendees < 9 { extraAttendees += 1 }
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 11, weight: .bold))
-                        .frame(width: 22, height: 22)
-                }
-                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .glassEffect(.regular, in: Capsule())
-            .overlay(Capsule().stroke(Color.primary.opacity(0.12), lineWidth: 1))
-            .position(x: w * 0.76, y: h * 0.44)
+            .zIndex(15)
         }
     }
     
     // MARK: - 2. Meeting Canvas (Recording_2.png)
-    private func meetingCanvas(w: CGFloat, h: CGFloat) -> some View {
+    private func meetingCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat, bottomInset: CGFloat) -> some View {
         ZStack {
-            // Collaborators in Live Motion with dynamic state tags
+            // Collaborators in Live Motion with dynamic state tags (non-interactive)
             ForEach(collaborators) { collab in
                 collaboratorSpriteNode(collab: collab, in: CGSize(width: w, height: h), isLive: true)
+                    .allowsHitTesting(false)
             }
             
-            // Center Room Copy & Active Collaborator Count
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text("\(collaborators.count + extraAttendees)")
-                        .font(.system(size: 64, weight: .bold, design: .serif))
-                        .foregroundStyle(.primary)
+            // Top Right Wordmark (decorative, Berkeley Mono Bold, reads once as "Ya Ya")
+            VStack {
+                HStack {
+                    Spacer()
+                    YaYaWordmark(size: 24, showsPeriod: false)
+                        .padding(.top, max(topInset, 44) + 6)
+                        .padding(.trailing, 24)
                 }
-                
-                Text("collaborators\nin current meeting")
-                    .font(.system(size: 15, weight: .semibold, design: .default))
-                    .lineSpacing(2)
-                    .foregroundStyle(.primary)
+                Spacer()
             }
-            .position(x: w * 0.44, y: h * 0.36)
+            .allowsHitTesting(false)
+            .zIndex(20)
             
             // Centered Stop Button (circle with solid square)
             VStack(spacing: 10) {
@@ -375,431 +590,269 @@ public struct CollaborationSessionView: View {
                             .fill(colorScheme == .dark ? Color.black : Color.white)
                             .frame(width: 28, height: 28)
                     }
+                    .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
+                .contentShape(Circle())
                 .accessibilityLabel("Stop Collaboration Meeting")
                 
-                Text("Stop")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
+                // Label is removed during live session
             }
-            .position(x: w * 0.35, y: h * 0.54)
+            .position(
+                x: w * 0.35 + Self.playButtonOffset.width,
+                y: h * 0.52 + Self.playButtonOffset.height
+            )
+            .zIndex(10)
             
-            // Extra Attendees Stepper Pill
-            HStack(spacing: 8) {
-                Button {
-                    if extraAttendees > 0 { extraAttendees -= 1 }
-                } label: {
-                    Image(systemName: "minus")
-                        .font(.system(size: 11, weight: .bold))
-                        .frame(width: 22, height: 22)
-                }
-                .buttonStyle(.plain)
-                
-                Text("\(extraAttendees)+")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .frame(minWidth: 26)
-                
-                Button {
-                    if extraAttendees < 9 { extraAttendees += 1 }
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 11, weight: .bold))
-                        .frame(width: 22, height: 22)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .glassEffect(.regular, in: Capsule())
-            .overlay(Capsule().stroke(Color.primary.opacity(0.12), lineWidth: 1))
-            .position(x: w * 0.76, y: h * 0.44)
-            
-            // Bottom Stage Caption
+            // People Counter in Bottom Right, just above the tab bar, aligned to right content margin
             VStack {
                 Spacer()
-                Text(currentCaption)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, 84)
+                HStack {
+                    Spacer()
+                    PeopleCounterView(peopleCount: $peopleCount)
+                        .padding(.trailing, 24)
+                        .padding(.bottom, max(bottomInset, 16) + 74)
+                }
             }
+            .zIndex(15)
         }
     }
     
-    // MARK: - 3. Project Takeaways Canvas (Recording_3.png)
-    // MARK: - 3. Project Takeaways Canvas (Recording_3.png)
+    // MARK: - 3. Project Takeaways Canvas (Contribution Grid)
     private func takeawaysCanvas(w: CGFloat, h: CGFloat) -> some View {
         ZStack(alignment: .topLeading) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 // Header Title
                 Text("Project Takeaways")
                     .font(.system(size: 32, weight: .bold, design: .default))
                     .foregroundStyle(.primary)
                     .padding(.horizontal, 28)
-                    .padding(.top, 48)
+                    .padding(.top, 52)
+                    .allowsHitTesting(false)
                 
-                // 3 Horizontal Continuous Marquee Rows
-                VStack(alignment: .leading, spacing: 12) {
-                    // Row 1: 3 • Resolved Points of Friction
-                    takeawayMarqueeRow(
-                        statNumber: "3",
+                // 3 Horizontal Continuous Marquee Rows (stat numbers populated directly from session)
+                VStack(alignment: .leading, spacing: 14) {
+                    // Row 1: Friction stat (flows right)
+                    ContinuousTakeawayMarqueeRow(
+                        statNumber: "\(frictionCount)",
                         statTitle: "Resolved Points of Friction",
                         keywords: ["Timeline sync", "Design token hierarchy", "System architecture", "Model handoff"],
-                        agentColor: BranchSprite.bloom.gradientColors[0],
-                        width: w
+                        agentSprite: .bloom,
+                        flowsRight: true
                     )
                     
-                    // Row 2: 2 • Future Opportunities
-                    takeawayMarqueeRow(
-                        statNumber: "2",
+                    // Row 2: Future Opportunities / Questions stat (flows left)
+                    ContinuousTakeawayMarqueeRow(
+                        statNumber: "\(futureOpportunitiesCount)",
                         statTitle: "Future Opportunities",
                         keywords: ["Spatial audio canvas", "Cross-device multi-peer", "Dynamic clustering", "Export transcript"],
-                        agentColor: BranchSprite.prism.gradientColors[0],
-                        width: w
+                        agentSprite: .prism,
+                        flowsRight: false
                     )
                     
-                    // Row 3: 5 • Artifacts Added
-                    takeawayMarqueeRow(
-                        statNumber: "5",
+                    // Row 3: Artifacts Added stat (flows right)
+                    ContinuousTakeawayMarqueeRow(
+                        statNumber: "\(artifactsAddedCount)",
                         statTitle: "Artifacts Added",
                         keywords: ["Motion Guide", "Vector Specs", "Color Token Vault", "Living Story Script", "Figma Map"],
-                        agentColor: BranchSprite.cloud.gradientColors[0],
-                        width: w
+                        agentSprite: .cloud,
+                        flowsRight: true
                     )
                 }
                 .frame(width: w, alignment: .leading)
                 
+                Spacer().frame(height: 18)
+                
+                // GitHub-Style Contribution Grid
+                TakeawaysContributionGridView(
+                    rows: buildAgentGridRows(),
+                    sessionDuration: (frictionCount == 1 && sessionQuestionsCount == 3) ? 10.0 : 28.0,
+                    timeSlice: ContributionGridConstants.takeawayTimeSliceSeconds,
+                    onSelectCell: { cellContext in
+                        passedKnowledgeContext = cellContext
+                        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                            selectedTab = .knowledge
+                        }
+                    }
+                )
+                
                 Spacer()
             }
             .frame(width: w, alignment: .leading)
+            .zIndex(2)
             
-            // Bottom Overlapping 4-Sprite Cluster (matches Recording_3.png)
-            bottomTakeawayCluster(w: w, h: h)
-            
-            // Up-chevron return button in bottom right (Recording_3.png)
+            // Up-chevron return button in bottom right (Recording_3.png) - sits above tab bar
             Button {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
                     mode = .ready
+                    resetSessionCounts()
                 }
             } label: {
                 ZStack {
                     Circle()
-                        .fill(colorScheme == .dark ? Color.white.opacity(0.18) : Color.black.opacity(0.08))
-                        .frame(width: 48, height: 48)
+                        .fill(colorScheme == .dark ? Color.white : Color(red: 0.137, green: 0.122, blue: 0.125))
+                        .frame(width: 46, height: 46)
+                        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.20), radius: 6, x: 0, y: 3)
                     
-                    Image(systemName: "chevron.up.circle.fill")
-                        .font(.system(size: 32, weight: .semibold))
-                        .foregroundStyle(.primary)
+                    Image(systemName: "chevron.up")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
                 }
+                .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .position(x: w * 0.82, y: h * 0.88)
+            .contentShape(Circle())
+            .position(x: w - 46, y: h - 98)
+            .zIndex(15)
             .accessibilityLabel("Return to Collaboration Ready")
         }
         .frame(width: w, height: h)
-    }
-    
-    // MARK: - Takeaway Marquee Row Component
-    private func takeawayMarqueeRow(
-        statNumber: String,
-        statTitle: String,
-        keywords: [String],
-        agentColor: Color,
-        width: CGFloat
-    ) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                // Frosted Glass Stat Pill with crisp border matching Recording_3.png
-                HStack(spacing: 8) {
-                    Text(statNumber)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                    
-                    Circle()
-                        .fill(Color.primary.opacity(0.4))
-                        .frame(width: 4, height: 4)
-                    
-                    Text(statTitle)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(
-                    Capsule()
-                        .stroke(Color.primary, lineWidth: 1.8)
-                )
-                .fixedSize(horizontal: true, vertical: true)
-                
-                // Keyword Pills with Agent Gradient Colors
-                ForEach(keywords, id: \.self) { word in
-                    Text(word)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.primary)
-                        .lineLimit(1)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(
-                            Capsule()
-                                .fill(agentColor.opacity(colorScheme == .dark ? 0.35 : 0.18))
-                        )
-                        .overlay(
-                            Capsule()
-                                .stroke(agentColor.opacity(0.4), lineWidth: 1)
-                        )
-                        .fixedSize(horizontal: true, vertical: true)
+        .task {
+            if CommandLine.arguments.contains("-demoAutoTapKnowledge") {
+                try? await Task.sleep(nanoseconds: 3_200_000_000)
+                let rows = buildAgentGridRows()
+                if let theoRow = rows.first(where: { $0.name == "Theo" }),
+                   let cell = theoRow.cells.first(where: { $0.actions.values.reduce(0, +) > 0 }) {
+                    passedKnowledgeContext = cell
+                    withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                        selectedTab = .knowledge
+                    }
                 }
             }
-            .padding(.horizontal, 28)
         }
-        .frame(width: width, alignment: .leading)
     }
     
-    // MARK: - Bottom Overlapping 4-Sprite Cluster with Curved Labels
-    private func bottomTakeawayCluster(w: CGFloat, h: CGFloat) -> some View {
-        let clusterBaseY = h * 0.65
+    // MARK: - Build Agent Grid Rows (Session Time Slices)
+    private func buildAgentGridRows() -> [AgentGridRow] {
+        let isShortRun = (frictionCount == 1 && sessionQuestionsCount == 3)
+        let totalDuration = isShortRun ? 10.0 : 28.0
+        let timeSlice = ContributionGridConstants.takeawayTimeSliceSeconds
+        let totalCols = max(1, Int(ceil(totalDuration / timeSlice)))
         
-        return ZStack {
-            // Sprite 0: Maya (Cloud, left back - lavender)
-            ZStack {
-                CurvedText(text: "most artifacts added", radius: 78, isTop: true, color: BranchSprite.cloud.gradientColors[0])
-                    .offset(y: -84)
-                
-                SpriteView(
-                    sprite: .cloud,
-                    isBlinking: false,
-                    showsArms: false,
-                    bodyScale: isTakeawaysNodding ? 1.08 : 1.0
-                )
-                .frame(width: 150, height: 140)
-            }
-            .position(x: w * 0.28, y: clusterBaseY - 10)
+        let mayaActionsByCol: [Int: [TakeawayAction: Int]] = isShortRun
+            ? [1: [.reframes: 1], 3: [.reframes: 1]]
+            : [5: [.friction: 1], 9: [.agreements: 1], 11: [.reframes: 1], 13: [.reframes: 3]]
             
-            // Sprite 1: Alex (Prism, center back - blue)
-            ZStack {
-                CurvedText(text: "observer extraordinaire", radius: 80, isTop: true, color: BranchSprite.prism.gradientColors[0])
-                    .offset(y: -88)
-                
-                SpriteView(
-                    sprite: .prism,
-                    isBlinking: false,
-                    showsArms: false,
-                    bodyScale: isTakeawaysNodding ? 1.08 : 1.0
-                )
-                .frame(width: 145, height: 135)
-            }
-            .position(x: w * 0.58, y: clusterBaseY - 40)
+        let theoActionsByCol: [Int: [TakeawayAction: Int]] = isShortRun
+            ? [2: [.friction: 1]]
+            : [2: [.questions: 1], 5: [.friction: 2], 8: [.friction: 1], 10: [.agreements: 1]]
             
-            // Sprite 2: Theo (Bloom, right foreground - orange)
-            ZStack {
-                SpriteView(
-                    sprite: .bloom,
-                    isBlinking: false,
-                    showsArms: false,
-                    bodyScale: isTakeawaysNodding ? 1.08 : 1.0
-                )
-                .frame(width: 145, height: 135)
-                
-                CurvedText(text: "solutions expert", radius: 76, isTop: false, color: BranchSprite.bloom.gradientColors[0])
-                    .offset(y: 84)
-            }
-            .position(x: w * 0.72, y: clusterBaseY + 10)
+        let alexActionsByCol: [Int: [TakeawayAction: Int]] = isShortRun
+            ? [1: [.questions: 2], 3: [.questions: 1]]
+            : [3: [.questions: 2], 7: [.questions: 2], 10: [.questions: 2], 12: [.reframes: 1]]
             
-            // Sprite 3: Sam (Spark, center foreground - green)
-            ZStack {
-                SpriteView(
-                    sprite: .spark,
-                    isBlinking: false,
-                    showsArms: false,
-                    bodyScale: isTakeawaysNodding ? 1.08 : 1.0
+        let samActionsByCol: [Int: [TakeawayAction: Int]] = isShortRun
+            ? [3: [.agreements: 1]]
+            : [3: [.agreements: 1], 7: [.reframes: 1], 9: [.agreements: 2], 11: [.agreements: 2]]
+            
+        func makeCells(agentId: Int, name: String, sprite: BranchSprite, map: [Int: [TakeawayAction: Int]]) -> [ContributionCellContext] {
+            (0..<totalCols).map { col in
+                ContributionCellContext(
+                    agentId: agentId,
+                    agentName: name,
+                    agentSprite: sprite,
+                    sliceIndex: col,
+                    startTime: Double(col) * timeSlice,
+                    endTime: Double(col + 1) * timeSlice,
+                    actions: map[col] ?? [:]
                 )
-                .frame(width: 150, height: 140)
-                
-                CurvedText(text: "top conversationalist", radius: 80, isTop: false, color: BranchSprite.spark.gradientColors[0])
-                    .offset(y: 88)
             }
-            .position(x: w * 0.44, y: clusterBaseY + 25)
         }
-        .frame(width: w, height: h)
-    }
-    
-    // MARK: - Live Map Placeholder Canvas
-    private func liveMapCanvas(w: CGFloat, h: CGFloat) -> some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 60)
-            
-            HStack {
-                Text("Live Map")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundStyle(.primary)
-                Spacer()
-            }
-            .padding(.horizontal, 28)
-            
-            Spacer()
-            
-            VStack(spacing: 16) {
-                Image(systemName: "point.3.connected.trianglepath.dotted")
-                    .font(.system(size: 54, weight: .light))
-                    .foregroundStyle(.secondary)
-                
-                Text("Collective Emergence")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.primary)
-                
-                Text("Real-time conversational topology and emergent project dynamics.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-            }
-            
-            Spacer()
-        }
-        .frame(width: w, height: h)
-    }
-    
-    // MARK: - Knowledge Placeholder Canvas
-    private func knowledgeCanvas(w: CGFloat, h: CGFloat) -> some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 60)
-            
-            HStack {
-                Text("Knowledge")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundStyle(.primary)
-                Spacer()
-            }
-            .padding(.horizontal, 28)
-            
-            Spacer()
-            
-            VStack(spacing: 16) {
-                Image(systemName: "books.vertical")
-                    .font(.system(size: 54, weight: .light))
-                    .foregroundStyle(.secondary)
-                
-                Text("Living Project Repository")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.primary)
-                
-                Text("Extracted artifacts, design tokens, and decisions captured across all sessions.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-            }
-            
-            Spacer()
-        }
-        .frame(width: w, height: h)
-    }
-    
-    // MARK: - Profile Canvas & Reset Demo Button
-    private func profileCanvas(w: CGFloat, h: CGFloat) -> some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 60)
-            
-            HStack {
-                Text("Profile")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundStyle(.primary)
-                Spacer()
-            }
-            .padding(.horizontal, 28)
-            
-            Spacer()
-            
-            // Profile Card
-            VStack(spacing: 16) {
-                // User Avatar
-                ZStack {
-                    Circle()
-                        .fill(Color.primary.opacity(0.06))
-                        .frame(width: 88, height: 88)
-                    
-                    if let spriteHex = store.profile?.spriteColorHex {
-                        let sprite = BranchSprite.from(hex: spriteHex)
-                        SpriteView(sprite: sprite, isBlinking: false, showsArms: false)
-                            .frame(width: 72, height: 72)
-                    } else {
-                        SpriteView(sprite: .cloud, isBlinking: false, showsArms: false)
-                            .frame(width: 72, height: 72)
-                    }
-                }
-                
-                VStack(spacing: 4) {
-                    if let nickname = store.profile?.nickname, !nickname.isEmpty {
-                        Text("@\(nickname)")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.primary)
-                    } else {
-                        Text("@demo")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    if let fullName = store.profile?.fullName, !fullName.isEmpty {
-                        Text(fullName)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                
-                // Connected integrations count pill
-                HStack(spacing: 6) {
-                    Image(systemName: "link")
-                        .font(.system(size: 11, weight: .bold))
-                    Text("\(store.connectedIntegrationIds.count) Integrations Connected")
-                        .font(.system(size: 12, weight: .medium))
-                }
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
-                .background(Capsule().fill(Color.primary.opacity(0.06)))
-            }
-            .padding(.vertical, 24)
-            .padding(.horizontal, 32)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+        
+        return [
+            AgentGridRow(
+                id: 0,
+                name: "Maya",
+                role: "Design",
+                sprite: .cloud,
+                cells: makeCells(agentId: 0, name: "Maya", sprite: .cloud, map: mayaActionsByCol)
+            ),
+            AgentGridRow(
+                id: 1,
+                name: "Theo",
+                role: "Engineering",
+                sprite: .bloom,
+                cells: makeCells(agentId: 1, name: "Theo", sprite: .bloom, map: theoActionsByCol)
+            ),
+            AgentGridRow(
+                id: 2,
+                name: "Alex",
+                role: "Product",
+                sprite: .prism,
+                cells: makeCells(agentId: 2, name: "Alex", sprite: .prism, map: alexActionsByCol)
+            ),
+            AgentGridRow(
+                id: 3,
+                name: "Sam",
+                role: "Research",
+                sprite: .spark,
+                cells: makeCells(agentId: 3, name: "Sam", sprite: .spark, map: samActionsByCol)
             )
+        ]
+    }
+    
+    // MARK: - Live Map Canvas (Collective Emergence Actor-Discourse Network)
+    private func liveMapCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            Color.clear.frame(height: topInset)
             
-            Spacer()
+            LiveMapView(
+                store: store,
+                isLiveSession: mode == .meeting,
+                sessionClock: max(0, clock - sequenceStartTime),
+                peopleCount: peopleCount,
+                onOpenInKnowledge: { entryID in
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        selectedTab = .knowledge
+                    }
+                },
+                onStartSession: {
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                        selectedTab = .session
+                        mode = .ready
+                    }
+                }
+            )
+            .frame(width: w, height: max(0, h - topInset))
+        }
+        .frame(width: w, height: h)
+    }
+    
+    // MARK: - Knowledge Canvas (Living Project Repository)
+    private func knowledgeCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            Color.clear.frame(height: topInset)
             
-            // Prominent Reset Demo Button
-            Button {
+            KnowledgeView(
+                store: store,
+                isLiveSession: mode == .meeting,
+                sessionClock: max(0, clock - sequenceStartTime),
+                passedContext: passedKnowledgeContext,
+                onDismissContext: {
+                    passedKnowledgeContext = nil
+                }
+            )
+            .frame(width: w, height: max(0, h - topInset))
+            .clipped()
+        }
+        .frame(width: w, height: h)
+    }
+        // MARK: - Profile Canvas & Reset Demo Button
+    private func profileCanvas(w: CGFloat, h: CGFloat) -> some View {
+        ProfileView(
+            store: store,
+            onResetDemo: {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    stopMeeting()
+                    mode = .ready
+                    resetSessionCounts()
                     store.resetDemo()
                 }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 15, weight: .bold))
-                    Text("Reset Demo & Start Over")
-                        .font(.system(size: 15, weight: .semibold))
-                }
-                .foregroundStyle(Color.red)
-                .frame(maxWidth: .infinity)
-                .frame(height: 52)
-                .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.red.opacity(colorScheme == .dark ? 0.18 : 0.08))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
-                )
+            },
+            onSignUp: {
+                isShowingSSOSheet = true
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 28)
-            .padding(.bottom, 90)
-        }
+        )
         .frame(width: w, height: h)
     }
     
@@ -831,17 +884,18 @@ public struct CollaborationSessionView: View {
             .frame(width: spriteW, height: spriteH)
             .offset(x: motion.dx, y: motion.dy)
             
-            // Liquid Glass Pill Tag: `Name • Role` in Ready, `Name • State` in Meeting
+            // Liquid Glass Pill Tag: `Name · Role` in Ready, `Name · State` in Meeting
             HStack(spacing: 5) {
                 Text(collab.name)
                     .font(.system(size: 12, weight: .bold))
-                Text("•")
-                    .font(.system(size: 9))
+                Text("·")
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.secondary)
                 Text(isLive ? collab.state.displayName : collab.role)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
             }
+            .fixedSize()
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .glassEffect(.regular, in: Capsule())
@@ -958,12 +1012,7 @@ public struct CollaborationSessionView: View {
             ForEach(AppTab.allCases) { tab in
                 let isSelected = selectedTab == tab
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.78)) {
-                        selectedTab = tab
-                        if tab == .session && mode == .takeaways {
-                            mode = .ready
-                        }
-                    }
+                    handleTabSelection(tab)
                 } label: {
                     VStack(spacing: 4) {
                         if tab == .profile {
@@ -993,8 +1042,10 @@ public struct CollaborationSessionView: View {
                         Capsule()
                             .fill(isSelected ? Color.primary.opacity(colorScheme == .dark ? 0.16 : 0.08) : Color.clear)
                     )
+                    .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .contentShape(Capsule())
             }
         }
         .padding(.horizontal, 8)
@@ -1005,7 +1056,17 @@ public struct CollaborationSessionView: View {
             Capsule()
                 .stroke(Color.primary.opacity(0.12), lineWidth: 1)
         )
+        .contentShape(Capsule())
         .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.08), radius: 14, x: 0, y: 6)
+    }
+    
+    // MARK: - Tab Switching (Sessions Run Across Tabs)
+    private func handleTabSelection(_ tab: AppTab) {
+        if selectedTab == tab { return }
+        
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.78)) {
+            selectedTab = tab
+        }
     }
     
     // MARK: - Physics & Script Sequence Clock
@@ -1013,6 +1074,8 @@ public struct CollaborationSessionView: View {
         animationTimer?.invalidate()
         animationTimer = Timer.scheduledTimer(withTimeInterval: 0.033, repeats: true) { _ in
             Task { @MainActor in
+                guard !isPaused else { return }
+                
                 clock += 0.033
                 
                 if isSequenceRunning {
@@ -1027,7 +1090,7 @@ public struct CollaborationSessionView: View {
                     }
                     
                     if nextStep == scriptSteps.count - 1 && elapsed > 29.0 {
-                        isSequenceRunning = false
+                        stopMeeting()
                     }
                 }
             }
@@ -1040,19 +1103,88 @@ public struct CollaborationSessionView: View {
     }
     
     private func startMeeting() {
-        withAnimation {
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
             mode = .meeting
             isSequenceRunning = true
+            isPaused = false
             sequenceStartTime = clock
             currentStepIndex = -1
+            store.liveKnowledgeEntries = []
+            resetSessionCounts()
         }
     }
     
     private func stopMeeting() {
-        withAnimation {
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
             isSequenceRunning = false
-            mode = .ready
+            isPaused = false
+            freezeSessionCounts()
+            store.commitLiveKnowledgeEntriesToSeeded(for: "yaya")
+            mode = .takeaways
+            triggerTakeawaysOpeningNod()
         }
+    }
+    
+    private func freezeSessionCounts() {
+        let elapsed = max(0, clock - sequenceStartTime)
+        if elapsed < 8.0 {
+            // Early stop: lower numbers & singular actions
+            frictionCount = 1
+            futureOpportunitiesCount = 1
+            artifactsAddedCount = 1
+            sessionQuestionsCount = 1
+            sessionAgreementsCount = 1
+            agentActionTallies = [
+                0: [.reframes: 1, .agreements: 1],  // Maya: 1 reframe (tie-breaker: reframes > agreements)
+                1: [.questions: 1],                 // Alex: 1 open question
+                2: [.friction: 1],                  // Theo: 1 point of friction
+                3: [.agreements: 1]                 // Sam: 1 agreement
+            ]
+        } else if elapsed < 18.0 {
+            // Mid-session stop
+            frictionCount = 2
+            futureOpportunitiesCount = 3
+            artifactsAddedCount = 3
+            sessionQuestionsCount = 3
+            sessionAgreementsCount = 3
+            agentActionTallies = [
+                0: [.reframes: 2, .agreements: 1],  // Maya: 2 reframes
+                1: [.questions: 3, .reframes: 1],   // Alex: 3 open questions
+                2: [.friction: 2, .reframes: 1],    // Theo: 2 points of friction
+                3: [.agreements: 3, .questions: 1]  // Sam: 3 agreements
+            ]
+        } else {
+            // Fully completed session
+            frictionCount = 3
+            futureOpportunitiesCount = 2
+            artifactsAddedCount = 5
+            sessionQuestionsCount = 6
+            sessionAgreementsCount = 5
+            agentActionTallies = [
+                0: [.reframes: 4, .agreements: 2],  // Maya: 4 reframes
+                1: [.questions: 6, .reframes: 2],   // Alex: 6 open questions
+                2: [.friction: 3, .reframes: 1],    // Theo: 3 points of friction
+                3: [.agreements: 5, .questions: 2]  // Sam: 5 agreements
+            ]
+        }
+        
+        let totalDeclaredActions = frictionCount + futureOpportunitiesCount + artifactsAddedCount
+        let sessionActions = SessionDeclaredActions(
+            processing: max(1, sessionAgreementsCount),
+            building: max(1, artifactsAddedCount),
+            reframing: max(1, futureOpportunitiesCount),
+            questions: max(1, sessionQuestionsCount)
+        )
+        store.recordCompletedSession(declaredActionsCount: totalDeclaredActions, actions: sessionActions)
+    }
+    
+    private func resetSessionCounts() {
+        frictionCount = 0
+        futureOpportunitiesCount = 0
+        artifactsAddedCount = 0
+        sessionQuestionsCount = 0
+        sessionAgreementsCount = 0
+        agentActionTallies = [:]
     }
     
     private func applyScriptStep(_ step: ScriptStep) {
@@ -1064,42 +1196,393 @@ public struct CollaborationSessionView: View {
                 collaborators[i].stateStartTime = clock
             }
         }
+        emitLiveKnowledgeEntryForStep(step)
+    }
+    
+    private func emitLiveKnowledgeEntryForStep(_ step: ScriptStep) {
+        let elapsedSec = step.atSeconds
+        let elapsedString = String(format: "0:%02d", elapsedSec)
+        
+        switch elapsedSec {
+        case 0:
+            // Maya introduces problem space
+            let entry = KnowledgeEntry(
+                id: "live_00",
+                projectID: "yaya",
+                type: .addition,
+                text: "How do we bridge individual reflection with team synthesis?",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                agentId: 0,
+                agentName: "Maya",
+                agentSprite: .cloud,
+                actor: .maya,
+                shortLabel: "Bridge reflection & synthesis",
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        case 4:
+            // Theo asks question
+            let entry = KnowledgeEntry(
+                id: "live_04",
+                projectID: "yaya",
+                type: .question,
+                text: "What if individuals need spatial synthesis before the room gathers?",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                agentId: 1,
+                agentName: "Theo",
+                agentSprite: .bloom,
+                actor: .theo,
+                links: [KnowledgeLink(targetEntryID: "live_00", type: .buildsOn)],
+                shortLabel: "Spatial synthesis need",
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        case 7:
+            // User speaks: establish Branch for individuals first (~25% of moves from user)
+            let entry = KnowledgeEntry(
+                id: "live_07",
+                projectID: "yaya",
+                type: .addition,
+                text: "Establish Branch for individuals first. Team integration comes later.",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                actor: .user,
+                links: [KnowledgeLink(targetEntryID: "live_04", type: .buildsOn)],
+                shortLabel: "One person first",
+                media: KnowledgeMedia(
+                    title: "Core idea: the individual",
+                    source: "WHITEBOARD",
+                    dateString: elapsedString,
+                    assetName: "whiteboard_3",
+                    previewSnippet: "Establish Branch for individuals first. Team integration comes later."
+                ),
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        case 11:
+            // Maya flags constraint / friction
+            let entry = KnowledgeEntry(
+                id: "live_11",
+                projectID: "yaya",
+                type: .counterpoint,
+                text: "Real-time speech transcription creates premature convergence",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                agentId: 0,
+                agentName: "Maya",
+                agentSprite: .cloud,
+                actor: .maya,
+                links: [KnowledgeLink(targetEntryID: "live_07", type: .challenges)],
+                resolution: .unresolved,
+                shortLabel: "Premature convergence",
+                frictionSuggestion: "visual markers protect unvoiced ideas",
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        case 15:
+            // Sam offers reframing
+            let entry = KnowledgeEntry(
+                id: "live_15",
+                projectID: "yaya",
+                type: .reframe,
+                text: "Treat session logs as living branches rather than meeting minutes",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                agentId: 3,
+                agentName: "Sam",
+                agentSprite: .spark,
+                actor: .sam,
+                links: [KnowledgeLink(targetEntryID: "live_07", type: .transforms)],
+                shortLabel: "Branches not minutes",
+                media: KnowledgeMedia(
+                    title: "Living branch lineage",
+                    source: "FIGMA",
+                    dateString: elapsedString,
+                    assetName: "figma_agents",
+                    previewSnippet: "Branches rather than minutes."
+                ),
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        case 19:
+            // Combination moment & Emergence! User combines Sam's reframing (live_15) with individual-first (live_07)
+            let entry = KnowledgeEntry(
+                id: "live_19",
+                projectID: "yaya",
+                type: .addition,
+                text: "Living project stories emerge from dialogue, not retroactive documentation",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                actor: .user,
+                links: [
+                    KnowledgeLink(targetEntryID: "live_07", type: .combines),
+                    KnowledgeLink(targetEntryID: "live_15", type: .combines)
+                ],
+                shortLabel: "Stories from dialogue",
+                media: KnowledgeMedia(
+                    title: "Living stories dialectic",
+                    source: "MIRO",
+                    dateString: elapsedString,
+                    assetName: "miro_stories",
+                    previewSnippet: "Every critique session is a branch on the project's living story."
+                ),
+                isCombination: true,
+                isEmergent: true,
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+                #if canImport(UIKit)
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
+                #endif
+            }
+        case 23:
+            // Maya agrees and builds on emergent node
+            let entry = KnowledgeEntry(
+                id: "live_23",
+                projectID: "yaya",
+                type: .addition,
+                text: "Shared nodes bloom when both contributors validate the constraint",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                agentId: 0,
+                agentName: "Maya",
+                agentSprite: .cloud,
+                actor: .maya,
+                links: [KnowledgeLink(targetEntryID: "live_19", type: .buildsOn)],
+                shortLabel: "Shared nodes bloom",
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        case 28:
+            // Sam adds last thought / builds on emergent node
+            let entry = KnowledgeEntry(
+                id: "live_28",
+                projectID: "yaya",
+                type: .addition,
+                text: "Expose unresolved questions as hot corners for the next session",
+                timestamp: Date(),
+                dateDisplay: elapsedString,
+                agentId: 3,
+                agentName: "Sam",
+                agentSprite: .spark,
+                actor: .sam,
+                links: [KnowledgeLink(targetEntryID: "live_19", type: .buildsOn)],
+                shortLabel: "Hot corners next",
+                media: KnowledgeMedia(
+                    title: "Hot corner synthesis",
+                    source: "WHITEBOARD",
+                    dateString: elapsedString,
+                    assetName: "whiteboard_3",
+                    previewSnippet: "Unresolved questions become genesis nodes."
+                ),
+                elapsedSeconds: Double(elapsedSec)
+            )
+            if !store.liveKnowledgeEntries.contains(where: { $0.id == entry.id }) {
+                store.liveKnowledgeEntries.append(entry)
+            }
+        default:
+            break
+        }
     }
     
     private func triggerTakeawaysOpeningNod() {
-        isTakeawaysNodding = true
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 900_000_000)
-            isTakeawaysNodding = false
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.55)) {
+            isTakeawaysNodding = true
         }
-    }
-}
-
-// MARK: - Curved Text Component for Recording 3
-private struct CurvedText: View {
-    let text: String
-    let radius: CGFloat
-    let isTop: Bool
-    let color: Color
-    
-    var body: some View {
-        let chars = Array(text)
-        let anglePerChar: Double = isTop ? 6.5 : 6.8
-        let totalAngle: Double = Double(chars.count - 1) * anglePerChar
-        
-        ZStack {
-            ForEach(0..<chars.count, id: \.self) { i in
-                let charAngle = -totalAngle / 2.0 + Double(i) * anglePerChar
-                let rad = charAngle * .pi / 180.0
-                let x = radius * sin(rad)
-                let y = isTop ? -radius * cos(rad) + radius : radius * cos(rad) - radius
-                
-                Text(String(chars[i]))
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(color)
-                    .rotationEffect(.degrees(charAngle))
-                    .offset(x: x, y: y)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.68)) {
+                isTakeawaysNodding = false
             }
         }
     }
 }
+
+// MARK: - Continuous Takeaway Marquee Row Component (Recording_3.png)
+private struct ContinuousTakeawayMarqueeRow: View {
+    let statNumber: String
+    let statTitle: String
+    let keywords: [String]
+    let agentSprite: BranchSprite
+    let flowsRight: Bool
+    let speed: CGFloat = 26.0
+    
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var measuredUnitWidth: CGFloat = 720
+    
+    var body: some View {
+        GeometryReader { proxy in
+            let screenWidth = proxy.size.width
+            
+            TimelineView(.animation(paused: reduceMotion)) { timeline in
+                let elapsed = reduceMotion ? 0 : Float(timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 120))
+                let cycle = max(measuredUnitWidth, 420)
+                
+                let offset: CGFloat = {
+                    if reduceMotion {
+                        return 28
+                    }
+                    if flowsRight {
+                        // Flows right: smoothly scrolls toward positive x, wrapped by cycle
+                        let progress = CGFloat(elapsed * Float(speed)).truncatingRemainder(dividingBy: cycle)
+                        return progress - cycle
+                    } else {
+                        // Flows left: smoothly scrolls toward negative x, wrapped by cycle
+                        let progress = CGFloat(elapsed * Float(speed)).truncatingRemainder(dividingBy: cycle)
+                        return -progress
+                    }
+                }()
+                
+                HStack(spacing: 24) {
+                    ForEach(0..<4, id: \.self) { copyIndex in
+                        rowContentUnit
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onAppear {
+                                            if copyIndex == 0 {
+                                                measuredUnitWidth = geo.size.width + 24
+                                            }
+                                        }
+                                }
+                            )
+                    }
+                }
+                .offset(x: offset)
+                .frame(width: screenWidth, alignment: .leading)
+            }
+        }
+        .frame(height: 44)
+        .frame(maxWidth: .infinity)
+        .clipped()
+    }
+    
+    private var rowContentUnit: some View {
+        HStack(spacing: 24) {
+            // Stat Pill
+            HStack(spacing: 8) {
+                Text(statNumber)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.primary)
+                    .lineLimit(1)
+                
+                Circle()
+                    .fill(Color.primary.opacity(0.45))
+                    .frame(width: 4, height: 4)
+                
+                Text(statTitle)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.primary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                Capsule()
+                    .stroke(Color.primary, lineWidth: 1.8)
+            )
+            .fixedSize(horizontal: true, vertical: true)
+            
+            // Plain text keywords (NO chips, NO pills, NO fill, NO border)
+            ForEach(keywords, id: \.self) { word in
+                Text(word)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(agentSprite.takeawayGradient(for: colorScheme))
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+        }
+    }
+}
+
+// MARK: - People Counter Component
+public struct PeopleCounterView: View {
+    @Binding var peopleCount: Int
+    @Environment(\.colorScheme) private var colorScheme
+    
+    public init(peopleCount: Binding<Int>) {
+        self._peopleCount = peopleCount
+    }
+    
+    public var body: some View {
+        HStack(spacing: 8) {
+            // People icon + number indicator in frosted glass pill
+            HStack(spacing: 5) {
+                Image(systemName: peopleCount == 1 ? "person.fill" : "person.2.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                
+                Text("\(peopleCount)")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .glassEffect(.regular, in: Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+            )
+            .foregroundStyle(Color.primary)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(peopleCount) \(peopleCount == 1 ? "person" : "people") in the room")
+            
+            // Frosted glass stepper pill (minus & plus)
+            HStack(spacing: 2) {
+                Button {
+                    if peopleCount > 1 {
+                        peopleCount -= 1
+                    }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 11, weight: .bold))
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .disabled(peopleCount <= 1)
+                .opacity(peopleCount <= 1 ? 0.35 : 1.0)
+                .accessibilityLabel("Remove a person")
+                
+                Button {
+                    if peopleCount < 9 {
+                        peopleCount += 1
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 11, weight: .bold))
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .disabled(peopleCount >= 9)
+                .opacity(peopleCount >= 9 ? 0.35 : 1.0)
+                .accessibilityLabel("Add a person")
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 3)
+            .glassEffect(.regular, in: Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+            )
+        }
+    }
+}
+
