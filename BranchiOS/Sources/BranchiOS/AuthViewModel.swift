@@ -34,7 +34,12 @@ public final class AuthViewModel {
         self.signedInProvider = signedInProvider
     }
     
-    public func signIn(with provider: AuthProvider, store: DemoStore = DemoStore.shared) {
+    public func signIn(
+        with provider: AuthProvider,
+        store: DemoStore = DemoStore.shared,
+        delayMs: Int = 300,
+        onCompletion: (@MainActor (AuthProvider) -> Void)? = nil
+    ) {
         guard !isLoading else { return }
         
         // Immediate tactile response
@@ -42,10 +47,11 @@ public final class AuthViewModel {
         activeLoadingProvider = provider
         
         Task { @MainActor in
-            // Simulated authentication delay (1.5 seconds)
-            try? await Task.sleep(for: .milliseconds(1500))
+            if delayMs > 0 {
+                try? await Task.sleep(for: .milliseconds(delayMs))
+            }
             
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+            withAnimation(BranchMotion.sharedSpring) {
                 self.signedInProvider = provider
                 self.activeLoadingProvider = nil
                 // Persist session to DemoStore
@@ -53,6 +59,7 @@ public final class AuthViewModel {
             }
             
             triggerSuccessFeedback()
+            onCompletion?(provider)
         }
     }
     

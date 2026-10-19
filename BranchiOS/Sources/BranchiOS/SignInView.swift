@@ -147,6 +147,10 @@ public struct GitHubFallbackLogo: View {
 public struct SignInView: View {
     @Bindable var store: DemoStore = DemoStore.shared
     @State private var viewModel = AuthViewModel()
+    public var showsBackground: Bool = true
+    public var onSignedIn: ((AuthProvider) -> Void)? = nil
+    
+    @State private var hasCompletedSignIn: Bool = false
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
@@ -156,16 +160,52 @@ public struct SignInView: View {
     @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .largeTitle) private var appIconSize: CGFloat = 84
     
-    public init(store: DemoStore = DemoStore.shared, viewModel: AuthViewModel = AuthViewModel()) {
+    public init(
+        store: DemoStore = DemoStore.shared,
+        viewModel: AuthViewModel = AuthViewModel(),
+        showsBackground: Bool = true,
+        onSignedIn: ((AuthProvider) -> Void)? = nil
+    ) {
         self.store = store
         self._viewModel = State(initialValue: viewModel)
+        self.showsBackground = showsBackground
+        self.onSignedIn = onSignedIn
     }
     
     public var body: some View {
         ZStack {
-            // Refractive animated mesh gradient
-            AnimatedMeshBackground()
-                .ignoresSafeArea()
+            if hasCompletedSignIn && onSignedIn == nil {
+                ProfileSetupView(store: store)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .offset(y: 20)),
+                        removal: .opacity.combined(with: .offset(y: -20))
+                    ))
+            } else {
+                signInMainContent
+                    .transition(.asymmetric(
+                        insertion: .opacity,
+                        removal: .opacity.combined(with: .offset(y: -20))
+                    ))
+            }
+        }
+        .animation(BranchMotion.sharedSpring, value: hasCompletedSignIn)
+        .onChange(of: store.session) { _, newSession in
+            if newSession != nil && !hasCompletedSignIn {
+                withAnimation(BranchMotion.sharedSpring) {
+                    hasCompletedSignIn = true
+                }
+            }
+        }
+    }
+    
+    // MARK: - Main Sign In Content
+    private var signInMainContent: some View {
+        ZStack {
+            // Refractive animated mesh gradient if requested
+            if showsBackground {
+                AnimatedMeshBackground()
+                    .ignoresSafeArea()
+            }
             
             VStack(spacing: 0) {
                 // TOP AREA: App Icon, Large Title & One-Line Subtitle
@@ -251,7 +291,7 @@ public struct SignInView: View {
         let isCurrentLoading = viewModel.activeLoadingProvider == provider
         
         Button {
-            viewModel.signIn(with: provider, store: store)
+            handleSignInTap(provider: provider)
         } label: {
             HStack(spacing: 12) {
                 if isCurrentLoading {
@@ -287,6 +327,15 @@ public struct SignInView: View {
         .accessibilityLabel(provider.accessibilityLabel)
         .accessibilityValue(isCurrentLoading ? "Signing in" : "")
         .accessibilityHint(viewModel.isLoading ? "Authentication in progress" : "Double tap to sign in with \(provider.rawValue)")
+    }
+    
+    private func handleSignInTap(provider: AuthProvider) {
+        viewModel.signIn(with: provider, store: store, delayMs: 300) { signedProvider in
+            withAnimation(BranchMotion.sharedSpring) {
+                hasCompletedSignIn = true
+                onSignedIn?(signedProvider)
+            }
+        }
     }
 }
 

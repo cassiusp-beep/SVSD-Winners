@@ -14,7 +14,9 @@ struct BranchApp: App {
     
     @ViewBuilder
     private var rootView: some View {
-        if CommandLine.arguments.contains("-onboardingProfile") {
+        if CommandLine.arguments.contains("-signIn") {
+            SignInView(store: DemoStore())
+        } else if CommandLine.arguments.contains("-onboardingProfile") {
             OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
         } else if CommandLine.arguments.contains("-onboardingIntegrations") {
             OnboardingFlowView(store: mockFilledStore, initialStep: .integrations)

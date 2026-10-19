@@ -201,11 +201,11 @@ public struct OnboardingFlowView: View {
         .onChange(of: currentStep) { oldStep, newStep in
             handleStepChange(from: oldStep, to: newStep)
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            focusedField = nil
-            if !fullName.isEmpty || !nickname.isEmpty {
-                isEditingNamesInline = false
+        .onChange(of: store.session) { _, newSession in
+            if newSession != nil && currentStep == .signIn {
+                withAnimation(BranchMotion.sharedSpring) {
+                    currentStep = .profile
+                }
             }
         }
     }
@@ -238,6 +238,7 @@ public struct OnboardingFlowView: View {
         
         return UsernameBanner(nickname: displayNickname)
             .opacity(shouldShowBanner ? 1.0 : 0.0)
+            .allowsHitTesting(shouldShowBanner)
             .animation(BranchMotion.sharedSpring, value: shouldShowBanner)
     }
     
@@ -287,6 +288,7 @@ public struct OnboardingFlowView: View {
         .padding(.horizontal, 24)
         .padding(.top, 4)
         .frame(height: 36)
+        .allowsHitTesting(isVisible)
     }
     
     // MARK: - 5. Persistent Next Arrow Button
@@ -450,149 +452,57 @@ public struct OnboardingFlowView: View {
             }
             .frame(width: spriteW, height: spriteH)
             .scaleEffect(spriteTapBounce ? 0.94 : 1.0, anchor: .bottom)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if currentStep == .profile {
+                    selectCurrentSpriteForAvatar()
+                } else if currentStep == .integrations {
+                    triggerFumble()
+                }
+            }
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        guard currentStep == .profile else { return }
+                        spriteDragOffset = value.translation.width * 0.4
+                    }
+                    .onEnded { value in
+                        guard currentStep == .profile else { return }
+                        let threshold: CGFloat = 40
+                        let allSprites = CMYKSprite.allCases
+                        let currentIndex = allSprites.firstIndex(of: activeSprite) ?? 0
+                        withAnimation(BranchMotion.quickSpring) {
+                            if value.translation.width < -threshold {
+                                let next = (currentIndex + 1) % allSprites.count
+                                activeSprite = allSprites[next]
+                                triggerSelectionFeedback()
+                            } else if value.translation.width > threshold {
+                                let prev = (currentIndex - 1 + allSprites.count) % allSprites.count
+                                activeSprite = allSprites[prev]
+                                triggerSelectionFeedback()
+                            }
+                            spriteDragOffset = 0
+                        }
+                    }
+            )
         }
         .frame(width: spriteW, height: spriteH)
         .position(x: spriteX, y: spriteY)
         .opacity(spriteOpacity)
+        .allowsHitTesting(currentStep == .profile || currentStep == .integrations)
         .animation(BranchMotion.sharedSpring, value: currentStep)
         .animation(BranchMotion.sharedSpring, value: spriteSlideProgress)
         .animation(BranchMotion.quickSpring, value: spriteTapBounce)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if currentStep == .profile {
-                selectCurrentSpriteForAvatar()
-            } else if currentStep == .integrations {
-                triggerFumble()
-            }
-        }
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    guard currentStep == .profile else { return }
-                    spriteDragOffset = value.translation.width * 0.4
-                }
-                .onEnded { value in
-                    guard currentStep == .profile else { return }
-                    let threshold: CGFloat = 40
-                    let allSprites = CMYKSprite.allCases
-                    let currentIndex = allSprites.firstIndex(of: activeSprite) ?? 0
-                    withAnimation(BranchMotion.quickSpring) {
-                        if value.translation.width < -threshold {
-                            let next = (currentIndex + 1) % allSprites.count
-                            activeSprite = allSprites[next]
-                            triggerSelectionFeedback()
-                        } else if value.translation.width > threshold {
-                            let prev = (currentIndex - 1 + allSprites.count) % allSprites.count
-                            activeSprite = allSprites[prev]
-                            triggerSelectionFeedback()
-                        }
-                        spriteDragOffset = 0
-                    }
-                }
-        )
     }
     
     // MARK: - STEP CONTENT 1: Sign-In
     private func signInStepContent(w: CGFloat, h: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 20)
-            
-            // App Icon & Header
-            VStack(spacing: 16) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .fill(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.06))
-                        .frame(width: 84, height: 84)
-                        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .stroke(Color.primary.opacity(0.12), lineWidth: 1)
-                        )
-                    
-                    Image(systemName: "point.3.filled.connected.trianglepath.dotted")
-                        .font(.system(size: 36, weight: .semibold))
-                        .foregroundStyle(Color.primary)
-                }
-                
-                VStack(spacing: 8) {
-                    Text("Branch")
-                        .font(.system(.largeTitle, design: .default, weight: .bold))
-                        .foregroundStyle(.primary)
-                    
-                    Text("Document thinking. Find your narrative.")
-                        .font(.system(.subheadline, design: .default, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
-                }
+        SignInView(store: store, showsBackground: false) { _ in
+            withAnimation(BranchMotion.sharedSpring) {
+                currentStep = .profile
             }
-            
-            Spacer(minLength: 40)
-            
-            // SSO Action Buttons
-            VStack(spacing: 12) {
-                GlassEffectContainer {
-                    VStack(spacing: 12) {
-                        ssoButton(for: .apple)
-                        ssoButton(for: .google)
-                        ssoButton(for: .github)
-                    }
-                    .padding(.horizontal, 24)
-                    .frame(maxWidth: 400)
-                }
-                
-                Text("By continuing, you agree to our Terms and Privacy Policy.")
-                    .font(.system(.caption2, design: .default, weight: .regular))
-                    .foregroundStyle(Color.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .padding(.top, 4)
-            }
-            .padding(.bottom, 24)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    @ViewBuilder
-    private func ssoButton(for provider: AuthProvider) -> some View {
-        let isCurrentLoading = authViewModel.activeLoadingProvider == provider
-        
-        Button {
-            triggerImpactFeedback()
-            authViewModel.signIn(with: provider, store: store)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                withAnimation(BranchMotion.sharedSpring) {
-                    currentStep = .profile
-                }
-            }
-        } label: {
-            HStack(spacing: 12) {
-                if isCurrentLoading {
-                    ProgressView()
-                        .tint(provider == .apple ? .white : .primary)
-                } else {
-                    ProviderLogoView(provider: provider, size: 20)
-                }
-                
-                Text(provider.buttonTitle)
-                    .font(.system(.body, design: .default, weight: .semibold))
-                    .foregroundStyle(provider == .apple ? Color.white : Color.primary)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 50)
-            .contentShape(Capsule())
-        }
-        .modifyIf(provider == .apple) { view in
-            view
-                .buttonStyle(.glassProminent)
-                .tint(colorScheme == .dark ? Color.black : Color(red: 0.12, green: 0.12, blue: 0.14))
-        }
-        .modifyIf(provider != .apple) { view in
-            view
-                .buttonStyle(.glass)
-        }
-        .clipShape(Capsule())
+        .frame(width: w, height: h)
     }
     
     // MARK: - STEP CONTENT 2: Profile Setup
