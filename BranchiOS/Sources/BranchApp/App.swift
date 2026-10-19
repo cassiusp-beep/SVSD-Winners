@@ -16,6 +16,8 @@ struct BranchApp: App {
     private var rootView: some View {
         if CommandLine.arguments.contains("-signIn") {
             SignInView(store: DemoStore())
+        } else if CommandLine.arguments.contains("-onboardingProfileEmpty") {
+            OnboardingFlowView(store: emptySessionStore, initialStep: .profile)
         } else if CommandLine.arguments.contains("-onboardingProfile") {
             OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
         } else if CommandLine.arguments.contains("-onboardingIntegrations") {
@@ -49,6 +51,12 @@ struct BranchApp: App {
             // Continuous OnboardingFlowView -> HomeView
             AppRootView(store: DemoStore.shared)
         }
+    }
+    
+    private var emptySessionStore: DemoStore {
+        let store = DemoStore()
+        store.session = UserSession(providerName: "Apple")
+        return store
     }
     
     private var mockFilledStore: DemoStore {

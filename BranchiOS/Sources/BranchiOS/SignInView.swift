@@ -201,9 +201,9 @@ public struct SignInView: View {
     // MARK: - Main Sign In Content
     private var signInMainContent: some View {
         ZStack {
-            // Refractive animated mesh gradient if requested
+            // Semantic plain background: white in light mode, black in dark mode
             if showsBackground {
-                AnimatedMeshBackground()
+                (colorScheme == .dark ? Color.black : Color.white)
                     .ignoresSafeArea()
             }
             
@@ -215,7 +215,7 @@ public struct SignInView: View {
                 
                 Spacer(minLength: 24)
                 
-                // BOTTOM AREA: Three SSO Buttons in Glass Container + Footnote
+                // BOTTOM AREA: Three SSO Buttons in Plain Container + Footnote
                 bottomAuthArea
                     .padding(.bottom, 16)
             }
@@ -226,17 +226,15 @@ public struct SignInView: View {
     // MARK: - Top Header Area
     private var topHeaderArea: some View {
         VStack(spacing: 16) {
-            // App Icon Placeholder with Liquid Glass Effect
+            // App Icon Placeholder with Clean Solid Fill
             ZStack {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.06))
+                    .fill(colorScheme == .dark ? Color(white: 0.14) : Color(white: 0.95))
                     .frame(width: appIconSize, height: appIconSize)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+                            .stroke(colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.08), lineWidth: 1)
                     )
-                    .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.3 : 0.08), radius: 12, x: 0, y: 6)
                 
                 Image(systemName: "point.3.filled.connected.trianglepath.dotted")
                     .font(.system(size: appIconSize * 0.44, weight: .semibold))
@@ -263,16 +261,14 @@ public struct SignInView: View {
     // MARK: - Bottom Area
     private var bottomAuthArea: some View {
         VStack(spacing: 14) {
-            // Stacked SSO Buttons anchored in GlassEffectContainer
-            GlassEffectContainer {
-                VStack(spacing: 12) {
-                    ssoButton(for: .apple)
-                    ssoButton(for: .google)
-                    ssoButton(for: .github)
-                }
-                .padding(.horizontal, 24)
-                .frame(maxWidth: 400)
+            // Stacked SSO Buttons in Plain Layout
+            VStack(spacing: 12) {
+                ssoButton(for: .apple)
+                ssoButton(for: .google)
+                ssoButton(for: .github)
             }
+            .padding(.horizontal, 24)
+            .frame(maxWidth: 400)
             
             // Small Footnote
             Text("By continuing, you agree to our Terms and Privacy Policy.")
@@ -289,6 +285,7 @@ public struct SignInView: View {
     @ViewBuilder
     private func ssoButton(for provider: AuthProvider) -> some View {
         let isCurrentLoading = viewModel.activeLoadingProvider == provider
+        let isApple = provider == .apple
         
         Button {
             handleSignInTap(provider: provider)
@@ -297,32 +294,39 @@ public struct SignInView: View {
                 if isCurrentLoading {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .tint(provider == .apple ? .white : .primary)
+                        .tint(isApple ? (colorScheme == .dark ? Color.black : Color.white) : Color.primary)
                         .accessibilityLabel("Signing in")
                 } else {
                     ProviderLogoView(provider: provider, size: iconSize)
+                        .foregroundStyle(isApple ? (colorScheme == .dark ? Color.black : Color.white) : Color.primary)
                 }
                 
                 Text(provider.buttonTitle)
                     .font(.system(.body, design: .default, weight: .semibold))
-                    .foregroundStyle(provider == .apple ? Color.white : Color.primary)
+                    .foregroundStyle(isApple ? (colorScheme == .dark ? Color.black : Color.white) : Color.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
             }
             .frame(maxWidth: .infinity)
-            .frame(minHeight: max(buttonHeight, 44))
+            .frame(minHeight: max(buttonHeight, 50))
+            .background {
+                if isApple {
+                    Capsule()
+                        .fill(colorScheme == .dark ? Color.white : Color.black)
+                } else {
+                    Capsule()
+                        .fill(colorScheme == .dark ? Color(white: 0.14) : Color(white: 0.96))
+                }
+            }
+            .overlay {
+                if !isApple {
+                    Capsule()
+                        .stroke(colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.10), lineWidth: 1)
+                }
+            }
             .contentShape(Capsule())
         }
-        .modifyIf(provider == .apple) { view in
-            view
-                .buttonStyle(.glassProminent)
-                .tint(colorScheme == .dark ? Color.black : Color(red: 0.12, green: 0.12, blue: 0.14))
-        }
-        .modifyIf(provider != .apple) { view in
-            view
-                .buttonStyle(.glass)
-        }
-        .clipShape(Capsule())
+        .buttonStyle(.plain)
         .disabled(viewModel.isLoading)
         .accessibilityLabel(provider.accessibilityLabel)
         .accessibilityValue(isCurrentLoading ? "Signing in" : "")

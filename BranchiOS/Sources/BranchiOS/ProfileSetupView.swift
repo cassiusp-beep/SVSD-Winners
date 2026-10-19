@@ -279,42 +279,71 @@ public struct ProfileSetupView: View {
     
     private var inlineNameEditorView: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 2) {
-                Text("@")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.secondary)
+            // Nickname row: perfectly centered unit
+            ZStack(alignment: .center) {
+                HStack(spacing: 0) {
+                    Text("@")
+                        .font(.system(size: 20, weight: .bold))
+                    Text(nickname.isEmpty ? "nickname" : nickname)
+                        .font(.system(size: 20, weight: .bold))
+                }
+                .opacity(0)
+                .padding(.trailing, 2)
+                .accessibilityHidden(true)
                 
-                TextField("nickname", text: $nickname)
-                    .font(.system(size: 20, weight: .bold))
-                    .focused($focusedField, equals: .nickname)
-                    .submitLabel(.next)
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    #endif
+                HStack(spacing: 0) {
+                    Text("@")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(nickname.isEmpty ? Color.secondary.opacity(0.65) : Color.primary)
+                    
+                    TextField("", text: $nickname, prompt: Text("nickname").foregroundStyle(Color.secondary.opacity(0.35)))
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color.primary)
+                        .focused($focusedField, equals: .nickname)
+                        .submitLabel(.next)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        #endif
+                        .autocorrectionDisabled()
+                        .onSubmit { focusedField = .fullName }
+                        .onChange(of: nickname) { _, newValue in
+                            validateNicknameLive(newValue)
+                        }
+                }
+            }
+            .fixedSize(horizontal: true, vertical: false)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = .nickname
+            }
+            
+            // Full Name row: perfectly centered unit
+            ZStack(alignment: .center) {
+                Text(fullName.isEmpty ? "Full Name" : fullName)
+                    .font(.system(size: 15, weight: .regular))
+                    .opacity(0)
+                    .padding(.horizontal, 4)
+                    .accessibilityHidden(true)
+                
+                TextField("", text: $fullName, prompt: Text("Full Name").foregroundStyle(Color.secondary.opacity(0.35)))
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color.secondary)
+                    .multilineTextAlignment(.center)
+                    .focused($focusedField, equals: .fullName)
+                    .submitLabel(.done)
                     .autocorrectionDisabled()
                     .onSubmit {
-                        focusedField = .fullName
-                    }
-                    .onChange(of: nickname) { _, newValue in
-                        validateNicknameLive(newValue)
+                        focusedField = nil
+                        if !nickname.isEmpty && !fullName.isEmpty {
+                            isEditingNamesInline = false
+                        }
                     }
             }
-            .frame(maxWidth: 220)
-            .multilineTextAlignment(.center)
-            
-            TextField("Full Name", text: $fullName)
-                .font(.system(size: 15, weight: .regular))
-                .focused($focusedField, equals: .fullName)
-                .submitLabel(.done)
-                .autocorrectionDisabled()
-                .multilineTextAlignment(.center)
-                .onSubmit {
-                    focusedField = nil
-                    if !nickname.isEmpty && !fullName.isEmpty {
-                        isEditingNamesInline = false
-                    }
-                }
-                .frame(maxWidth: 220)
+            .fixedSize(horizontal: true, vertical: false)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = .fullName
+            }
         }
         .padding(.vertical, 4)
     }

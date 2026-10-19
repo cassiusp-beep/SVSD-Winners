@@ -81,7 +81,8 @@ public final class DemoStore {
     }
     
     public init() {
-        loadFromPersistence()
+        // Every cold launch starts fresh at sign-in with all data cleared
+        resetDemo()
     }
     
     // MARK: - Persistence Lifecycle

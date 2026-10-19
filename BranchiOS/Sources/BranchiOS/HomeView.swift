@@ -8,7 +8,6 @@ public struct HomeView: View {
     @Bindable var store: DemoStore = DemoStore.shared
     
     @State private var isShowingEditProfile: Bool = false
-    @State private var isShowingResetConfirmation: Bool = false
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -45,20 +44,6 @@ public struct HomeView: View {
         .sheet(isPresented: $isShowingEditProfile) {
             ProfileSetupView(store: store, isEditing: true)
                 .presentationDragIndicator(.visible)
-        }
-        .confirmationDialog(
-            "Reset Demo?",
-            isPresented: $isShowingResetConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Reset Everything", role: .destructive) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                    store.resetDemo()
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This will erase the mock session, saved profile, and stored photo so you can demonstrate the full sign-in flow again from scratch.")
         }
     }
     
@@ -207,25 +192,6 @@ public struct HomeView: View {
                 }
                 .frame(maxWidth: 400)
             }
-            
-            // Reset Demo Button (Secondary, unobtrusive)
-            Button {
-                isShowingResetConfirmation = true
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 11, weight: .medium))
-                    Text("Reset Demo (Clear All Data)")
-                        .font(.system(.caption, design: .default, weight: .medium))
-                }
-                .foregroundStyle(.secondary)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 14)
-            }
-            .buttonStyle(.glass)
-            .clipShape(Capsule())
-            .accessibilityLabel("Reset Demo")
-            .accessibilityHint("Erases session, profile, and stored photos to restart the demo from scratch")
         }
     }
 }

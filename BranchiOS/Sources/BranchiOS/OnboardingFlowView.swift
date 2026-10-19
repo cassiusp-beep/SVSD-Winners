@@ -121,13 +121,15 @@ public struct OnboardingFlowView: View {
                 // 1. PERSISTENT BACKGROUND LAYER
                 persistentBackgroundLayer
                 
-                // 2. PERSISTENT TOP USERNAME BANNER (Never recreated or restarted)
-                persistentBannerView
-                    .zIndex(20)
-                
-                // 3. PERSISTENT TOP CONTINUE BUTTON (Never recreated)
-                persistentTopContinueRow
-                    .zIndex(21)
+                // 2. PERSISTENT TOP USERNAME BANNER & CONTINUE BUTTON (Structured vertically)
+                VStack(spacing: 0) {
+                    Spacer().frame(height: geo.safeAreaInsets.top)
+                    persistentBannerView
+                        .frame(height: UsernameBanner.bannerHeight)
+                    persistentTopContinueRow
+                        .frame(height: 36)
+                }
+                .zIndex(20)
                 
                 // 4. STEP-SPECIFIC CONTENT LAYERS (The only things that enter and exit)
                 ZStack {
@@ -150,7 +152,7 @@ public struct OnboardingFlowView: View {
                     }
                     
                     if currentStep == .integrations {
-                        integrationsStepContent(w: w, h: h)
+                        integrationsStepContent(w: w, h: h, topInset: geo.safeAreaInsets.top)
                             .transition(.asymmetric(
                                 insertion: .opacity.combined(with: .offset(y: 20)),
                                 removal: .opacity.combined(with: .offset(y: -20))
@@ -212,29 +214,14 @@ public struct OnboardingFlowView: View {
     
     // MARK: - 1. Persistent Background Layer
     private var persistentBackgroundLayer: some View {
-        ZStack {
-            // Clean semantic background for profile, integrations, and syncing
-            (colorScheme == .dark ? Color.black : Color.white)
-                .ignoresSafeArea()
-            
-            // Atmospheric Mesh Gradient on SignIn that dissolves seamlessly into plain background
-            AnimatedMeshBackground()
-                .ignoresSafeArea()
-                .opacity(currentStep == .signIn ? 1.0 : 0.0)
-                .animation(BranchMotion.gentleSpring, value: currentStep == .signIn)
-        }
+        (colorScheme == .dark ? Color.black : Color.white)
+            .ignoresSafeArea()
     }
     
     // MARK: - 2. Persistent Username Banner
     private var persistentBannerView: some View {
-        let displayNickname: String = {
-            if !nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                return nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return store.profile?.nickname ?? "cash"
-        }()
-        
-        let shouldShowBanner = currentStep != .signIn && (!displayNickname.isEmpty)
+        let displayNickname = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        let shouldShowBanner = currentStep != .signIn && !displayNickname.isEmpty
         
         return UsernameBanner(nickname: displayNickname)
             .opacity(shouldShowBanner ? 1.0 : 0.0)
@@ -286,7 +273,6 @@ public struct OnboardingFlowView: View {
             .animation(BranchMotion.quickSpring, value: isEnabled)
         }
         .padding(.horizontal, 24)
-        .padding(.top, 4)
         .frame(height: 36)
         .allowsHitTesting(isVisible)
     }
@@ -475,10 +461,16 @@ public struct OnboardingFlowView: View {
                             if value.translation.width < -threshold {
                                 let next = (currentIndex + 1) % allSprites.count
                                 activeSprite = allSprites[next]
+                                if avatarType == .sprite {
+                                    hasSelectedAvatar = true
+                                }
                                 triggerSelectionFeedback()
                             } else if value.translation.width > threshold {
                                 let prev = (currentIndex - 1 + allSprites.count) % allSprites.count
                                 activeSprite = allSprites[prev]
+                                if avatarType == .sprite {
+                                    hasSelectedAvatar = true
+                                }
                                 triggerSelectionFeedback()
                             }
                             spriteDragOffset = 0
@@ -559,37 +551,15 @@ public struct OnboardingFlowView: View {
                     handlePhotoSelected(newItem)
                 }
                 
-                // Name & Nickname Displays
-                if isEditingNamesInline {
-                    inlineNameEditorView
-                } else if fullName.isEmpty && nickname.isEmpty {
-                    Text("Name?")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            withAnimation(BranchMotion.quickSpring) {
-                                isEditingNamesInline = true
-                                focusedField = .nickname
-                            }
-                        }
-                } else {
-                    VStack(spacing: 4) {
-                        Text("@\(nickname.isEmpty ? "nickname" : nickname)")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.primary)
-                        
-                        Text(fullName.isEmpty ? "Your Name" : fullName)
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(.secondary)
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        withAnimation(BranchMotion.quickSpring) {
-                            isEditingNamesInline = true
-                            focusedField = .nickname
-                        }
-                    }
+                // Name & Nickname Displays (Single perfectly centered unit)
+                inlineNameEditorView
+                
+                // Helper text in empty state: disappears once the user starts interacting
+                if focusedField == nil && nickname.isEmpty && fullName.isEmpty {
+                    Text("Tap to enter name & nickname")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity)
                 }
                 
                 // Validation feedback
@@ -606,53 +576,84 @@ public struct OnboardingFlowView: View {
                 .padding(.bottom, 160)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focusedField = nil
+        }
     }
     
     private var inlineNameEditorView: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 2) {
-                Text("@")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.secondary)
-                
-                TextField("nickname", text: $nickname)
-                    .font(.system(size: 20, weight: .bold))
-                    .focused($focusedField, equals: .nickname)
-                    .submitLabel(.next)
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    #endif
-                    .autocorrectionDisabled()
-                    .onSubmit { focusedField = .fullName }
-                    .onChange(of: nickname) { _, val in validateNicknameLive(val) }
-            }
-            .frame(maxWidth: 220)
-            
-            TextField("Full Name", text: $fullName)
-                .font(.system(size: 15, weight: .regular))
-                .focused($focusedField, equals: .fullName)
-                .submitLabel(.done)
-                .autocorrectionDisabled()
-                .multilineTextAlignment(.center)
-                .onSubmit {
-                    focusedField = nil
-                    if !nickname.isEmpty && !fullName.isEmpty {
-                        isEditingNamesInline = false
-                    }
+            // Nickname row: perfectly centered unit
+            ZStack(alignment: .center) {
+                // Measurement text defining exact tight width of "@" + (nickname or placeholder)
+                HStack(spacing: 0) {
+                    Text("@")
+                        .font(.system(size: 20, weight: .bold))
+                    Text(nickname.isEmpty ? "nickname" : nickname)
+                        .font(.system(size: 20, weight: .bold))
                 }
-                .frame(maxWidth: 220)
+                .opacity(0)
+                .padding(.trailing, 2)
+                .accessibilityHidden(true)
+                
+                // Centered unit: "@" directly against text, cursor right after "@"
+                HStack(spacing: 0) {
+                    Text("@")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(nickname.isEmpty ? Color.secondary.opacity(0.65) : Color.primary)
+                    
+                    TextField("", text: $nickname, prompt: Text("nickname").foregroundStyle(Color.secondary.opacity(0.35)))
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color.primary)
+                        .focused($focusedField, equals: .nickname)
+                        .submitLabel(.next)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        #endif
+                        .autocorrectionDisabled()
+                        .onSubmit { focusedField = .fullName }
+                        .onChange(of: nickname) { _, val in validateNicknameLive(val) }
+                }
+            }
+            .fixedSize(horizontal: true, vertical: false)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = .nickname
+            }
+            
+            // Full Name row: perfectly centered unit
+            ZStack(alignment: .center) {
+                Text(fullName.isEmpty ? "Full Name" : fullName)
+                    .font(.system(size: 15, weight: .regular))
+                    .opacity(0)
+                    .padding(.horizontal, 4)
+                    .accessibilityHidden(true)
+                
+                TextField("", text: $fullName, prompt: Text("Full Name").foregroundStyle(Color.secondary.opacity(0.35)))
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color.secondary)
+                    .multilineTextAlignment(.center)
+                    .focused($focusedField, equals: .fullName)
+                    .submitLabel(.done)
+                    .autocorrectionDisabled()
+                    .onSubmit {
+                        focusedField = nil
+                    }
+            }
+            .fixedSize(horizontal: true, vertical: false)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = .fullName
+            }
         }
     }
     
     @ViewBuilder
     private var validationFeedbackCaption: some View {
         switch nicknameStatus {
-        case .empty:
-            if fullName.isEmpty && nickname.isEmpty {
-                Text("Tap to enter name & nickname")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+        case .empty, .available:
+            EmptyView()
         case .checking:
             Text("Checking...")
                 .font(.caption2)
@@ -665,15 +666,13 @@ public struct OnboardingFlowView: View {
             Text(reason)
                 .font(.caption2)
                 .foregroundStyle(.red)
-        case .available:
-            EmptyView()
         }
     }
     
     // MARK: - STEP CONTENT 3: Integrations
-    private func integrationsStepContent(w: CGFloat, h: CGFloat) -> some View {
+    private func integrationsStepContent(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 72)
+            Spacer().frame(height: topInset + UsernameBanner.bannerHeight + 36 + 6)
             
             // Search underline field
             VStack(spacing: 6) {

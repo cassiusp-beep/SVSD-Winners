@@ -20,9 +20,14 @@ public struct UsernameBanner: View {
     }
     
     public var body: some View {
-        let displayToken = "@\(nickname)"
-        
-        GeometryReader { proxy in
+        if nickname.isEmpty {
+            Color.clear
+                .frame(height: Self.bannerHeight)
+                .accessibilityHidden(true)
+        } else {
+            let displayToken = "@\(nickname)"
+            
+            GeometryReader { proxy in
             let screenWidth = proxy.size.width
             
             TimelineView(.animation(paused: reduceMotion)) { timeline in
@@ -50,6 +55,7 @@ public struct UsernameBanner: View {
         .frame(maxWidth: .infinity)
         .clipped()
         .accessibilityHidden(true)
+        }
     }
 }
 
