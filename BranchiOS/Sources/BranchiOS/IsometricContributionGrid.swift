@@ -5,20 +5,20 @@ public enum TakeawaysIsoConstants {
     /// Rotation applied at t = 1 (flat grid is t = 0).
     public static let angle: Angle = .degrees(45)
     /// scaleY = 1 - compression * t.
-    public static let compression: CGFloat = 0.28
+    public static let compression: CGFloat = 0.32
 
     // Geometry, in units of the pitch p.
     /// Length of one 2s slice along a lane, as a fraction of p (smaller = shorter, squarer grid).
-    public static let columnPitchFactor: CGFloat = 0.8
+    public static let columnPitchFactor: CGFloat = 0.7
     public static let laneThickness: CGFloat = 1.15
-    public static let laneGap: CGFloat = 0.9
+    public static let laneGap: CGFloat = 0.85
     /// Gap between consecutive pieces along a lane.
-    public static let alongGap: CGFloat = 0.32
+    public static let alongGap: CGFloat = 0.26
     /// An active slab absorbs up to this many empty slices between two active runs.
     public static let bridgeEmptySlices: Int = 2
     /// All slabs share one low height (fraction of p).
     public static let slabHeightFactor: CGFloat = 0.55
-    public static let maxPitch: CGFloat = 40
+    public static let maxPitch: CGFloat = 46
     public static let sideMargin: CGFloat = 6
     /// Columns shown at rest; longer sessions scroll along the lane.
     public static let visibleColumns: Int = 14
@@ -45,30 +45,36 @@ public enum TakeawaysIsoConstants {
     public static let tileStrokeOpacityLight: Double = 0.70
     public static let tileStrokeOpacityDark: Double = 0.34
     // Artifact slabs
-    public static let artifactBlur: CGFloat = 1.8
-    /// Zoom into the artifact so its strokes survive the blur as soft patches of ink.
-    public static let artifactZoom: CGFloat = 1.5
-    public static let artifactContrast: Double = 2.6
-    public static let artifactSaturation: Double = 3.0
-    public static let artifactTintOpacity: Double = 0.9
+    public static let artifactBlur: CGFloat = 2.2
+    /// Zoom into the artifact so its colour blocks survive the blur as soft patches.
+    public static let artifactZoom: CGFloat = 1.25
+    public static let artifactContrast: Double = 1.12
+    public static let artifactSaturation: Double = 1.35
+    /// Agent colour laid over the image (normal blend) and a multiply pass; the image stays readable underneath.
+    public static let artifactTintOverlay: Double = 0.34
+    public static let artifactTintMultiply: Double = 0.30
+    /// Fraction of a tick label's half-width kept inside the screen edge.
+    public static let tickEdgeInset: CGFloat = 4
     // Tags
     public static let tagCount: Int = 4
-    public static let tagFontSize: CGFloat = 9
+    public static let tagFontSize: CGFloat = 8.5
+    public static let tagTimeFontSize: CGFloat = 8
     public static let tagCornerRadius: CGFloat = 4
     public static let tagStrokeWidth: CGFloat = 0.8
-    public static let tagHPad: CGFloat = 5
+    public static let tagHPad: CGFloat = 4
     public static let tagVPad: CGFloat = 2
-    public static let tagCharWidth: CGFloat = 5.3
-    public static let tagHeight: CGFloat = 15
+    public static let tagNameCharWidth: CGFloat = 4.6
+    public static let tagTimeCharWidth: CGFloat = 4.9
+    public static let tagHeight: CGFloat = 25
     public static let tagClearance: CGFloat = 3
     /// Stem lengths tried in order; anchors tried along the slab (fractions of its length).
-    public static let stemCandidates: [CGFloat] = [16, 24, 32, 42, 52, 62, 74, 88, 104, 120]
+    public static let stemCandidates: [CGFloat] = [14, 22, 30, 40, 52, 64, 78, 94, 112, 132, 150]
     public static let anchorFractions: [CGFloat] = [0.5, 0.38, 0.62, 0.26, 0.74, 0.14, 0.86, 0.06, 0.94]
     public static let stemWidth: CGFloat = 0.8
-    public static let headroom: CGFloat = 100
+    public static let headroom: CGFloat = 86
     // Ticks
     public static let tickFontSize: CGFloat = 10
-    public static let tickSpace: CGFloat = 26
+    public static let tickSpace: CGFloat = 22
     // Flat-view row labels
     public static let spriteSize: CGFloat = 22
     // Scrolling window edge softness
@@ -112,16 +118,15 @@ public struct TakeawaysArtifact: Identifiable, Equatable {
         func f(_ s: Double) -> String { String(format: "%d:%02d", Int(s) / 60, Int(s) % 60) }
         return "\(f(start))\u{2013}\(f(end))"
     }
-    var calloutCharCount: Int { name.count + 3 + timeRange.count }
 
     /// Seeded demo artifacts (bundled whiteboards) so 3-5 slabs always carry one; the long run repeats the pattern.
     public static func demo(long: Bool) -> [TakeawaysArtifact] {
         let base: [(Int, Double, Double, String, String)] = [
-            (0, 10, 12, "Competitor map", "whiteboard_1"),
-            (1, 8, 10, "Core idea", "whiteboard_3"),
-            (2, 14, 16, "Probe sketches", "whiteboard_2"),
-            (3, 6, 8, "Critique notes", "whiteboard_2"),
-            (3, 22, 24, "Surveillance board", "whiteboard_1")
+            (0, 10, 12, "Moodboard", "artifact_moodboard"),
+            (0, 20, 22, "Signal map", "artifact_data"),
+            (1, 8, 10, "Core idea", "artifact_stickies"),
+            (2, 6, 8, "UI frame", "artifact_figma"),
+            (3, 6, 8, "Field photo", "artifact_scene")
         ]
         let shifts: [Double] = long ? [0, 28, 56] : [0]
         return shifts.flatMap { shift in
@@ -351,9 +356,10 @@ struct IsoSlabView: View {
                         .saturation(C.artifactSaturation)
                         .contrast(C.artifactContrast)
                         .mask { body.fill(Color.black) }
+                    body.fill(sprite.takeawayGradient(for: colorScheme)).opacity(C.artifactTintOverlay)
                     body.fill(sprite.takeawayGradient(for: colorScheme))
                         .blendMode(.multiply)
-                        .opacity(dark ? 0.9 : C.artifactTintOpacity)
+                        .opacity(dark ? C.artifactTintMultiply * 0.8 : C.artifactTintMultiply)
                 } else {
                     body.fill(sprite.takeawayGradient(for: colorScheme)).opacity(fillOp)
                 }
@@ -379,16 +385,19 @@ struct IsoTagView: View {
     let artifact: TakeawaysArtifact
     var body: some View {
         let C = TakeawaysIsoConstants.self
-        (Text(artifact.name).font(.system(size: C.tagFontSize, weight: .regular))
-            + Text(" \u{00B7} \(artifact.timeRange)").font(.yaya(size: C.tagFontSize)))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, C.tagHPad).padding(.vertical, C.tagVPad)
-            .background(RoundedRectangle(cornerRadius: C.tagCornerRadius, style: .continuous).fill(Color(.systemBackground)))
-            .overlay(RoundedRectangle(cornerRadius: C.tagCornerRadius, style: .continuous)
-                .stroke(Color.primary.opacity(0.8), lineWidth: C.tagStrokeWidth))
-            .fixedSize()
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
+        VStack(spacing: 0) {
+            Text(artifact.name).font(.system(size: C.tagFontSize, weight: .regular))
+            Text(artifact.timeRange).font(.yaya(size: C.tagTimeFontSize)).foregroundStyle(.secondary)
+        }
+        .lineLimit(1)
+        .foregroundStyle(.primary)
+        .padding(.horizontal, C.tagHPad).padding(.vertical, C.tagVPad)
+        .background(RoundedRectangle(cornerRadius: C.tagCornerRadius, style: .continuous).fill(Color(.systemBackground)))
+        .overlay(RoundedRectangle(cornerRadius: C.tagCornerRadius, style: .continuous)
+            .stroke(Color.primary.opacity(0.8), lineWidth: C.tagStrokeWidth))
+        .fixedSize()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -402,7 +411,8 @@ struct IsoPlacedTag: Identifiable {
     var id: String { piece.id }
     var pillSize: CGSize {
         let C = TakeawaysIsoConstants.self
-        return CGSize(width: CGFloat(artifact.calloutCharCount) * C.tagCharWidth + 2 * C.tagHPad, height: C.tagHeight)
+        let w = max(CGFloat(artifact.name.count) * C.tagNameCharWidth, CGFloat(artifact.timeRange.count) * C.tagTimeCharWidth)
+        return CGSize(width: w + 2 * C.tagHPad, height: C.tagHeight)
     }
     var pillRect: CGRect {
         let s = pillSize
@@ -431,6 +441,8 @@ public struct IsometricContributionGridView: View {
     public let maxHeight: CGFloat?
     public var highlightedAgent: String? = nil
     public let isometric: Bool
+    /// Plays the arrival sequence once when the view appears (ISOMETRIC only).
+    public var playsArrival: Bool = true
     public var artifacts: [TakeawaysArtifact] = []
     public let onSelectCell: (ContributionCellContext) -> Void
 
@@ -439,13 +451,14 @@ public struct IsometricContributionGridView: View {
     @State private var t: CGFloat
     @State private var ext: CGFloat
     @State private var tagOpacity: Double
+    @State private var gridOpacity: Double
     @State private var scrollColumns: CGFloat = 0
     @State private var dragStartScroll: CGFloat? = nil
     @State private var driver: Task<Void, Never>? = nil
 
     public init(rows: [AgentGridRow], sessionDuration: Double, timeSlice: Double,
                 width: CGFloat, maxHeight: CGFloat? = nil, highlightedAgent: String? = nil,
-                isometric: Bool = true, artifacts: [TakeawaysArtifact] = [],
+                isometric: Bool = true, playsArrival: Bool = true, artifacts: [TakeawaysArtifact] = [],
                 onSelectCell: @escaping (ContributionCellContext) -> Void) {
         self.rows = rows
         self.sessionDuration = sessionDuration
@@ -456,9 +469,12 @@ public struct IsometricContributionGridView: View {
         self.isometric = isometric
         self.artifacts = artifacts
         self.onSelectCell = onSelectCell
+        self.playsArrival = playsArrival
+        let arriving = isometric && playsArrival
         _t = State(initialValue: isometric ? 1 : 0)
-        _ext = State(initialValue: isometric ? 1 : 0)
-        _tagOpacity = State(initialValue: isometric ? 1 : 0)
+        _ext = State(initialValue: isometric && !arriving ? 1 : 0)
+        _tagOpacity = State(initialValue: isometric && !arriving ? 1 : 0)
+        _gridOpacity = State(initialValue: arriving ? 0 : 1)
     }
 
     private var columns: Int { max(1, Int(ceil(sessionDuration / timeSlice))) }
@@ -478,6 +494,7 @@ public struct IsometricContributionGridView: View {
     private func run(_ iso: Bool) {
         let M = BranchMotion.Takeaways.self
         driver?.cancel()
+        gridOpacity = 1
         if reduceMotion {
             t = iso ? 1 : 0; ext = iso ? 1 : 0; tagOpacity = iso ? 1 : 0
             return
@@ -504,6 +521,30 @@ public struct IsometricContributionGridView: View {
         }
     }
 
+    // MARK: Arrival (one moment, then calm): grid fades in as isometric tiles, slabs rise column by column,
+    // callouts fade in after the last column, then only the marquee keeps moving.
+    private func arrive() {
+        let M = BranchMotion.Takeaways.self
+        guard isometric, playsArrival, gridOpacity < 1 || ext < 1 else { return }
+        driver?.cancel()
+        if reduceMotion {
+            withAnimation(.easeOut(duration: M.reducedMotionFade)) { gridOpacity = 1; ext = 1; tagOpacity = 1 }
+            return
+        }
+        driver = Task { @MainActor in
+            func pause(_ s: Double) async { try? await Task.sleep(nanoseconds: UInt64(s * 1_000_000_000)) }
+            await pause(M.arrivalGridDelay)
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: M.arrivalGridFade)) { gridOpacity = 1 }
+            await pause(M.arrivalGridFade + M.arrivalRiseGap)
+            guard !Task.isCancelled else { return }
+            withAnimation(.linear(duration: M.extrudeDuration)) { ext = 1 }
+            await pause(M.extrudeDuration + M.arrivalTagGap)
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: M.arrivalTagFade)) { tagOpacity = 1 }
+        }
+    }
+
     // MARK: Tag placement (avoids every other slab and the other tags)
     private func artifact(for piece: IsoPiece) -> TakeawaysArtifact? {
         guard let c = piece.cell else { return nil }
@@ -526,7 +567,12 @@ public struct IsometricContributionGridView: View {
             guard artifact(for: s) != nil else { return false }
             let r = layout.flatRect(s, scrollCols: scroll)
             return r.minX >= -1 && r.maxX <= windowEnd + 1
-        }.sorted { ($0.element.lane, $0.offset) < ($1.element.lane, $1.offset) }.map(\.element)
+        }.sorted {
+            // Least flexible first: short slabs (one narrow anchor), then front lanes; long slabs adapt around them.
+            let a = layout.flatRect($0.element, scrollCols: scroll).width, b = layout.flatRect($1.element, scrollCols: scroll).width
+            if abs(a - b) > 0.5 { return a < b }
+            return ($0.element.lane, $0.offset) > ($1.element.lane, $1.offset)
+        }.map(\.element)
 
         var placed: [IsoPlacedTag] = []
         let m = C.tagClearance
@@ -539,7 +585,7 @@ public struct IsometricContributionGridView: View {
                 let anchor = layout.screen(anchorFlat, t: 1, lift: h)
                 for stem in C.stemCandidates {
                   let pw = IsoPlacedTag(piece: piece, artifact: artifact(for: piece)!, anchor: anchor, stem: stem).pillSize.width
-                  for shift in [0, pw / 2 - 12, -(pw / 2 - 12)] {
+                  for shift in [0, pw / 2 - 10, -(pw / 2 - 10)] {
                     var cand = IsoPlacedTag(piece: piece, artifact: artifact(for: piece)!, anchor: anchor, stem: stem)
                     cand.shift = shift
                     let pill = cand.pillRect.insetBy(dx: -m, dy: -m)
@@ -605,7 +651,9 @@ public struct IsometricContributionGridView: View {
                 }
                 .onEnded { _ in dragStartScroll = nil } : nil
         )
+        .opacity(gridOpacity)
         .onChange(of: isometric) { _, iso in run(iso) }
+        .task { arrive() }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Contribution grid, \(isometric ? "isometric" : "flat")")
     }
@@ -632,17 +680,20 @@ public struct IsometricContributionGridView: View {
             let colFrac = min(1, max(0, (CGFloat(piece.startCol) - scroll) / CGFloat(layout.visible)))
             return smooth((ext - s * colFrac) / (1 - s))
         }
+        let moreAhead = scroll < maxScroll - 0.01
+        let moreBehind = scroll > 0.01
         let tickY = layout.flatWidth + layout.p * 0.7
-        let tickStart = layout.screen(CGPoint(x: 0.9 * layout.cp, y: tickY), t: t)
-        let tickEnd = layout.screen(CGPoint(x: windowL - 0.9 * layout.cp, y: tickY), t: t)
+        func clampX(_ pt: CGPoint, half: CGFloat) -> CGPoint {
+            CGPoint(x: min(max(pt.x, half + C.tickEdgeInset), layout.size.width - half - C.tickEdgeInset), y: pt.y)
+        }
+        let tickStart = clampX(layout.screen(CGPoint(x: 0.9 * layout.cp, y: tickY), t: t), half: moreBehind ? 24 : 16)
+        let tickEnd = clampX(layout.screen(CGPoint(x: windowL - 0.9 * layout.cp, y: tickY), t: t), half: moreAhead ? 24 : 16)
         let tickAvoid = [CGRect(x: tickStart.x - 24, y: tickStart.y - 4, width: 48, height: 22),
                          CGRect(x: tickEnd.x - 30, y: tickEnd.y - 4, width: 60, height: 22)]
         let tags: [IsoPlacedTag] = tagOpacity > 0.001
             ? placeTags(slabs: slabs, layout: layout, scroll: scroll, avoid: tickAvoid) : []
         let startTime = Double(scroll) * timeSlice
         let endTime = min(sessionDuration, Double(scroll + CGFloat(layout.visible)) * timeSlice)
-        let moreAhead = scroll < maxScroll - 0.01
-        let moreBehind = scroll > 0.01
 
         return ZStack(alignment: .topLeading) {
             ZStack(alignment: .topLeading) {
@@ -765,6 +816,21 @@ public struct IsometricContributionGridView: View {
         for p in pts { while lower.count >= 2 && cross(lower[lower.count - 2], lower[lower.count - 1], p) <= 0 { lower.removeLast() }; lower.append(p) }
         for p in pts.reversed() { while upper.count >= 2 && cross(upper[upper.count - 2], upper[upper.count - 1], p) <= 0 { upper.removeLast() }; upper.append(p) }
         return Array(lower.dropLast() + upper.dropLast())
+    }
+}
+
+// MARK: - Marquee arrival fade (state is per-instance, so it replays on every Takeaways arrival)
+struct TakeawaysArrivalFade<Content: View>: View {
+    @ViewBuilder let content: Content
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+    var body: some View {
+        content
+            .opacity(shown ? 1 : 0)
+            .onAppear {
+                let M = BranchMotion.Takeaways.self
+                withAnimation(.easeOut(duration: reduceMotion ? M.reducedMotionFade : M.arrivalMarqueeFade)) { shown = true }
+            }
     }
 }
 

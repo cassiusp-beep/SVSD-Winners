@@ -26,8 +26,14 @@ public struct BranchMotion: Sendable {
         public static let tagFadeDuration: Double = 0.25
         /// Fraction of the extrude window by which later columns start behind earlier ones.
         public static let extrudeStagger: Double = 0.6
-        public static let hopSegmentDuration: Double = 0.22
-        public static let spriteStagger: Double = 0.18
+        // Arrival timeline (seconds): marquee fade, then grid fade, then rise, then callouts. Total about 3s.
+        public static let arrivalMarqueeFade: Double = 0.6
+        public static let arrivalGridDelay: Double = 0.65
+        public static let arrivalGridFade: Double = 0.4
+        public static let arrivalRiseGap: Double = 0.1
+        public static let arrivalTagGap: Double = 0.3
+        public static let arrivalTagFade: Double = 0.35
+        public static let reducedMotionFade: Double = 0.15
         public static let highlightDimOpacity: Double = 0.30
     }
 }

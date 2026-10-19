@@ -448,18 +448,7 @@ public struct CollaborationSessionView: View {
     }
     
     /// Selected-tab accent: the user's family colour (Cloud for guests), a deeper step in light mode and a lighter one in dark.
-    private var tabAccent: Color {
-        let family: BranchSprite = store.isGuest ? .cloud : BranchSprite.from(hex: store.profile?.spriteColorHex ?? "")
-        let hex: (light: UInt32, dark: UInt32)
-        switch family {
-        case .cloud: hex = (0x7E5FA6, 0xA083BC)
-        case .bloom: hex = (0xC9652F, 0xE39A57)
-        case .prism: hex = (0x2F7FA3, 0x4598BB)
-        case .spark: hex = (0x5E8A56, 0x8AAE83)
-        }
-        let v = colorScheme == .dark ? hex.dark : hex.light
-        return Color(red: Double((v >> 16) & 0xFF) / 255, green: Double((v >> 8) & 0xFF) / 255, blue: Double(v & 0xFF) / 255)
-    }
+    private var tabAccent: Color { store.familyAccent(for: colorScheme) }
     
     public var body: some View {
         TabView(selection: $selectedTab) {
@@ -731,18 +720,25 @@ public struct CollaborationSessionView: View {
     }
     
     // MARK: - 3. Project Takeaways Canvas (Contribution Grid)
+    nonisolated(unsafe) private static var replayStarted = false
     private func takeawaysCanvas(w: CGFloat, h: CGFloat, bottomInset: CGFloat) -> some View {
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 18) {
                 // Header Title
-                Text("Project Takeaways")
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundStyle(.primary)
-                    .padding(.horizontal, 28)
-                    .padding(.top, 52)
-                    .allowsHitTesting(false)
+                HStack(alignment: .center, spacing: 12) {
+                    Text("Project Takeaways")
+                        .font(.system(size: 32, weight: .bold, design: .default))
+                        .foregroundStyle(.primary)
+                        .allowsHitTesting(false)
+                    Spacer(minLength: 0)
+                    ExportShareButton(store: store, scope: .session)
+                }
+                .padding(.leading, 28)
+                .padding(.trailing, 20)
+                .padding(.top, 52)
                 
                 // 3 Horizontal Continuous Marquee Rows (stat numbers populated directly from session)
+                TakeawaysArrivalFade {
                 VStack(alignment: .leading, spacing: 14) {
                     // Row 1: Friction stat (flows right)
                     ContinuousTakeawayMarqueeRow(
@@ -772,6 +768,7 @@ public struct CollaborationSessionView: View {
                     )
                 }
                 .frame(width: w, alignment: .leading)
+                }
                 
                 // Grid region: fills the space below the marquee, centred so the screen stays balanced.
                 GeometryReader { geo in
@@ -835,6 +832,19 @@ public struct CollaborationSessionView: View {
             .accessibilityLabel("Return to Collaboration Ready")
         }
         .frame(width: w, height: h)
+        .onAppear {
+            // Screenshot aid (-takeawaysReplay): leave Takeaways for Ready and come back, twice, to prove each arrival replays.
+            guard CommandLine.arguments.contains("-takeawaysReplay"), !Self.replayStarted else { return }
+            Self.replayStarted = true
+            Task { @MainActor in
+                for _ in 0..<2 {
+                    try? await Task.sleep(nanoseconds: 5_000_000_000)
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) { mode = .ready }
+                    try? await Task.sleep(nanoseconds: 1_200_000_000)
+                    withAnimation(.easeInOut(duration: 0.28)) { mode = .takeaways }
+                }
+            }
+        }
         .task {
             // Screenshot aid: flip the grid view shortly after launch.
             if TakeawaysLaunch.autoToggle {
@@ -1506,6 +1516,11 @@ public struct CollaborationSessionView: View {
     }
 }
 
+private struct MarqueeUnitWidthKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
 // MARK: - Continuous Takeaway Marquee Row Component (Recording_3.png)
 private struct ContinuousTakeawayMarqueeRow: View {
     let statNumber: String
@@ -1517,48 +1532,45 @@ private struct ContinuousTakeawayMarqueeRow: View {
     
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
-    @State private var measuredUnitWidth: CGFloat = 720
+    private static let unitSpacing: CGFloat = 24
+    /// Exact intrinsic width of one content unit; 0 until measured (row stays hidden).
+    @State private var measuredUnitWidth: CGFloat = 0
     
     var body: some View {
         GeometryReader { proxy in
             let screenWidth = proxy.size.width
+            // Wrap distance is exactly one unit plus the inter-copy spacing.
+            let cycle = measuredUnitWidth + Self.unitSpacing
+            let copies = measuredUnitWidth > 0 ? Int(ceil(screenWidth / cycle)) + 2 : 1
             
             TimelineView(.animation(paused: reduceMotion)) { timeline in
-                let elapsed = reduceMotion ? 0 : Float(timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 120))
-                let cycle = max(measuredUnitWidth, 420)
+                // Pure function of time and measured width.
+                let seconds = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                let travelled = CGFloat(seconds * Double(speed)).truncatingRemainder(dividingBy: max(cycle, 1))
+                let offset: CGFloat = reduceMotion ? 28 : (flowsRight ? travelled - cycle : -travelled)
                 
-                let offset: CGFloat = {
-                    if reduceMotion {
-                        return 28
-                    }
-                    if flowsRight {
-                        // Flows right: smoothly scrolls toward positive x, wrapped by cycle
-                        let progress = CGFloat(elapsed * Float(speed)).truncatingRemainder(dividingBy: cycle)
-                        return progress - cycle
-                    } else {
-                        // Flows left: smoothly scrolls toward negative x, wrapped by cycle
-                        let progress = CGFloat(elapsed * Float(speed)).truncatingRemainder(dividingBy: cycle)
-                        return -progress
-                    }
-                }()
-                
-                HStack(spacing: 24) {
-                    ForEach(0..<4, id: \.self) { copyIndex in
+                HStack(spacing: Self.unitSpacing) {
+                    ForEach(0..<copies, id: \.self) { copyIndex in
                         rowContentUnit
+                            .fixedSize()
                             .background(
-                                GeometryReader { geo in
-                                    Color.clear
-                                        .onAppear {
-                                            if copyIndex == 0 {
-                                                measuredUnitWidth = geo.size.width + 24
-                                            }
+                                Group {
+                                    if copyIndex == 0 {
+                                        GeometryReader { geo in
+                                            Color.clear.preference(key: MarqueeUnitWidthKey.self, value: geo.size.width)
                                         }
+                                    }
                                 }
                             )
                     }
                 }
+                .fixedSize()
                 .offset(x: offset)
                 .frame(width: screenWidth, alignment: .leading)
+            }
+            .opacity(measuredUnitWidth > 0 ? 1 : 0)
+            .onPreferenceChange(MarqueeUnitWidthKey.self) { width in
+                if width > 0, abs(width - measuredUnitWidth) > 0.01 { measuredUnitWidth = width }
             }
         }
         .frame(height: 44)

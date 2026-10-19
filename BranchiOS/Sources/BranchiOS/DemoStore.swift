@@ -102,6 +102,9 @@ public final class DemoStore {
         DemoProject.all.first(where: { $0.id == activeProjectID }) ?? DemoProject.all[0]
     }
     public var liveKnowledgeEntries: [KnowledgeEntry] = []
+    /// Entry IDs committed when the most recent live session stopped. Export ("share this session") scopes to these.
+    /// Entries keep their existing session id so the Live Map picker is unchanged.
+    public var lastFinishedSessionEntryIDs: [String] = []
     
     // Live Map (Collective Emergence) state
     public var selectedSessionID: String = "session_3"
@@ -196,6 +199,7 @@ public final class DemoStore {
             )
         }
         knowledgeEntries.append(contentsOf: converted)
+        lastFinishedSessionEntryIDs = converted.map(\.id)
         liveKnowledgeEntries = []
         selectedKnowledgeProjectID = projectID
     }
@@ -578,6 +582,7 @@ public final class DemoStore {
         self.activeProjectID = DemoProject.defaultID
         self.selectedKnowledgeProjectID = DemoProject.defaultID
         self.liveKnowledgeEntries = []
+        self.lastFinishedSessionEntryIDs = []
         #if canImport(UIKit)
         self.loadedPhotoImage = nil
         #endif

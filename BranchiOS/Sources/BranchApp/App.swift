@@ -14,7 +14,13 @@ struct BranchApp: App {
     
     @ViewBuilder
     private var rootView: some View {
-        if CommandLine.arguments.contains("-logoSheet") {
+        if CommandLine.arguments.contains("-exportFlow") {
+            ExportFlowView(
+                store: mockFilledStore,
+                scope: ExportFlowView.launchScope ?? .session,
+                onClose: {}
+            )
+        } else if CommandLine.arguments.contains("-logoSheet") {
             LogoSheetView()
         } else if CommandLine.arguments.contains("-signIn") {
             SignInView(store: DemoStore())

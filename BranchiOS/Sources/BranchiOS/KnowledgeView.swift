@@ -162,7 +162,7 @@ public struct KnowledgeView: View {
     
     // MARK: - 1. Project Title & Picker Header
     private var projectTitleHeader: some View {
-        ScreenHeader(horizontalPadding: 16) {
+        ScreenHeader(horizontalPadding: 16, leading: {
             if isLiveSession {
                 // Live Session Header: active project name with LIVE badge
                 HStack(spacing: 8) {
@@ -246,7 +246,12 @@ public struct KnowledgeView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(currentProjectTitle), project picker")
             }
-        }
+        }, trailing: {
+            // Share this project; hidden for "All projects" and while a session is live.
+            if !isLiveSession, let projectID = store.selectedKnowledgeProjectID {
+                ExportShareButton(store: store, scope: .project(projectID))
+            }
+        })
     }
     
     // MARK: - 2. Pinned Column Header Row
