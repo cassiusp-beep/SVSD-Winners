@@ -38,6 +38,11 @@ Every agent reads `docs/README.md` first and follows its precedence rule.
 | `docs/process/research-plan.md` | Lightweight hallway testing and research guide template. |
 | `docs/README.md` | Documentation index and precedence rules. |
 | `UIUX.md` | **Current individual-first guide:** newest-whiteboard flows, screens, states, reference-derived UI/UX and open decisions. |
+| `docs/references/individual-onboarding/` | **Newest Onboarding Whiteboard (2026-10-18):** Entry paths A/B/C, 2-min anon recording, story extraction, and persona archetypes. |
+| `.agents/skills/swiftui-prototype-craft/` | **SwiftUI Prototype Craft Skill:** Camera-ready SwiftUI architecture, gestures, haptics, TouchDesigner cards, and spring mechanics. |
+| `.agents/skills/swiftui-camera-ready-demo/` | **SwiftUI Camera-Ready Demo Skill:** Status bar overrides, touch visualization, 60fps video capture, and 1-tap demo scrubber. |
+| `.agents/skills/apple-hig-anti-slop/` | **Apple HIG Anti-Slop Guide:** Platform ergonomics, native materials, typography traits, and eliminating web/AI slop. |
+| `.agents/rules/swiftui-ios.md` | **SwiftUI iOS Interaction Rules:** Studio tokens, safe areas, tactile feedback, and animation constants. |
 | `CLAUDE.md` | Agent orchestrator entrypoint importing `@AGENTS.md`. |
 | `README.md` | Repository overview, product description, and team information. |
 
@@ -80,6 +85,7 @@ This file is read by any AI coding assistant, including ChatGPT, Codex and Claud
 | product-designer | Design flows, screens, states and motion specs before building. |
 | builder | Implement an approved plan. |
 | experience-builder | Implement UI, motion and the node graph to a high craft bar. |
+| ios-builder | Implement high-craft native Apple/SwiftUI prototypes, canvas physics, and camera-ready demos. |
 | healer | Run checks, fix bugs at the root, and add guards. |
 | reviewer | Critique finished work against the brief, the principles and the anti-slop rules. |
 | documenter | Keep docs and `DECISIONS.md` current. |

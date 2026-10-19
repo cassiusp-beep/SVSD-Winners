@@ -24,3 +24,14 @@ dist-ssr
 *.sw?
 *.tsbuildinfo
 .vercel
+
+# Swift & Xcode
+.build/
+xcuserdata/
+*.xcuserdata
+DerivedData/
+*.xcscmblueprint
+*.xccheckout
+
+# Scratch scripts
+scratch/

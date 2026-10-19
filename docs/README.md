@@ -46,7 +46,8 @@ Visual-spec, design-principles, features and demo-script retain earlier prototyp
 - **`docs/process/submission-checklist.md`**: Deliverables, limits, deadline (Oct 19, 11:59 PM PT), judging criteria alignment, and team questions (owned by `pitch-strategist`).
 - **`docs/process/research-plan.md`**: Lightweight template for rapid 15-minute hallway user research and testing.
 
-### `docs/references/images/` (Visual & Motion Reference Assets)
+### `docs/references/` (Visual & Research Assets)
+- **`docs/references/individual-onboarding/`**: Newest October 18 onboarding whiteboard sketch (`2026-10-18 Onboarding Whiteboard.jpg`) governing individual-first entry flows (Paths A, B, C), story extraction, and persona archetypes.
 - **`docs/references/images/`**: 32 reference assets (PNG mockups, UI kit sheets, SVG diagrams, and MP4 motion studies) from the Miro "Reference Mapping" frame, illustrating project story layers, gooey metaball node merging, glowing paths, chapter cards, and radial carousels.
 
 ### Workspace Root Documents
@@ -59,12 +60,19 @@ Visual-spec, design-principles, features and demo-script retain earlier prototyp
 - **`interaction-model.md`**: Spatial canvas foundation, bloom/fade mechanics, hot corners, and mobile rules.
 - **`whiteboard-transcript.md`**: Workspace root copy of Cassius's whiteboard walkthrough (`IMG_0837.MOV`).
 
+### `.agents/` (Customizations, Skills & Rules)
+- **`.agents/skills/swiftui-prototype-craft/`**: Camera-ready SwiftUI craft guide, TouchDesigner operator hierarchy, springing gap pins, and demo presets.
+- **`.agents/skills/swiftui-camera-ready-demo/`**: Simulator status bar override, touch visualization, 60fps video recording, and 1-tap demo scrubber state machine.
+- **`.agents/skills/apple-hig-anti-slop/`**: Anti-slop guidelines for Apple platforms: native materials, system fonts/design traits, and tactile ergonomics.
+- **`.agents/rules/swiftui-ios.md`**: Core SwiftUI design tokens, safe area constraints, and spring animation parameters.
+
 ### `.claude/agents/` (Subagent Instructions)
 - **`builder.md`**: Implements approved logic, data models, and features.
 - **`documenter.md`**: Maintains documentation, decision trails, and turning point logs.
 - **`experience-builder.md`**: High-craft front-end specialist for UI, motion, and canvas graph.
 - **`explorer.md`**: Investigates project state, maps 3 divergent paths, and runs pre-mortems.
 - **`healer.md`**: Self-healing agent running checks, root cause reproduction, and guards.
+- **`ios-builder.md`**: High-craft native Apple/SwiftUI prototype specialist for canvas physics and camera-ready demos.
 - **`pitch-strategist.md`**: Owns competition storytelling, video script, and judging alignment.
 - **`product-designer.md`**: Designs flows, states, and static mockups for human approval.
 - **`researcher.md`**: Outward-facing lessons, external research, and multi-lens critique.

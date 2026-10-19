@@ -2,6 +2,19 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 18, 2026: Swift iOS Prototyping Workflow & Markdown-First Pivot (Decision 011)
+
+**Decided:**
+1. **Completely Scrapped First Idea:** The original creative-exchange concept (gooey canvas, hot corners, and public collaborative branching) is completely scrapped. The product is pivoting to an individual-first onboarding and storytelling experience based on the October 18 whiteboard sketch (`2026-10-18 Onboarding Whiteboard.jpg`).
+2. **Native Swift iOS Workflow:** Formalized a native SwiftUI iOS prototyping architecture using `.agents/skills/` and `.agents/rules/`:
+   - `swiftui-prototype-craft`: TouchDesigner modular card hierarchy, springing amber gap pins, simultaneous pan/pinch gestures, and `@Observable` state stores.
+   - `swiftui-camera-ready-demo`: Simulator status bar overrides (`9:41`, full battery/signal), touch visualizers, 60fps MP4 recording, and 1-tap demo scrubbers.
+   - `apple-hig-anti-slop`: Native materials, SF Pro design traits (`.monospaced`, `.rounded`), native spring physics, and eliminating web/AI slop.
+   - Dedicated `ios-builder` agent role for Apple platform execution.
+3. **Markdown-First Discipline:** Prioritize complete markdown documentation, journey mapping, and skill alignment before building any code, ensuring all `.md` files maintain cross-referencing and precedence integrity.
+
+**Why:** The team needed a foolproof, camera-ready native iOS workflow for the upcoming competition demo while keeping the workspace clean and unencumbered as the new onboarding sketch develops.
+
 ## October 18, 2026, later clarification: Individual first; newest onboarding whiteboard governs
 
 **Decided:** Establish Branch for individuals before team integration. Follow the latest onboarding whiteboard: A, anonymous two-minute recording trial → sign up → quiz → create context → profile → build/explore; B, sign up → quiz → import work → profile → build/explore; C, sign up → import work → profile → build/explore. Team context can enter through Import work; that does not grant team access or join a workspace. The new UIUX.md records screen/state details and labels proposed defaults and open decisions.

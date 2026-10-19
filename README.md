@@ -9,15 +9,26 @@ Team Fester's entry for the Silicon Valley School of Design (SVSD) design compet
 
 ---
 
+## Active Pivot & Direction (18 October 2026)
+
+> [!IMPORTANT]
+> **Major Pivot:** We are **completely scrapping the first idea** (the collaborative creative-exchange canvas with gooey morphs and team branching). 
+>
+> We are pivoting to an **individual-first onboarding and storytelling experience**, directly based on the new October 18 whiteboard sketch ([`2026-10-18 Onboarding Whiteboard.jpg`](file:///Users/cassiuspalacio/Documents/SVSD/docs/references/individual-onboarding/2026-10-18%20Onboarding%20Whiteboard.jpg)):
+> - **Individual Value First:** Users come to document their own work and gain clarity on their narrative ("Who r you??", "What u want.", "Where they can fit").
+> - **Flexible Entry Pathways:** Anonymous 2-minute test recording, quiz narrative alignment, live link/MCP imports, or new context creation.
+> - **Story Extraction & Personas:** Dynamic story extraction into evolving personal avatars (*Starting Sprite*, *Pixel Pusher*, *Creative Cloud*, *Technical Triangle*).
+> - **Swift iOS Workflow:** Native SwiftUI iOS development workflow defined in [`.agents/skills/swiftui-prototype-craft/SKILL.md`](file://.agents/skills/swiftui-prototype-craft/SKILL.md) and [`.agents/rules/swiftui-ios.md`](file://.agents/rules/swiftui-ios.md) for camera-ready demo execution.
+
 ## What We're Building
 
 **Branch establishes value for individuals first:** capture or import thinking, build personal context, then explore how ideas connect. Team integration follows after the individual product is established; team context may be supplied during Import work without joining or sharing with a team.
 
 The latest [UIUX.md](UIUX.md) translates the new onboarding whiteboard into screens and interactions. Older Figma work is UI/UX precedent only. Start with [CONTEXT.md](CONTEXT.md); the [earlier product definition](docs/context/product-definition.md) preserves team-first strategy and is superseded for audience/entry flow. The new experience is a proposal, not something this documentation update implements or validates.
 
-## Existing Prototype and Design History
+## Scrapped Prototype and Design History (Archived)
 
-The application and mechanics described below belong to the earlier creative-exchange concept. They remain in place as prototype work and history; this documentation update has not rebuilt them for the new individual-first experience. The original description is preserved here:
+The application and mechanics described below belong to the scrapped earlier creative-exchange concept. They remain preserved in `docs/archive/` purely as design history:
 
 **Branch** is a creative exchange for student makers who want to share unfinished work and discover what it could become in someone else's hands.
 
