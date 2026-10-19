@@ -57,6 +57,7 @@ public final class DemoStore {
     private let integrationsKey = "branch_demo_connected_integrations"
     private let integrationTimestampsKey = "branch_demo_integration_timestamps"
     private let integrationsCompletedKey = "branch_demo_integrations_completed"
+    private let syncCompletedKey = "branch_demo_sync_completed"
     
     // MARK: - Published State
     public var session: UserSession?
@@ -64,6 +65,7 @@ public final class DemoStore {
     public var connectedIntegrationIds: Set<String> = []
     public var connectedTimestamps: [String: Date] = [:]
     public var hasCompletedIntegrations: Bool = false
+    public var hasCompletedSync: Bool = false
     
     // Loaded avatar image cached in memory
     #if canImport(UIKit)
@@ -131,6 +133,7 @@ public final class DemoStore {
         }
         
         self.hasCompletedIntegrations = defaults.bool(forKey: integrationsCompletedKey)
+        self.hasCompletedSync = defaults.bool(forKey: syncCompletedKey)
     }
     
     // MARK: - Integrations Actions
@@ -149,6 +152,11 @@ public final class DemoStore {
     public func completeIntegrationsStep() {
         self.hasCompletedIntegrations = true
         UserDefaults.standard.set(true, forKey: integrationsCompletedKey)
+    }
+    
+    public func completeSyncStep() {
+        self.hasCompletedSync = true
+        UserDefaults.standard.set(true, forKey: syncCompletedKey)
     }
     
     private func saveIntegrations() {
@@ -226,6 +234,7 @@ public final class DemoStore {
         self.connectedIntegrationIds = []
         self.connectedTimestamps = [:]
         self.hasCompletedIntegrations = false
+        self.hasCompletedSync = false
         #if canImport(UIKit)
         self.loadedPhotoImage = nil
         #endif
@@ -236,6 +245,7 @@ public final class DemoStore {
         UserDefaults.standard.removeObject(forKey: integrationsKey)
         UserDefaults.standard.removeObject(forKey: integrationTimestampsKey)
         UserDefaults.standard.removeObject(forKey: integrationsCompletedKey)
+        UserDefaults.standard.removeObject(forKey: syncCompletedKey)
     }
     
     // MARK: - Nickname Validation Logic

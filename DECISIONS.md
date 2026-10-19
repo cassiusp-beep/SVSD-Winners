@@ -137,4 +137,15 @@ Significant product and design choices, newest first. Each entry is also raw mat
 
 **Familiar or new:** new. Forking on GitHub works similarly, but we chose this to match "help, not permission," not by default.
 
-**Still open:** how a branch looks different from the original story in the graph, and whether Report or Block is needed for the prototype.
+
+## October 18, 2026: SyncingView Orbital Choreography, Dynamic Hub Navigation, and Sprite Flex Arm
+
+**Decided:**
+1. **Orbital Choreography & Hand-Off:** Built `SyncingView` bridging `IntegrationsView` and `HomeView` with zero-jump visual continuity:
+   - Beat 0 (Hand-off): Sprite and connected orbs continue juggling in rhythm while the avatar orb joins the apex of the loop.
+   - Beat 1 & 2 (Big Toss & Gathering): Single large heave launches orbs upward; central 136pt circular hub draws in with trim (0→1); sprite slides down and to the right into the lower corner with left arm resting low; integration orbs loosely orbit clockwise at 25% opacity with gentle floating bobbing. Copy: "Gathering your things...".
+   - Beat 3 (Pulling In / Almost There): Orbs drift inward staggered by 0.2s, transition 25% → 100% opacity with soft spring physics and lifted drop shadows. Copy: "Mixing it all together...".
+   - Beat 4 (Complete): Orbit stops; orbs settle snug against the hub with 0.95 squash/rebound; hub fills from center outward with user's sprite color; bold high-contrast `arrow.right` scales in at center; sprite left arm curls up into a 90° bicep flex with a springy bounce and executes a happy double blink; copy reads "Yummy! Delicious!".
+2. **Dynamic Hub as Primary Forward Action:** In Beat 4 ("Complete"), the entire filled hub becomes the primary interactive button (scales to 0.96 on press with medium haptic, VoiceOver labeled "Continue, button") to advance to `HomeView`. The shared text `Continue` button at top-right fades in simultaneously as a persistent fallback.
+3. **Animatable `SpriteFlexArmShape`:** Created animatable custom Shape transitioning `flexProgress` from 0.0 (resting outward hanging curve) to 1.0 (90° vertical forearm bicep flex).
+4. **Resilience & Accessibility:** Full VoiceOver live region announcements for each beat transition, instant state jumps when Reduce Motion is enabled, mid-sync relaunch recovery from Beat 1, and zero-integration handling skipping Beat 3 drift directly into hub fill.

@@ -22,6 +22,20 @@ struct BranchApp: App {
             IntegrationsView(store: mockFilledStore)
         } else if CommandLine.arguments.contains("-integrationsConnected") {
             IntegrationsView(store: mockConnectedStore)
+        } else if CommandLine.arguments.contains("-syncing") {
+            SyncingView(store: mockConnectedStore)
+        } else if CommandLine.arguments.contains("-syncingBeat1") {
+            SyncingView(store: mockConnectedStore, startFromBeat: .beat1BigToss)
+        } else if CommandLine.arguments.contains("-syncingBeat2") {
+            SyncingView(store: mockConnectedStore, startFromBeat: .beat2Gathering)
+        } else if CommandLine.arguments.contains("-syncingBeat3") {
+            SyncingView(store: mockConnectedStore, startFromBeat: .beat3PullingIn)
+        } else if CommandLine.arguments.contains("-syncingComplete") {
+            SyncingView(store: mockConnectedStore, startFromBeat: .beat4Complete)
+        } else if CommandLine.arguments.contains("-syncingZeroComplete") {
+            SyncingView(store: mockFilledStore, startFromBeat: .beat4Complete)
+        } else if CommandLine.arguments.contains("-syncingZero") {
+            SyncingView(store: mockFilledStore)
         } else {
             // Standard end-to-end launch routing:
             // SignInView -> ProfileSetupView -> IntegrationsView -> HomeView

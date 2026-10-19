@@ -20,10 +20,10 @@ public struct AppRootView: View {
                     ))
             } else if !store.hasCompletedIntegrations {
                 IntegrationsView(store: store)
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.96)),
-                        removal: .opacity.combined(with: .scale(scale: 1.04))
-                    ))
+                    .transition(.opacity)
+            } else if !store.hasCompletedSync {
+                SyncingView(store: store)
+                    .transition(.opacity)
             } else {
                 HomeView(store: store)
                     .transition(.asymmetric(
@@ -35,6 +35,7 @@ public struct AppRootView: View {
         .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.isSessionActive)
         .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.hasCompletedProfile)
         .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.hasCompletedIntegrations)
+        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.hasCompletedSync)
     }
 }
 

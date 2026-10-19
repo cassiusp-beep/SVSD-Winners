@@ -100,6 +100,57 @@ public struct SpriteArmShape: Shape {
     }
 }
 
+// MARK: - Animatable Sprite Flex Arm Shape (Sync & Complete)
+public struct SpriteFlexArmShape: Shape {
+    public var flexProgress: CGFloat // 0.0 = resting hanging curve (Syncing/Almost there), 1.0 = 90° bicep flex (Complete)
+    
+    public var animatableData: CGFloat {
+        get { flexProgress }
+        set { flexProgress = newValue }
+    }
+    
+    public init(flexProgress: CGFloat = 0.0) {
+        self.flexProgress = flexProgress
+    }
+    
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        let p = flexProgress
+        
+        // Attached to the left side of the sprite body (right edge of arm rect)
+        let start = CGPoint(x: w, y: h * (0.64 + 0.04 * p))
+        
+        // Elbow coordinates
+        // At p = 0: elbow dips down and out
+        // At p = 1: elbow moves horizontal and forms clean 90° corner
+        let elbowX = w * (0.42 - 0.12 * p)
+        let elbowY = h * (0.76 - 0.08 * p)
+        
+        // Hand / Tip coordinates
+        // At p = 0: gentle curve outwards to the left, slightly below mid height
+        // At p = 1: straight up vertical forearm reaching near top of frame
+        let tipX = w * (0.16 + 0.14 * p)
+        let tipY = h * (0.54 - 0.44 * p)
+        
+        let c1X = w * (0.72 - 0.08 * p)
+        let c1Y = h * (0.74 - 0.06 * p)
+        
+        path.move(to: start)
+        path.addCurve(
+            to: CGPoint(x: elbowX, y: elbowY),
+            control1: CGPoint(x: c1X, y: c1Y),
+            control2: CGPoint(x: elbowX + w * 0.10, y: elbowY)
+        )
+        path.addQuadCurve(
+            to: CGPoint(x: tipX, y: tipY),
+            control: CGPoint(x: elbowX - w * (0.05 * (1.0 - p)), y: (elbowY + tipY) * 0.50)
+        )
+        return path
+    }
+}
+
 // MARK: - Canonical SpriteView
 public struct SpriteView: View {
     public let sprite: CMYKSprite
