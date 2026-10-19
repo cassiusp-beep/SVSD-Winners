@@ -2,6 +2,21 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 18, 2026: Shared Navigation Arrow & Elevated Sprite Juggle (Decision 012)
+
+**Decided:**
+1. **Shared NextArrowButton Navigation Pattern:**
+   - Standardized the 56pt circular arrow button (`NextArrowButton`) across `ProfileSetupView` and `IntegrationsView` as the primary way forward.
+   - Replaced the swipe-up gesture and prompt on `IntegrationsView` with the centered `NextArrowButton` positioned in the open space between the page dots and the "Connected" label.
+   - Kept top-right `ContinueButton` as the consistent plain-text fallback across all onboarding screens.
+   - On `IntegrationsView`, continuing with zero integrations is valid, so `NextArrowButton` is always enabled.
+2. **Elevated Juggle & Extended Sprite Arms:**
+   - Elevated the juggling trajectory so orb arc peaks reach at least 1.5 orb diameters ($>63\text{pt}$) above the dome apex, completely eliminating sprite body overlap.
+   - Lowered the sprite body slightly (`offset(y: domeHeight * 0.48)`) so more is cut off by the bottom screen edge rather than shrinking the sprite.
+   - Extended `SpriteArmShape` so the raised arm's hand tip reaches the high catch point ($Y \approx -50\text{pt}$), while the lowered arm relaxes near the top of the dome.
+   - Maintained clean breathing space below the "Connected" label so orbs never collide with typography.
+
+
 ## October 18, 2026: Swift iOS Prototyping Workflow & Markdown-First Pivot (Decision 011)
 
 **Decided:**

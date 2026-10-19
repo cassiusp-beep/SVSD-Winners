@@ -20,9 +20,6 @@ public struct IntegrationsView: View {
     @State private var isSpriteBlinking: Bool = false
     @State private var blinkTimer: Timer? = nil
     
-    // Swipe Up Detection
-    @State private var swipeUpOffset: CGFloat = 0
-    
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
@@ -137,12 +134,17 @@ public struct IntegrationsView: View {
                 // Integrations Paged Grid Area (4 columns, tall enough for 3 rows + shadows without clipping)
                 gridContentSection
                 
-                // Balanced vertical spacing between top and bottom halves
+                // Primary Next Arrow Button centered horizontally and vertically between page dots and "Connected"
                 Spacer(minLength: 8)
                 
-                // "Swipe up to complete this part." (centered, bold, on its own with space around it, NO chevron)
-                swipeUpPromptView
-                    .padding(.bottom, 4)
+                NextArrowButton(
+                    isEnabled: true,
+                    accessibilityLabel: "Continue to next step"
+                ) {
+                    advanceToNextStep()
+                }
+                
+                Spacer(minLength: 8)
                 
                 // "Connected" label in small semibold gray, left-aligned on same margin as "Supported"
                 Text("Connected")
@@ -150,11 +152,11 @@ public struct IntegrationsView: View {
                     .foregroundStyle(colorScheme == .dark ? Color(white: 0.65) : Color(white: 0.45))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 26)
-                    .padding(.bottom, 4)
+                    .padding(.bottom, 12)
                 
                 // Bottom Sprite + Juggling Stage (open space between "Connected" and sprite)
                 bottomSpriteJuggleStage
-                    .frame(height: 154)
+                    .frame(height: 165)
             }
         }
         .ignoresSafeArea(edges: .bottom)
@@ -359,37 +361,6 @@ public struct IntegrationsView: View {
                 self.triggerSuccessFeedback()
             }
         }
-    }
-    
-    // MARK: - Swipe Up Prompt
-    private var swipeUpPromptView: some View {
-        Text("Swipe up to complete this part.")
-            .font(.system(size: 14, weight: .bold))
-            .foregroundStyle(Color.primary)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 24)
-            .contentShape(Rectangle())
-            // Approved Addition: Tap fallback to advance
-            .onTapGesture {
-                advanceToNextStep()
-            }
-            // Vertical Drag / Swipe Up Gesture Recognizer
-            .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        if value.translation.height < 0 {
-                            swipeUpOffset = value.translation.height
-                        }
-                    }
-                    .onEnded { value in
-                        if value.translation.height < -40 {
-                            advanceToNextStep()
-                        }
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                            swipeUpOffset = 0
-                        }
-                    }
-            )
     }
     
     // MARK: - Bottom Sprite + Juggling Stage

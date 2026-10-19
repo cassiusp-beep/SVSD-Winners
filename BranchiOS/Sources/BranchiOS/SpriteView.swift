@@ -65,12 +65,12 @@ public struct SpriteArmShape: Shape {
             let start = CGPoint(x: w, y: h * 0.72)
             
             // Interpolate tip and control points smoothly between Lowered (0.0) and Raised (1.0)
-            let tipX = w * (0.24 + 0.32 * p)
-            let tipY = h * (0.38 - 0.46 * p)
-            let c1X = w * (0.42 - 0.20 * p)
-            let c1Y = h * (0.84 - 0.10 * p)
+            let tipX = w * (0.22 + 0.50 * p)
+            let tipY = h * (0.45 - 0.75 * p)
+            let c1X = w * (0.42 - 0.26 * p)
+            let c1Y = h * (0.84 - 0.18 * p)
             let c2X = w * (-0.06 - 0.08 * p)
-            let c2Y = h * (0.58 - 0.40 * p)
+            let c2Y = h * (0.58 - 0.52 * p)
             
             path.move(to: start)
             path.addCurve(
@@ -82,12 +82,12 @@ public struct SpriteArmShape: Shape {
             // Curves out from mid-right body and arches upward
             let start = CGPoint(x: 0, y: h * 0.72)
             
-            let tipX = w * (0.76 - 0.32 * p)
-            let tipY = h * (0.38 - 0.46 * p)
-            let c1X = w * (0.58 + 0.20 * p)
-            let c1Y = h * (0.84 - 0.10 * p)
+            let tipX = w * (0.78 - 0.50 * p)
+            let tipY = h * (0.45 - 0.75 * p)
+            let c1X = w * (0.58 + 0.26 * p)
+            let c1Y = h * (0.84 - 0.18 * p)
             let c2X = w * (1.06 + 0.08 * p)
-            let c2Y = h * (0.58 - 0.40 * p)
+            let c2Y = h * (0.58 - 0.52 * p)
             
             path.move(to: start)
             path.addCurve(
@@ -132,10 +132,10 @@ public struct SpriteView: View {
             let spriteColor = sprite.color(for: colorScheme)
             
             ZStack(alignment: .bottom) {
-                // Curved Arms (Figma Frames 2 & 10)
+                // Curved Arms (Figma Frames 2 & 10) - Raised arm reaches well above the head
                 if showsArms {
-                    let armWidth = w * 0.28
-                    let armHeight = h * 0.75
+                    let armWidth = w * 0.32
+                    let armHeight = h * 0.98
                     let effectiveLeft = reduceMotion ? 0.25 : leftArmPose
                     let effectiveRight = reduceMotion ? 0.25 : rightArmPose
                     
@@ -146,7 +146,7 @@ public struct SpriteView: View {
                             style: StrokeStyle(lineWidth: max(w * 0.045, 10), lineCap: .round, lineJoin: .round)
                         )
                         .frame(width: armWidth, height: armHeight)
-                        .position(x: w * 0.10, y: h * 0.42)
+                        .position(x: w * 0.08, y: h * 0.35)
                     
                     // Right Arm
                     SpriteArmShape(pose: effectiveRight, isLeft: false)
@@ -155,7 +155,7 @@ public struct SpriteView: View {
                             style: StrokeStyle(lineWidth: max(w * 0.045, 10), lineCap: .round, lineJoin: .round)
                         )
                         .frame(width: armWidth, height: armHeight)
-                        .position(x: w * 0.90, y: h * 0.42)
+                        .position(x: w * 0.92, y: h * 0.35)
                 }
                 
                 // Central Dome Body

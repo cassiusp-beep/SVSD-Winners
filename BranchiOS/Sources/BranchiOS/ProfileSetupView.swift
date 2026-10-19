@@ -90,9 +90,14 @@ public struct ProfileSetupView: View {
                 
                 Spacer(minLength: 16)
                 
-                // PROFILE SETUP: Circular Arrow Button
+                // PROFILE SETUP: Circular Arrow Button (Primary Navigation)
                 // Centered horizontally, vertically centered in empty space between name block and "Sprite Selection"
-                circularArrowButton
+                NextArrowButton(
+                    isEnabled: isContinueEnabled,
+                    accessibilityLabel: "Continue to Integrations"
+                ) {
+                    saveAndProceed()
+                }
                 
                 Spacer(minLength: 16)
                 
@@ -144,49 +149,6 @@ public struct ProfileSetupView: View {
                 saveAndProceed()
             }
         }
-    }
-    
-    // MARK: - Circular Arrow Button (Primary Navigation)
-    private var circularArrowButton: some View {
-        Button(action: {
-            if isContinueEnabled {
-                #if os(iOS)
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.impactOccurred()
-                #endif
-                saveAndProceed()
-            }
-        }) {
-            ZStack {
-                Circle()
-                    .fill(colorScheme == .dark ? Color(white: 0.22) : Color.white)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                colorScheme == .dark ? Color.white.opacity(0.14) : Color.black.opacity(0.07),
-                                lineWidth: 1
-                            )
-                    )
-                    .shadow(
-                        color: isContinueEnabled
-                            ? Color.black.opacity(colorScheme == .dark ? 0.35 : 0.15)
-                            : Color.clear,
-                        radius: 8,
-                        x: 0,
-                        y: 4
-                    )
-                
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Color.primary)
-            }
-            .frame(width: 56, height: 56)
-            .opacity(isContinueEnabled ? 1.0 : 0.25)
-            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isContinueEnabled)
-        }
-        .disabled(!isContinueEnabled)
-        .accessibilityLabel("Continue to Integrations")
-        .accessibilityHint(isContinueEnabled ? "" : "Enter your name and nickname to continue")
     }
     
     // MARK: - Center Identity Hub

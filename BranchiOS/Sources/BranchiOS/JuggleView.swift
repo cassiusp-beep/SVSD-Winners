@@ -93,7 +93,8 @@ public struct JuggleView: View {
                     rightArmPose: rightArmPose
                 )
                 .frame(width: domeWidth, height: domeHeight)
-                .offset(y: domeHeight * 0.20)
+                // Lower sprite slightly so more is cut off by bottom edge, creating vertical room for high juggle
+                .offset(y: domeHeight * 0.48)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     triggerFumble()
@@ -230,17 +231,17 @@ public struct JuggleView: View {
         isFumbling: Bool,
         fumbleElapsed: Double
     ) -> (CGSize, Double) {
-        let baseHandY: CGFloat = -44
-        let handX: CGFloat = 48
+        let baseHandY: CGFloat = -52
+        let handX: CGFloat = 68
         
         if reduceMotion {
             // Static gentle arch when reduce motion is enabled
-            let spread = min(width * 0.48, 150)
+            let spread = min(width * 0.52, 160)
             let step = total > 1 ? spread / CGFloat(total - 1) : 0
             let startX = -spread / 2
             let x = total == 1 ? 0 : startX + CGFloat(index) * step
             let normX = spread > 0 ? (x / (spread / 2)) : 0
-            let y = baseHandY + (normX * normX) * 12
+            let y = (baseHandY - 16) + (normX * normX) * 12
             return (CGSize(width: x, height: y), 0)
         }
         
@@ -268,44 +269,45 @@ public struct JuggleView: View {
             if u < 0.10 {
                 // In Left Hand: dipping down with arm
                 let prog = u / 0.10
-                let dip = sin(prog * .pi / 2) * 12
+                let dip = sin(prog * .pi / 2) * 10
                 x = -handX
                 y = baseHandY + dip
                 tilt = -dip * 0.5
             } else if u < 0.24 {
                 // In Left Hand: pushing up swiftly to release
                 let prog = (u - 0.10) / 0.14
-                let push = (1.0 - cos(prog * .pi / 2)) * 24
+                let push = (1.0 - cos(prog * .pi / 2)) * 16
                 x = -handX + CGFloat(prog * 4)
-                y = (baseHandY + 12) - push
-                tilt = -prog * 8
+                y = (baseHandY + 10) - push
+                tilt = -prog * 6
             } else if u < 0.50 {
                 // In Flight: parabolic arc from Left Hand to Right Hand
+                // Peak reaches at least 1.5 orb diameters (>63pt) above dome apex
                 let prog = (u - 0.24) / 0.26
                 x = (-handX + 4) + CGFloat(prog) * ((handX - 4) - (-handX + 4))
-                let arc = sin(prog * .pi) * 22
-                y = (baseHandY - 12) * CGFloat(1.0 - prog) + baseHandY * CGFloat(prog) - arc
+                let arc = sin(prog * .pi) * 32
+                y = (baseHandY - 6) * CGFloat(1.0 - prog) + baseHandY * CGFloat(prog) - arc
                 tilt = sin(prog * .pi) * 12
             } else if u < 0.60 {
                 // In Right Hand: dipping down with arm
                 let prog = (u - 0.50) / 0.10
-                let dip = sin(prog * .pi / 2) * 12
+                let dip = sin(prog * .pi / 2) * 10
                 x = handX
                 y = baseHandY + dip
                 tilt = dip * 0.5
             } else if u < 0.74 {
                 // In Right Hand: pushing up swiftly to release
                 let prog = (u - 0.60) / 0.14
-                let push = (1.0 - cos(prog * .pi / 2)) * 24
+                let push = (1.0 - cos(prog * .pi / 2)) * 16
                 x = handX - CGFloat(prog * 4)
-                y = (baseHandY + 12) - push
-                tilt = prog * 8
+                y = (baseHandY + 10) - push
+                tilt = prog * 6
             } else {
                 // In Flight: parabolic arc from Right Hand back to Left Hand
                 let prog = (u - 0.74) / 0.26
                 x = (handX - 4) - CGFloat(prog) * ((handX - 4) - (-handX + 4))
-                let arc = sin(prog * .pi) * 22
-                y = (baseHandY - 12) * CGFloat(1.0 - prog) + baseHandY * CGFloat(prog) - arc
+                let arc = sin(prog * .pi) * 32
+                y = (baseHandY - 6) * CGFloat(1.0 - prog) + baseHandY * CGFloat(prog) - arc
                 tilt = -sin(prog * .pi) * 12
             }
             
@@ -317,9 +319,9 @@ public struct JuggleView: View {
         let phase = Double(index) * (2 * .pi / Double(total))
         let angle = (time * (2 * .pi / period) + phase).truncatingRemainder(dividingBy: 2 * .pi)
         
-        let arcWidth = min(width * 0.24, 78)
+        let arcWidth = min(width * 0.28, 82)
         let x = sin(angle) * arcWidth
-        let y = baseHandY - cos(angle * 2) * 12 + (cos(angle) > 0 ? 5 : -5)
+        let y = (baseHandY - 14) - cos(angle * 2) * 18 + (cos(angle) > 0 ? 6 : -6)
         let tilt = sin(angle) * 10
         
         return (CGSize(width: x, height: y + fumbleDrop), tilt + fumbleTilt)

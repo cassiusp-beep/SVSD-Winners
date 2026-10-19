@@ -22,3 +22,8 @@
 4. **Demo Readiness:**
    - Provide a persistent preset bar for rapid resetting during screen recordings.
    - Ensure all assets are packaged locally so previews and demo runs never fail due to network drops.
+
+5. **Onboarding Navigation Pattern:**
+   - The shared circular arrow (`NextArrowButton`) is the primary way forward on onboarding screens (`ProfileSetupView`, `IntegrationsView`).
+   - The plain text `ContinueButton` (top-right below the marquee banner) serves as the persistent fallback.
+   - On `IntegrationsView`, continuing with zero integrations is valid, so `NextArrowButton` is always enabled.
