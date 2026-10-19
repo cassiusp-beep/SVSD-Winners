@@ -14,7 +14,13 @@ struct BranchApp: App {
     
     @ViewBuilder
     private var rootView: some View {
-        if CommandLine.arguments.contains("-profileSetup") {
+        if CommandLine.arguments.contains("-onboardingProfile") {
+            OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
+        } else if CommandLine.arguments.contains("-onboardingIntegrations") {
+            OnboardingFlowView(store: mockFilledStore, initialStep: .integrations)
+        } else if CommandLine.arguments.contains("-onboardingSyncing") {
+            OnboardingFlowView(store: mockConnectedStore, initialStep: .syncing)
+        } else if CommandLine.arguments.contains("-profileSetup") {
             ProfileSetupView(store: DemoStore())
         } else if CommandLine.arguments.contains("-profileSetupFilled") {
             ProfileSetupView(store: mockFilledStore)
@@ -38,7 +44,7 @@ struct BranchApp: App {
             SyncingView(store: mockFilledStore)
         } else {
             // Standard end-to-end launch routing:
-            // SignInView -> ProfileSetupView -> IntegrationsView -> HomeView
+            // Continuous OnboardingFlowView -> HomeView
             AppRootView(store: DemoStore.shared)
         }
     }

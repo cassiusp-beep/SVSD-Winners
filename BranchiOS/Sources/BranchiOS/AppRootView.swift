@@ -9,33 +9,21 @@ public struct AppRootView: View {
     
     public var body: some View {
         ZStack {
-            if !store.isSessionActive {
-                SignInView(store: store)
-                    .transition(.opacity)
-            } else if !store.hasCompletedProfile {
-                ProfileSetupView(store: store, isEditing: false)
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.96)),
-                        removal: .opacity.combined(with: .scale(scale: 1.04))
-                    ))
-            } else if !store.hasCompletedIntegrations {
-                IntegrationsView(store: store)
-                    .transition(.opacity)
-            } else if !store.hasCompletedSync {
-                SyncingView(store: store)
-                    .transition(.opacity)
-            } else {
+            if store.hasCompletedSync {
                 HomeView(store: store)
                     .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.96)),
-                        removal: .opacity.combined(with: .scale(scale: 1.04))
+                        insertion: .opacity.combined(with: .scale(scale: 0.98)),
+                        removal: .opacity
+                    ))
+            } else {
+                OnboardingFlowView(store: store)
+                    .transition(.asymmetric(
+                        insertion: .opacity,
+                        removal: .opacity.combined(with: .scale(scale: 0.98))
                     ))
             }
         }
-        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.isSessionActive)
-        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.hasCompletedProfile)
-        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.hasCompletedIntegrations)
-        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: store.hasCompletedSync)
+        .animation(BranchMotion.sharedSpring, value: store.hasCompletedSync)
     }
 }
 
