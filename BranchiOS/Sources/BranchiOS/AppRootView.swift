@@ -7,9 +7,14 @@ public struct AppRootView: View {
         self.store = store
     }
     
+    @State private var splashDone: Bool = CommandLine.arguments.contains("-noSplash")
+
     public var body: some View {
         ZStack {
-            if store.hasCompletedSync || store.isGuest {
+            if !splashDone {
+                LaunchSplashView { splashDone = true }
+                    .transition(.opacity)
+            } else if store.hasCompletedSync || store.isGuest {
                 HomeView(store: store)
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .scale(scale: 0.98)),
@@ -24,6 +29,7 @@ public struct AppRootView: View {
             }
         }
         .animation(BranchMotion.sharedSpring, value: store.hasCompletedSync || store.isGuest)
+        .animation(.easeOut(duration: 0.3), value: splashDone)
     }
 }
 

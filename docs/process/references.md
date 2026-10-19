@@ -20,6 +20,18 @@ Read [collective-emergence source notes](../references/collective-emergence/sour
 - **Tinder and Hinge.** Quick swipe matching, which the team is considering for charrettes.
 - **GitHub, Hackster and Figma.** Places where different disciplines keep their work. They're possible integrations.
 
+## Brand and icon sources (`docs/references/brand/`) · 19 October 2026
+
+Checked-in source for the YaYa logo. Do not redraw them.
+
+- **`yaya-wordmark-black.svg`** and **`yaya-wordmark-white.svg`**: the "YaYa" wordmark in bold sans letterforms with gradient eyes (viewBox 694×286, baseline y 216). The black version is for light mode; the white version is for dark. The app embeds the glyph path as a SwiftUI `Shape`.
+- **`yaya-icon-rounded.svg`**: the icon mark, a black rounded square with two white eyes. Proportions are the reference for `YaYaMark`.
+- **`yaya-icon-appstore-1024.svg`**: the 1024 app icon source. iOS applies its own mask, so the asset is not rounded.
+
+## Takeaways reference frames (teammate, not in repository)
+
+The Takeaways redesign (Decision 019) follows a teammate's reference frame: the layout for "Takeaways" slabs and tags, and the receipt layout for the team view. The frames are screenshots that the user supplied by path during the session, and they are not checked into `docs/references/images/`. Our palette, naming and button rules take precedence over them.
+
 ## Visual Reference Images (`docs/references/images/`)
 
 ### `branch_landing_mockup.jpg`

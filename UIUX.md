@@ -2,6 +2,8 @@
 
 Updated 18 October 2026. **Current direction: individual first; team integration follows.** This guide specifies the new experience from the latest whiteboard and direct user clarifications. It is a documentation proposal, not a report of implemented features or tested usability.
 
+**Build status · 19 October 2026 (iOS prototype).** The iOS build uses a different onboarding order, approved by the user: Welcome, Sign up, Profile, Intro, Quiz or Talk, Reveal, Integrations, Sync, then the app. The whiteboard A/B/C order below is unchanged as the entry analysis, but the iOS build follows the approved order (DECISIONS.md, Decision 015). Welcome keeps the original full-width buttons (Decision 017). The N04 intent question is built as a three-question quiz that maps to a sprite family; the team has not decided whether that conflicts with "not a scored quiz." Screen details and open decisions for this flow are in DECISIONS.md, not restated here.
+
 ## 1. Read the sources correctly
 
 | Source | What it governs |

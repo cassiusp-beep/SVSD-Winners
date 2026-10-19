@@ -48,7 +48,7 @@ public struct LiveMapView: View {
     @Bindable var store: DemoStore = DemoStore.shared
     public var isLiveSession: Bool = false
     public var sessionClock: Double = 0.0
-    public var peopleCount: Int = 2
+    public var peopleCount: Int = 3
     public var onOpenInKnowledge: (String) -> Void = { _ in }
     public var onStartSession: () -> Void = {}
     
@@ -80,7 +80,7 @@ public struct LiveMapView: View {
         store: DemoStore = DemoStore.shared,
         isLiveSession: Bool = false,
         sessionClock: Double = 0.0,
-        peopleCount: Int = 2,
+        peopleCount: Int = 3,
         onOpenInKnowledge: @escaping (String) -> Void = { _ in },
         onStartSession: @escaping () -> Void = {}
     ) {
@@ -102,13 +102,8 @@ public struct LiveMapView: View {
     
     // Project title
     private var currentProjectTitle: String {
-        if isLiveSession { return "Ya Ya" }
-        guard let pid = store.selectedKnowledgeProjectID else { return "Ya Ya" }
-        switch pid {
-        case "yaya": return "Ya Ya"
-        case "critical_p3": return "Critical design P3"
-        default: return "All projects"
-        }
+        if isLiveSession { return store.activeProject.name }
+        return DemoProject.name(for: store.selectedKnowledgeProjectID)
     }
     
     // Active session metadata
@@ -196,14 +191,14 @@ public struct LiveMapView: View {
                 // 2. Pinned Top Header & Floating Throughline Card
                 VStack(spacing: 10) {
                     headerView(w: w)
-                        .padding(.top, 6)
                     
                     if !entries.isEmpty || isLiveSession {
                         throughlineCardView
                             .padding(.horizontal, 20)
                         
                         filterChipsRow
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, -6)
                     }
                 }
                 .padding(.bottom, 8)
@@ -229,7 +224,7 @@ public struct LiveMapView: View {
                         Spacer()
                         recenterFitButton
                             .padding(.trailing, 22)
-                            .padding(.bottom, 94)
+                            .padding(.bottom, 16)
                     }
                 }
                 .zIndex(25)
@@ -271,7 +266,7 @@ public struct LiveMapView: View {
                     combinationRingBloom = true
                 }
             }
-            .onChange(of: entries.count) { _, _ in
+            .onChange(of: entries.map(\.id)) { _, _ in
                 withAnimation(reduceMotion ? .none : .spring(response: 0.55, dampingFraction: 0.78)) {
                     computeLayoutPositions(in: CGSize(width: w, height: h))
                 }
@@ -288,14 +283,16 @@ public struct LiveMapView: View {
     
     // MARK: - 1. Header View
     private func headerView(w: CGFloat) -> some View {
-        HStack(alignment: .center, spacing: 12) {
+        ScreenHeader(horizontalPadding: 20) {
             VStack(alignment: .leading, spacing: 3) {
                 // Project title + dropdown chevron
                 if isLiveSession {
                     HStack(spacing: 8) {
-                        Text("Ya Ya")
+                        Text(store.activeProject.name)
                             .font(.system(size: 26, weight: .bold))
                             .foregroundStyle(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         
                         liveSessionPill
                     }
@@ -320,7 +317,7 @@ public struct LiveMapView: View {
                             }
                         } label: {
                             HStack {
-                                Text("Ya Ya")
+                                Text("Making YaYa")
                                 if store.selectedKnowledgeProjectID == "yaya" {
                                     Image(systemName: "checkmark")
                                 }
@@ -331,6 +328,8 @@ public struct LiveMapView: View {
                             Text(currentProjectTitle)
                                 .font(.system(size: 26, weight: .bold))
                                 .foregroundStyle(.primary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                             
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 14, weight: .semibold))
@@ -380,12 +379,10 @@ public struct LiveMapView: View {
                 }
             }
             
-            Spacer()
-            
+        } trailing: {
             // Avatar cluster at top right
             avatarClusterView
         }
-        .padding(.horizontal, 20)
     }
     
     // LIVE Pill
@@ -527,6 +524,7 @@ public struct LiveMapView: View {
     // MARK: - 3. Filter Chips Row
     private var filterChipsRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
+            GlassEffectContainer(spacing: 8) {
             HStack(spacing: 8) {
                 ForEach(LiveMapFilterType.allCases, id: \.symbol) { filter in
                     let isSelected = activeFilter == filter
@@ -563,8 +561,11 @@ public struct LiveMapView: View {
                     .accessibilityLabel("\(filter.label) filter, \(count) items")
                 }
             }
-            .padding(.vertical, 2)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
         }
+        .scrollClipDisabled()
     }
     
     private func badgeColor(for filter: LiveMapFilterType) -> Color {
@@ -591,7 +592,7 @@ public struct LiveMapView: View {
             // Idea Nodes Layer
             ForEach(entries) { entry in
                 if let pt = nodePositions[entry.id] {
-                    ideaNodeView(entry: entry, at: pt)
+                    ideaNodeView(entry: entry, at: pt, canvasWidth: w)
                         .position(pt)
                         .zIndex(entry.isEmergent ? 15 : 10)
                 }
@@ -797,13 +798,19 @@ public struct LiveMapView: View {
     }
     
     // MARK: - Idea Node View
-    private func ideaNodeView(entry: KnowledgeEntry, at pt: CGPoint) -> some View {
+    private func ideaNodeView(entry: KnowledgeEntry, at pt: CGPoint, canvasWidth: CGFloat) -> some View {
         let isDimmed = isNodeDimmed(entry)
         let isRecencyFaded = isRecencyFaded(entry)
         let isResolved = (entry.resolution != nil && entry.resolution != .unresolved)
         let linksCount = entries.filter { $0.links.contains(where: { $0.targetEntryID == entry.id }) }.count
         let orbSize: CGFloat = min(42, 28 + CGFloat(linksCount) * 4)
-        let labelOnLeft = pt.x < 196
+        // Labels face outward, but flip inward when the outward side would run off screen (label is 118pt wide).
+        let labelOnLeft: Bool = {
+            let preferLeft = pt.x < canvasWidth / 2
+            let reach = orbSize / 2 + 2 + 118 + 4
+            if preferLeft { return pt.x - reach >= 0 }
+            return pt.x + reach > canvasWidth
+        }()
         
         return ZStack {
             // Node Orb centered exactly at pt
@@ -825,7 +832,7 @@ public struct LiveMapView: View {
                 
                 // Base Orb
                 if entry.actor.isAI {
-                    // Ya Ya suggestion: dashed sparkle orb
+                    // YaYa suggestion: dashed sparkle orb
                     Circle()
                         .stroke(Color.primary.opacity(0.55), style: StrokeStyle(lineWidth: 1.5, dash: [3, 3]))
                         .background(Circle().fill(colorScheme == .dark ? Color(white: 0.14) : Color.white))
@@ -888,8 +895,9 @@ public struct LiveMapView: View {
                         RoundedRectangle(cornerRadius: 6, style: .continuous)
                             .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
                     )
+                    .frame(width: 118, alignment: labelOnLeft ? .trailing : .leading)
                     .allowsHitTesting(false)
-                    .offset(x: labelOnLeft ? -(orbSize / 2 + 48) : (orbSize / 2 + 48))
+                    .offset(x: labelOnLeft ? -(orbSize / 2 + 2 + (entry.isEmergent ? 8 : 0) + 59) : (orbSize / 2 + 2 + (entry.isEmergent ? 8 : 0) + 59))
             }
         }
         .opacity(isDimmed ? 0.10 : (isRecencyFaded ? 0.40 : 1.0))
@@ -1005,129 +1013,166 @@ public struct LiveMapView: View {
             Spacer()
         }
         .frame(width: w, height: h)
-        .padding(.bottom, 60)
+        .padding(.bottom, 12)
     }
     
     // MARK: - Force-Directed Graph Layout Simulation
+    /// Real on-canvas avatar position for each actor (mirrors `actorAnchorsLayer`).
+    private func avatarPoint(for actor: KnowledgeActor, w: CGFloat, h: CGFloat) -> CGPoint {
+        switch actor {
+        case .user: return CGPoint(x: w / 2, y: h / 2 + 30)
+        case .maya: return CGPoint(x: w * 0.16, y: h * 0.34)
+        case .theo: return CGPoint(x: w * 0.84, y: h * 0.34)
+        case .alex: return CGPoint(x: w * 0.84, y: h * 0.72)
+        case .sam:  return CGPoint(x: w * 0.16, y: h * 0.72)
+        case .yaya: return CGPoint(x: w / 2, y: 238)
+        }
+    }
+    
+    /// Estimated width of an idea label (9.5pt semibold mono + 12pt padding), capped at the 118pt frame.
+    private func labelWidth(_ entry: KnowledgeEntry) -> CGFloat {
+        min(118, 12 + 5.9 * CGFloat(min(entry.shortLabel.count, 20)))
+    }
+    
+    /// Same orb size rule as `ideaNodeView`.
+    private func orbSizeFor(_ entry: KnowledgeEntry) -> CGFloat {
+        let linksCount = entries.filter { $0.links.contains(where: { $0.targetEntryID == entry.id }) }.count
+        return min(42, 28 + CGFloat(linksCount) * 4)
+    }
+    
+    /// Mirrors the label-side rule in `ideaNodeView` exactly so footprints match what is drawn.
+    private func labelIsOnLeft(x: CGFloat, orbSize: CGFloat, canvasWidth: CGFloat) -> Bool {
+        let reach = orbSize / 2 + 2 + 118 + 4
+        if x < canvasWidth / 2 { return x - reach >= 0 }
+        return x + reach > canvasWidth
+    }
+    
+    /// The orb (plus emergent ring) and its label as two rects (the label is a thin strip beside the orb).
+    private func nodeRects(_ entry: KnowledgeEntry, at p: CGPoint, canvasWidth: CGFloat, orbSize os: CGFloat) -> [CGRect] {
+        let ring: CGFloat = entry.isEmergent ? 12 : 0
+        let orbD = max(44, os + ring)
+        let orb = CGRect(x: p.x - orbD / 2, y: p.y - orbD / 2, width: orbD, height: orbD)
+        let lw = labelWidth(entry)
+        let onLeft = labelIsOnLeft(x: p.x, orbSize: os, canvasWidth: canvasWidth)
+        let edge = os / 2 + 2 + (entry.isEmergent ? 8 : 0)
+        let lx = onLeft ? p.x - edge - lw : p.x + edge
+        let label = CGRect(x: lx, y: p.y - 11, width: lw, height: 22)
+        return [orb, label]
+    }
+    
     private func computeLayoutPositions(in size: CGSize) {
         let w = size.width
         let h = size.height
-        let center = CGPoint(x: w / 2, y: h / 2 + 35)
+        let center = avatarPoint(for: .user, w: w, h: h)
+        // Vertical band the ideas may use: below the filter chips, above the floating tab bar.
+        let yTop: CGFloat = 232
+        let yBot: CGFloat = max(yTop + 120, h - 66)
         
-        // Handcrafted optimal coordinates for seeded and scripted demo sessions
-        let seededCoordinates: [String: (CGFloat, CGFloat)] = [
-            // Session 3 (Settled full map)
-            "s3_01": (-112, -45),   // Maya: "One person first"
-            "s3_07": (-122, +25),   // Maya: "Hot corners next"
-            "s3_02": (-68, +115),   // Sam: "Branches not minutes"
-            "s3_10": (-25, +170),   // Sam: "Design stressful moments"
-            "s3_04": (-65, -30),    // User: "Bridge reflection to action"
-            "s3_08": (+65, -30),    // Emergent Combination: "Stories from dialogue"
-            "s3_03": (+115, +48),   // Theo: "Simplify complex things"
-            "s3_05": (+62, +88),    // Theo friction: "Competitive metric risk"
-            "s3_09": (+78, -100),   // Theo: "Grid reflection synthesis"
-            "s3_06": (+112, +125),  // Alex: "Shared node evolution"
-            "s3_11": (0, -85),      // Ya Ya: "Pattern convergence"
-            
-            // Session 2 (Past session)
-            "s2_01": (-105, -50),
-            "s2_02": (+105, -50),
-            "s2_03": (-60, +95),
-            "s2_04": (+60, +95),
-            "s2_05": (0, +145),
-            
-            // Live Meeting Session
-            "live_01": (-110, -45),
-            "live_02": (+110, -45),
-            "live_04": (-65, +105),
-            "live_07": (-60, -25),
-            "live_08": (+60, +80),
-            "live_15": (+110, +115),
-            "live_19": (+65, -25)
+        // Fixed obstacles: actor avatars + name pills, and the You node + its label.
+        var obstacles: [CGRect] = [
+            CGRect(x: center.x - 46, y: center.y - 48, width: 92, height: 112)
         ]
-        
-        var positions: [String: CGPoint] = [:]
-        
-        for (i, entry) in entries.enumerated() {
-            var target: CGPoint
-            
-            if let offset = seededCoordinates[entry.id] {
-                target = CGPoint(x: center.x + offset.0, y: center.y + offset.1)
-            } else {
-                let actorPt = actorAnchorPoint(for: entry.actor, center: center)
-                
-                // Distribute ideas in directional quadrants from their actor
-                let baseAngle: Double
-                switch entry.actor {
-                case .maya:
-                    baseAngle = 0.25 * .pi + Double(i % 3) * 0.45
-                case .theo:
-                    baseAngle = 0.75 * .pi + Double(i % 3) * 0.45
-                case .alex:
-                    baseAngle = 1.25 * .pi + Double(i % 3) * 0.45
-                case .sam:
-                    baseAngle = 1.75 * .pi + Double(i % 3) * 0.45
-                case .user:
-                    baseAngle = Double(i) * (2.0 * .pi / 4.0) + 0.35
-                case .yaya:
-                    baseAngle = 0.5 * .pi + Double(i % 2) * 0.40
-                }
-                
-                let radius: CGFloat = entry.actor.isUser ? 95 : 75
-                let dx = cos(baseAngle) * radius
-                let dy = sin(baseAngle) * (radius * 0.72)
-                
-                target = CGPoint(x: actorPt.x + dx, y: actorPt.y + dy)
-                
-                if !entry.links.isEmpty {
-                    var linkedSumX: CGFloat = 0
-                    var linkedSumY: CGFloat = 0
-                    var linkedCount: CGFloat = 0
-                    
-                    for link in entry.links {
-                        if let prevPt = positions[link.targetEntryID] {
-                            linkedSumX += prevPt.x
-                            linkedSumY += prevPt.y
-                            linkedCount += 1
-                        }
-                    }
-                    if linkedCount > 0 {
-                        let avgLinked = CGPoint(x: linkedSumX / linkedCount, y: linkedSumY / linkedCount)
-                        target.x = (target.x * 0.55 + avgLinked.x * 0.45)
-                        target.y = (target.y * 0.55 + avgLinked.y * 0.45)
-                    }
-                }
-                
-                // Force repulsion from center user anchor (min distance 72pt)
-                let userDistX = target.x - center.x
-                let userDistY = target.y - center.y
-                let userDist = sqrt(userDistX * userDistX + userDistY * userDistY)
-                if userDist < 72 {
-                    let factor = 72 / max(userDist, 1.0)
-                    target.x = center.x + userDistX * factor
-                    target.y = center.y + userDistY * factor
-                }
-                
-                // Relaxation against earlier assigned node positions (min distance 54pt)
-                for (_, existingPt) in positions {
-                    let ex = target.x - existingPt.x
-                    let ey = target.y - existingPt.y
-                    let dist = sqrt(ex * ex + ey * ey)
-                    if dist < 54 {
-                        let push = (54 - dist) / max(dist, 1.0)
-                        target.x += ex * push * 0.5
-                        target.y += ey * push * 0.5
-                    }
-                }
-            }
-            
-            // Keep clear zone around throughline card and screen margins
-            target.y = max(225, min(h - 130, target.y))
-            target.x = max(45, min(w - 75, target.x))
-            
-            positions[entry.id] = target
+        // Recenter button (bottom-trailing).
+        obstacles.append(CGRect(x: w - 84, y: h - 60, width: 76, height: 70))
+        for actor in [KnowledgeActor.maya, .theo, .alex, .sam] {
+            let a = avatarPoint(for: actor, w: w, h: h)
+            obstacles.append(CGRect(x: a.x - 34, y: a.y - 32, width: 68, height: 92))
         }
         
+        let lowerStretch = max(1, min(2.6, (yBot - center.y) / 170))
+        // Initial targets: radiate each actor's ideas from their avatar toward the middle of the canvas.
+        let perActor = Dictionary(grouping: entries.indices, by: { entries[$0].actor })
+        var ids: [String] = []
+        var pts: [CGPoint] = []
+        var idx: [String: Int] = [:]
+        
+        for (i, entry) in entries.enumerated() {
+            let avatar = avatarPoint(for: entry.actor, w: w, h: h)
+            let group = perActor[entry.actor] ?? [i]
+            let k = CGFloat(group.firstIndex(of: i) ?? 0)
+            let n = CGFloat(group.count)
+            var target: CGPoint
+            
+            if entry.actor == .user {
+                // Ring around You, just outside the You rect; captures stay close.
+                let ang = Double(k) * (2.0 * .pi / Double(max(n, 4))) + 0.6
+                target = CGPoint(x: center.x + CGFloat(cos(ang)) * 118, y: center.y + CGFloat(sin(ang)) * 104)
+            } else {
+                let toward = atan2(Double(center.y - avatar.y), Double(center.x - avatar.x))
+                let ang = toward + Double(k - (n - 1) / 2) * 0.95
+                let r: CGFloat = 92 + CGFloat(Int(k) % 2) * 34
+                target = CGPoint(x: avatar.x + CGFloat(cos(ang)) * r, y: avatar.y + CGFloat(sin(ang)) * r)
+            }
+            
+            // Pull toward earlier linked nodes so related ideas sit near each other.
+            var lx: CGFloat = 0, ly: CGFloat = 0, lc: CGFloat = 0
+            for link in entry.links {
+                if let j = idx[link.targetEntryID] { lx += pts[j].x; ly += pts[j].y; lc += 1 }
+            }
+            if lc > 0 {
+                target.x = target.x * 0.65 + (lx / lc) * 0.35
+                target.y = target.y * 0.65 + (ly / lc) * 0.35
+            }
+            // Stretch below You so the lower canvas (above the tab bar) is used, not left empty.
+            if target.y > center.y { target.y = center.y + (target.y - center.y) * lowerStretch }
+            idx[entry.id] = pts.count
+            ids.append(entry.id)
+            pts.append(target)
+        }
+        
+        // Greedy collision-free placement: each node takes the free grid spot closest to its target,
+        // where "free" means neither its orb nor its label touches an obstacle or an already-placed node.
+        let gap: CGFloat = 8
+        var placedRects: [CGRect] = obstacles
+        var finalPts = pts
+        // Your own nodes (captures included) claim the space around You first.
+        let order = pts.indices.sorted { a, b in
+            let ua = entries[a].actor.isUser ? 0 : 1, ub = entries[b].actor.isUser ? 0 : 1
+            return ua == ub ? a < b : ua < ub
+        }
+        let step: CGFloat = 5
+        let orbSizes = entries.map { orbSizeFor($0) }
+        for i in order {
+            let e = entries[i]
+            let lw = labelWidth(e)
+            let os = orbSizes[i]
+            var best: CGPoint? = nil
+            var bestScore = CGFloat.greatestFiniteMagnitude
+            var x: CGFloat = 8 + 24
+            while x <= w - 8 - 24 {
+                var y = yTop
+                while y <= yBot {
+                    let p = CGPoint(x: x, y: y)
+                    let onLeft = labelIsOnLeft(x: x, orbSize: os, canvasWidth: w)
+                    let edge = os / 2 + 2 + (e.isEmergent ? 8 : 0)
+                    let fitsX = onLeft ? (x - edge - lw >= 6) : (x + edge + lw <= w - 6)
+                    if fitsX {
+                        let rs = nodeRects(e, at: p, canvasWidth: w, orbSize: os).map { $0.insetBy(dx: -gap / 2, dy: -gap / 2) }
+                        // Overlap area is penalised so hard that any free spot wins; when the canvas is
+                        // genuinely full the least-overlapping spot is used instead of the raw target.
+                        var overlap: CGFloat = 0
+                        for r in rs {
+                            for o in placedRects {
+                                let ix = r.intersection(o.insetBy(dx: -gap / 2, dy: -gap / 2))
+                                if !ix.isNull { overlap += ix.width * ix.height }
+                            }
+                        }
+                        let dx = x - pts[i].x, dy = y - pts[i].y
+                        let score = overlap * 400 + dx * dx + dy * dy
+                        if score < bestScore { bestScore = score; best = p }
+                    }
+                    y += step
+                }
+                x += step
+            }
+            let chosen = best ?? CGPoint(x: min(max(pts[i].x, 56), w - 56), y: min(max(pts[i].y, yTop), yBot))
+            finalPts[i] = chosen
+            placedRects.append(contentsOf: nodeRects(e, at: chosen, canvasWidth: w, orbSize: os))
+        }
+        pts = finalPts
+        
+        var positions: [String: CGPoint] = [:]
+        for (n, id) in ids.enumerated() { positions[id] = pts[n] }
         self.nodePositions = positions
     }
     
@@ -1222,6 +1267,10 @@ public struct NodeDetailSheet: View {
                 if let media = entry.media {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 5) {
+                            if media.linkURL != nil {
+                                Image(systemName: "link")
+                                    .font(.system(size: 10, weight: .bold))
+                            }
                             Text(media.source)
                                 .font(Font.yaya(size: 10, weight: .bold))
                                 .padding(.horizontal, 6)
@@ -1325,14 +1374,14 @@ public struct NodeDetailSheet: View {
                 
                 Spacer().frame(height: 12)
                 
-                // Open in Knowledge Button
+                // Open in Insights Button
                 Button {
                     onOpenKnowledge(entry.id)
                 } label: {
                     HStack {
                         Image(systemName: "books.vertical.fill")
                             .font(.system(size: 15, weight: .semibold))
-                        Text("Open in Knowledge")
+                        Text("Open in Insights")
                             .font(.system(size: 15, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
@@ -1457,12 +1506,12 @@ public struct FrictionResolutionSheet: View {
                     .buttonStyle(.plain)
                     
                     HStack(spacing: 10) {
-                        // 2. Use Ya Ya's
+                        // 2. Use YaYa's
                         Button {
                             onResolve(.usedSuggestion)
                             dismiss()
                         } label: {
-                            Text("Use Ya Ya's")
+                            Text("Use YaYa's")
                                 .font(.system(size: 14, weight: .semibold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)

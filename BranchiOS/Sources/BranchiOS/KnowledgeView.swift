@@ -7,6 +7,8 @@ public struct KnowledgeView: View {
     public var sessionClock: Double = 0.0
     public var passedContext: ContributionCellContext? = nil
     public var onDismissContext: () -> Void = {}
+    /// Entry to scroll to and pulse on arrival (e.g. from the capture toast).
+    public var focusEntryID: String? = nil
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -27,8 +29,10 @@ public struct KnowledgeView: View {
         isLiveSession: Bool = false,
         sessionClock: Double = 0.0,
         passedContext: ContributionCellContext? = nil,
-        onDismissContext: @escaping () -> Void = {}
+        onDismissContext: @escaping () -> Void = {},
+        focusEntryID: String? = nil
     ) {
+        self.focusEntryID = focusEntryID
         self.store = store
         self.isLiveSession = isLiveSession
         self.sessionClock = sessionClock
@@ -39,16 +43,9 @@ public struct KnowledgeView: View {
     // Active project filter title
     private var currentProjectTitle: String {
         if isLiveSession {
-            return "Ya Ya"
+            return store.activeProject.name
         }
-        guard let pid = store.selectedKnowledgeProjectID else {
-            return "All projects"
-        }
-        switch pid {
-        case "yaya": return "Ya Ya"
-        case "critical_p3": return "Critical design P3"
-        default: return "All projects"
-        }
+        return DemoProject.name(for: store.selectedKnowledgeProjectID)
     }
     
     // Filtered entries according to mode and project picker
@@ -77,7 +74,6 @@ public struct KnowledgeView: View {
                         VStack(spacing: 0) {
                             projectTitleHeader
                                 .frame(width: totalWidth, alignment: .leading)
-                                .padding(.top, 10)
                                 .padding(.bottom, 14)
                                 .id("projectTitleHeader")
                             
@@ -120,20 +116,18 @@ public struct KnowledgeView: View {
                 }
                 .clipped()
                 .safeAreaInset(edge: .bottom) {
-                    Color.clear.frame(height: 110)
+                    Color.clear.frame(height: 24)
                 }
                 .onAppear {
-                    if CommandLine.arguments.contains("-tabKnowledgeTop") {
-                        // Stay at top to verify project title header & picker
-                    } else if displayedEntries.count > 5, let lastID = displayedEntries.last?.id {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                            scrollProxy.scrollTo(lastID, anchor: .bottom)
-                        }
-                    }
+                    // Always open at the top so the ScreenHeader is fully visible; the live feed
+                    // follows new entries via onChange below, and handoff/focus scroll explicitly.
                     
                     // Handle Takeaways cell handoff
                     if let ctx = passedContext {
                         handleHandoffContext(ctx: ctx, scrollProxy: scrollProxy)
+                    }
+                    if let id = focusEntryID {
+                        focusEntry(id, scrollProxy: scrollProxy)
                     }
                 }
                 .onChange(of: store.liveKnowledgeEntries.count) { _, newCount in
@@ -168,11 +162,11 @@ public struct KnowledgeView: View {
     
     // MARK: - 1. Project Title & Picker Header
     private var projectTitleHeader: some View {
-        HStack(alignment: .center, spacing: 10) {
+        ScreenHeader(horizontalPadding: 16) {
             if isLiveSession {
-                // Live Session Header: "Ya Ya" with LIVE badge
+                // Live Session Header: active project name with LIVE badge
                 HStack(spacing: 8) {
-                    Text("Ya Ya")
+                    Text(store.activeProject.name)
                         .font(.system(size: 30, weight: .bold))
                         .foregroundStyle(.primary)
                     
@@ -196,7 +190,7 @@ public struct KnowledgeView: View {
                     )
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Ya Ya, session is live")
+                .accessibilityLabel("\(store.activeProject.name), session is live")
             } else {
                 // Normal Mode: Project Picker Dropdown
                 Menu {
@@ -219,7 +213,7 @@ public struct KnowledgeView: View {
                         }
                     } label: {
                         HStack {
-                            Text("Ya Ya")
+                            Text("Making YaYa")
                             if store.selectedKnowledgeProjectID == "yaya" {
                                 Image(systemName: "checkmark")
                             }
@@ -252,10 +246,7 @@ public struct KnowledgeView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(currentProjectTitle), project picker")
             }
-            
-            Spacer()
         }
-        .padding(.horizontal, 16)
     }
     
     // MARK: - 2. Pinned Column Header Row
@@ -420,7 +411,52 @@ public struct KnowledgeView: View {
     }
     
     // MARK: - Media Cell View
+    @ViewBuilder
     private func mediaCellView(media: KnowledgeMedia, maxWidth: CGFloat) -> some View {
+        if let url = media.linkURL {
+            linkCellView(media: media, url: url, maxWidth: maxWidth)
+        } else {
+            imageMediaCellView(media: media, maxWidth: maxWidth)
+        }
+    }
+    
+    // Captured web link: link icon, domain, fetched page title
+    private func linkCellView(media: KnowledgeMedia, url: URL, maxWidth: CGFloat) -> some View {
+        Link(destination: url) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "link")
+                        .font(.system(size: 12, weight: .bold))
+                    Text(url.host(percentEncoded: false)?.replacingOccurrences(of: "www.", with: "") ?? url.absoluteString)
+                        .font(Font.yaya(size: 10, weight: .bold))
+                        .lineLimit(1)
+                }
+                .foregroundStyle(.secondary)
+                
+                Text(media.title)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                Text("\(media.source)  ·  \(media.dateString)")
+                    .font(Font.yaya(size: 9, weight: .bold))
+                    .foregroundStyle(.secondary)
+                    .tracking(0.5)
+            }
+            .padding(10)
+            .frame(width: min(maxWidth, 140), alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Link, \(media.title)")
+    }
+    
+    private func imageMediaCellView(media: KnowledgeMedia, maxWidth: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Button {
                 selectedMedia = media
@@ -457,6 +493,9 @@ public struct KnowledgeView: View {
         #if canImport(UIKit)
         let loadedImage: UIImage? = {
             guard let assetName = media.assetName else { return nil }
+            if let captured = DemoStore.loadImageFromDisk(fileName: assetName) {
+                return captured
+            }
             if let path = Bundle.module.path(forResource: assetName, ofType: "png") ?? Bundle.module.path(forResource: assetName, ofType: nil) {
                 return UIImage(contentsOfFile: path)
             }
@@ -598,6 +637,21 @@ public struct KnowledgeView: View {
             Text("No entries in \(currentProjectTitle)")
                 .font(.system(size: 15, weight: .bold))
                 .foregroundStyle(.secondary)
+        }
+    }
+    
+    /// Scrolls to a specific entry (the capture the user just added) and pulses it once.
+    private func focusEntry(_ id: String, scrollProxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            guard displayedEntries.contains(where: { $0.id == id }) else { return }
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                scrollProxy.scrollTo(id, anchor: .center)
+            }
+            highlightedEntryID = id
+            withAnimation(.easeIn(duration: 0.3)) { highlightOpacity = 0.35 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                withAnimation(.easeOut(duration: 0.6)) { highlightOpacity = 0.0 }
+            }
         }
     }
     

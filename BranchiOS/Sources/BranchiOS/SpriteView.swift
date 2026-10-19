@@ -360,21 +360,49 @@ public struct SpriteBodyShape: Shape {
     }
 }
 
+// MARK: - Silhouette-based arm attachment (arms live in the SAME square as MorphingSpriteView's body)
+extension BranchSprite {
+    /// Attach point for an arm in a `side` x `side` square that holds the body exactly as
+    /// `MorphingSpriteView` draws it. Found on the real silhouette at the mid-height of the VISIBLE body
+    /// (`crop` = fraction of the square height that is on screen), then moved `inset` pt inside the
+    /// body so the joint is hidden when the arm is drawn behind the body.
+    func armAttachPoint(isLeft: Bool, side: CGFloat, crop: CGFloat, inset: CGFloat = 10) -> CGPoint {
+        let pts = SpriteMorphSampler.points(for: self)
+        let top = pts.map(\.y).min() ?? 0
+        let bottom = min(pts.map(\.y).max() ?? 100, crop * 100)
+        let ym = (top + bottom) / 2
+        var xs: [CGFloat] = []
+        for i in 0..<pts.count {
+            let a = pts[i], b = pts[(i + 1) % pts.count]
+            if (a.y - ym) * (b.y - ym) <= 0, a.y != b.y {
+                xs.append(a.x + (b.x - a.x) * (ym - a.y) / (b.y - a.y))
+            }
+        }
+        let k = side / 100
+        let edge = (isLeft ? xs.min() : xs.max()) ?? (isLeft ? 10 : 90)
+        let x = edge * k + (isLeft ? inset : -inset)
+        return CGPoint(x: x, y: ym * k)
+    }
+}
+
 // MARK: - Tailored Animatable Sprite Arm Shape (Attached per-silhouette)
 public struct SpriteArmShape: Shape {
     public var pose: CGFloat // 0.0 (lowered) to 1.0 (raised), supports -0.15 (dip) and 1.10 (overshoot)
     public let isLeft: Bool
     public let sprite: BranchSprite
+    /// When set, the shape is drawn in the body's own square and attached on the real silhouette.
+    public let crop: CGFloat?
     
     public var animatableData: CGFloat {
         get { pose }
         set { pose = newValue }
     }
     
-    public init(pose: CGFloat = 0.25, isLeft: Bool, sprite: BranchSprite = .cloud) {
+    public init(pose: CGFloat = 0.25, isLeft: Bool, sprite: BranchSprite = .cloud, crop: CGFloat? = nil) {
         self.pose = pose
         self.isLeft = isLeft
         self.sprite = sprite
+        self.crop = crop
     }
     
     public func path(in rect: CGRect) -> Path {
@@ -382,6 +410,22 @@ public struct SpriteArmShape: Shape {
         let w = rect.width
         let h = rect.height
         let p = pose
+        
+        if let crop {
+            let s = min(w, h)
+            let st = sprite.armAttachPoint(isLeft: isLeft, side: s, crop: crop)
+            let d: CGFloat = isLeft ? -1 : 1
+            let r = 1.5 // reach: the arm is drawn in the sprite square, so scale the horizontal reach
+            // Balanced reach: the raised hand tops out about head-height, never a long cane above the head.
+            let q = min(max(p, -0.15), 1.1)
+            path.move(to: st)
+            path.addCurve(
+                to: CGPoint(x: st.x + d * s * r * (0.17 + 0.04 * q), y: st.y - s * (0.12 + 0.23 * q)),
+                control1: CGPoint(x: st.x + d * s * r * (0.10 + 0.05 * q), y: st.y + s * (0.12 - 0.12 * q)),
+                control2: CGPoint(x: st.x + d * s * r * (0.24 + 0.03 * q), y: st.y - s * (0.04 + 0.16 * q))
+            )
+            return path
+        }
         
         if isLeft {
             let anchor = sprite.leftArmAnchorNormalized
@@ -430,15 +474,17 @@ public struct SpriteArmShape: Shape {
 public struct SpriteFlexArmShape: Shape {
     public var flexProgress: CGFloat
     public let sprite: BranchSprite
+    public let crop: CGFloat?
     
     public var animatableData: CGFloat {
         get { flexProgress }
         set { flexProgress = newValue }
     }
     
-    public init(flexProgress: CGFloat = 0.0, sprite: BranchSprite = .cloud) {
+    public init(flexProgress: CGFloat = 0.0, sprite: BranchSprite = .cloud, crop: CGFloat? = nil) {
         self.flexProgress = flexProgress
         self.sprite = sprite
+        self.crop = crop
     }
     
     public func path(in rect: CGRect) -> Path {
@@ -446,6 +492,24 @@ public struct SpriteFlexArmShape: Shape {
         let w = rect.width
         let h = rect.height
         let p = flexProgress
+        
+        if let crop {
+            // One smooth U-shaped curl: out to the side, up, and the tip curls slightly inward.
+            let s = min(w, h)
+            let st = sprite.armAttachPoint(isLeft: true, side: s, crop: crop)
+            func lerp(_ a: CGFloat, _ b: CGFloat) -> CGFloat { a + (b - a) * min(max(p, 0), 1.1) }
+            func pt(_ rx: CGFloat, _ ry: CGFloat, _ fx: CGFloat, _ fy: CGFloat) -> CGPoint {
+                CGPoint(x: st.x + s * lerp(rx, fx), y: st.y + s * lerp(ry, fy))
+            }
+            // Rest: arm hangs. Flexed: out to the side, elbow rounds under, forearm rises and the tip curls inward.
+            path.move(to: st)
+            path.addCurve(
+                to: pt(-0.18, 0.26, -0.17, -0.31),
+                control1: pt(-0.13, 0.05, -0.36, 0.10),
+                control2: pt(-0.20, 0.12, -0.44, -0.27)
+            )
+            return path
+        }
         
         let anchor = sprite.leftArmAnchorNormalized
         let start = CGPoint(x: w * anchor.x, y: h * anchor.y)
@@ -479,6 +543,7 @@ public struct SpriteView: View {
     public var bodyScale: CGFloat
     public var gazeOffset: CGSize
     public var haloOpacity: Double
+    public var eyeStyle: SpriteEyeStyle
     
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
@@ -491,7 +556,8 @@ public struct SpriteView: View {
         bodyRotation: Angle = .zero,
         bodyScale: CGFloat = 1.0,
         gazeOffset: CGSize = .zero,
-        haloOpacity: Double = 0.0
+        haloOpacity: Double = 0.0,
+        eyeStyle: SpriteEyeStyle = .open
     ) {
         self.sprite = sprite
         self.isBlinking = isBlinking
@@ -502,6 +568,7 @@ public struct SpriteView: View {
         self.bodyScale = bodyScale
         self.gazeOffset = gazeOffset
         self.haloOpacity = haloOpacity
+        self.eyeStyle = eyeStyle
     }
     
     public var body: some View {
@@ -556,21 +623,14 @@ public struct SpriteView: View {
                 let leftEyePt = sprite.leftEyeNormalized
                 let rightEyePt = sprite.rightEyeNormalized
                 
-                ZStack {
-                    // Left Eye
-                    Ellipse()
-                        .fill(eyeColor)
-                        .frame(width: eyeW, height: eyeH)
-                        .scaleEffect(y: isBlinking ? 0.08 : 1.0, anchor: .center)
-                        .position(x: w * leftEyePt.x + gazeOffset.width, y: h * leftEyePt.y + gazeOffset.height)
-                    
-                    // Right Eye
-                    Ellipse()
-                        .fill(eyeColor)
-                        .frame(width: eyeW, height: eyeH)
-                        .scaleEffect(y: isBlinking ? 0.08 : 1.0, anchor: .center)
-                        .position(x: w * rightEyePt.x + gazeOffset.width, y: h * rightEyePt.y + gazeOffset.height)
-                }
+                SpriteEyePair(
+                    left: CGPoint(x: w * leftEyePt.x + gazeOffset.width, y: h * leftEyePt.y + gazeOffset.height),
+                    right: CGPoint(x: w * rightEyePt.x + gazeOffset.width, y: h * rightEyePt.y + gazeOffset.height),
+                    size: CGSize(width: eyeW, height: eyeH),
+                    isBlinking: isBlinking,
+                    style: eyeStyle,
+                    color: eyeColor
+                )
             }
             .frame(width: w, height: h)
         }

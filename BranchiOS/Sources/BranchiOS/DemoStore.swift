@@ -3,6 +3,7 @@ import Combine
 
 #if canImport(UIKit)
 import UIKit
+import LinkPresentation
 #endif
 
 // MARK: - Avatar Type
@@ -78,6 +79,7 @@ public final class DemoStore {
     private let integrationsCompletedKey = "branch_demo_integrations_completed"
     private let syncCompletedKey = "branch_demo_sync_completed"
     private let isGuestKey = "branch_demo_is_guest"
+    private let quizAnswersKey = "branch_demo_intent_answers"
     
     // MARK: - Published State
     public var session: UserSession?
@@ -87,9 +89,18 @@ public final class DemoStore {
     public var hasCompletedIntegrations: Bool = false
     public var hasCompletedSync: Bool = false
     public var isGuest: Bool = false
+    /// Families chosen in the onboarding quiz (or the single family from Talk it through). Seeds the Profile radar.
+    public var quizAnswers: [ThinkingFamily] = []
     public var completedSessionActions: [SessionDeclaredActions] = []
     public var knowledgeEntries: [KnowledgeEntry] = KnowledgeEntry.seededEntries
-    public var selectedKnowledgeProjectID: String? = nil // nil = All projects
+    public var selectedKnowledgeProjectID: String? = DemoProject.defaultID // nil = All projects
+    /// Project that live sessions and captures are recorded to.
+    public var activeProjectID: String = DemoProject.defaultID {
+        didSet { selectedKnowledgeProjectID = activeProjectID }
+    }
+    public var activeProject: DemoProject {
+        DemoProject.all.first(where: { $0.id == activeProjectID }) ?? DemoProject.all[0]
+    }
     public var liveKnowledgeEntries: [KnowledgeEntry] = []
     
     // Live Map (Collective Emergence) state
@@ -109,7 +120,7 @@ public final class DemoStore {
             return []
         }
         
-        let entries: [KnowledgeEntry]
+        var entries: [KnowledgeEntry]
         switch selectedSessionID {
         case "session_1":
             entries = KnowledgeEntry.session1Entries
@@ -119,6 +130,14 @@ public final class DemoStore {
             entries = KnowledgeEntry.session3Entries
         default:
             entries = KnowledgeEntry.session3Entries
+        }
+        
+        // User captures (photos, pasted images, links) join the map as user-linked nodes.
+        // Committed live captures have no session id and belong to the latest session.
+        let latestSessionID = "session_3"
+        entries += knowledgeEntries.filter {
+            $0.id.hasPrefix("capture_") && (selectedKnowledgeProjectID == nil || $0.projectID == selectedKnowledgeProjectID) &&
+            ($0.sessionID ?? latestSessionID) == selectedSessionID
         }
         
         // Apply any live resolutions
@@ -154,7 +173,8 @@ public final class DemoStore {
         }
     }
     
-    public func commitLiveKnowledgeEntriesToSeeded(for projectID: String = "yaya") {
+    public func commitLiveKnowledgeEntriesToSeeded(for projectID: String? = nil) {
+        let projectID = projectID ?? activeProjectID
         guard !liveKnowledgeEntries.isEmpty else { return }
         let converted = liveKnowledgeEntries.map { entry in
             KnowledgeEntry(
@@ -168,6 +188,9 @@ public final class DemoStore {
                 agentId: entry.agentId,
                 agentName: entry.agentName,
                 agentSprite: entry.agentSprite,
+                actor: entry.actor,
+                links: entry.links,
+                shortLabel: entry.shortLabel,
                 media: entry.media,
                 relatedEntryIDs: entry.relatedEntryIDs
             )
@@ -176,6 +199,129 @@ public final class DemoStore {
         liveKnowledgeEntries = []
         selectedKnowledgeProjectID = projectID
     }
+    
+    // MARK: - Captures (camera photos, pasted images and links)
+    #if canImport(UIKit)
+    public enum CaptureContent {
+        case image(UIImage)
+        case link(URL)
+    }
+    
+    /// Adds a photo, pasted image or link to the active project. During a live session the entry joins
+    /// `liveKnowledgeEntries` at the session clock; otherwise it joins the project's latest session.
+    @discardableResult
+    public func addCapture(
+        _ content: CaptureContent,
+        source: String,
+        isLive: Bool,
+        elapsedSeconds: Double
+    ) -> KnowledgeEntry? {
+        let elapsed = max(0, elapsedSeconds)
+        let dateString = isLive
+            ? String(format: "%d:%02d", Int(elapsed) / 60, Int(elapsed) % 60)
+            : "TODAY"
+        
+        let media: KnowledgeMedia
+        let text: String
+        let label: String
+        switch content {
+        case .image(let image):
+            let downscaled = Self.downscale(image: image, maxDimension: 1024)
+            guard let fileName = Self.saveImageToDisk(image: downscaled, existingFileName: "capture_\(UUID().uuidString).jpg") else {
+                return nil
+            }
+            let isCamera = source == "CAMERA"
+            text = isCamera ? "Photo added to the project" : "Image pasted into the project"
+            label = isCamera ? "Photo" : "Pasted image"
+            media = KnowledgeMedia(
+                title: isCamera ? "Photo" : "Pasted image",
+                source: source,
+                dateString: dateString,
+                assetName: fileName
+            )
+        case .link(let url):
+            let domain = Self.domain(of: url)
+            text = "Link added: \(domain)"
+            label = domain
+            media = KnowledgeMedia(
+                title: domain,
+                source: source,
+                dateString: dateString,
+                previewSnippet: url.absoluteString,
+                linkURL: url
+            )
+        }
+        
+        var links: [KnowledgeLink] = []
+        var sessionID: String? = nil
+        if isLive {
+            if let latestUser = liveKnowledgeEntries.last(where: { $0.actor.isUser }) {
+                links = [KnowledgeLink(targetEntryID: latestUser.id, type: .buildsOn)]
+            }
+        } else {
+            sessionID = knowledgeEntries
+                .filter { $0.projectID == activeProjectID }
+                .compactMap(\.sessionID)
+                .max()
+        }
+        
+        // Deterministic, collision-free ID (sequence number) so reseeding/relayout is reproducible.
+        var captureNumber = (liveKnowledgeEntries + knowledgeEntries).filter { $0.id.hasPrefix("capture_") }.count + 1
+        while (liveKnowledgeEntries + knowledgeEntries).contains(where: { $0.id == "capture_\(captureNumber)" }) { captureNumber += 1 }
+        let entry = KnowledgeEntry(
+            id: "capture_\(captureNumber)",
+            projectID: activeProjectID,
+            type: .addition,
+            text: text,
+            timestamp: Date(),
+            dateDisplay: dateString,
+            sessionID: sessionID,
+            actor: .user,
+            links: links,
+            shortLabel: label,
+            media: media,
+            elapsedSeconds: isLive ? elapsed : nil
+        )
+        
+        if isLive {
+            liveKnowledgeEntries.append(entry)
+            // Keep the live feed in session-clock order (stable for equal times).
+            liveKnowledgeEntries = liveKnowledgeEntries.enumerated().sorted {
+                let a = $0.element.elapsedSeconds ?? .greatestFiniteMagnitude
+                let b = $1.element.elapsedSeconds ?? .greatestFiniteMagnitude
+                return a == b ? $0.offset < $1.offset : a < b
+            }.map(\.element)
+        } else {
+            knowledgeEntries.append(entry)
+        }
+        
+        if case .link(let url) = content {
+            fetchLinkTitle(entryID: entry.id, url: url)
+        }
+        return entry
+    }
+    
+    public static func domain(of url: URL) -> String {
+        let host = url.host(percentEncoded: false) ?? url.absoluteString
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+    
+    /// Resolves the page title with LinkPresentation and swaps it into the entry's media.
+    private func fetchLinkTitle(entryID: String, url: URL) {
+        Task { @MainActor in
+            let provider = LPMetadataProvider()
+            provider.timeout = 8
+            guard let metadata = try? await provider.startFetchingMetadata(for: url),
+                  let title = metadata.title, !title.isEmpty else { return }
+            if let i = liveKnowledgeEntries.firstIndex(where: { $0.id == entryID }) {
+                liveKnowledgeEntries[i].media?.title = title
+            }
+            if let i = knowledgeEntries.firstIndex(where: { $0.id == entryID }) {
+                knowledgeEntries[i].media?.title = title
+            }
+        }
+    }
+    #endif
     
     // Loaded avatar image cached in memory
     #if canImport(UIKit)
@@ -202,6 +348,29 @@ public final class DemoStore {
             self.hasCompletedSync = true
             self.session = UserSession(providerName: "Apple")
             self.profile = UserProfile(fullName: "Alex Mercer", nickname: "alexm", avatarType: .sprite, spriteColorHex: "#6366F1")
+        }
+        
+        // Screenshot launch states that run through the real AppRootView -> OnboardingFlowView path:
+        // -flowIntegrations / -flowSyncing (+ -flowConnected, -spriteFamily Cloud|Bloom|Prism|Spark).
+        let args = CommandLine.arguments
+        if args.contains("-flowIntegrations") || args.contains("-flowSyncing") {
+            var hex = "#4598BB"
+            if let i = args.firstIndex(of: "-spriteFamily"), i + 1 < args.count,
+               let family = BranchSprite(rawValue: args[i + 1].capitalized) {
+                hex = family.primaryHex
+            }
+            self.session = UserSession(providerName: "Apple")
+            self.profile = UserProfile(fullName: "Cassius Palacio", nickname: "cassiuspalacio", avatarType: .sprite, spriteColorHex: hex)
+            if args.contains("-flowConnected") || args.contains("-flowSyncing") {
+                self.connectedIntegrationIds = ["autodesk_fusion", "pinterest", "github"]
+                self.connectedTimestamps = [
+                    "autodesk_fusion": Date().addingTimeInterval(-300),
+                    "pinterest": Date().addingTimeInterval(-200),
+                    "github": Date().addingTimeInterval(-100)
+                ]
+            }
+            self.hasCompletedIntegrations = args.contains("-flowSyncing")
+            self.hasCompletedSync = false
         }
     }
     
@@ -255,6 +424,7 @@ public final class DemoStore {
         
         self.hasCompletedIntegrations = defaults.bool(forKey: integrationsCompletedKey)
         self.hasCompletedSync = defaults.bool(forKey: syncCompletedKey)
+        self.quizAnswers = (defaults.stringArray(forKey: quizAnswersKey) ?? []).compactMap { ThinkingFamily(rawValue: $0) }
     }
     
     // MARK: - Integrations Actions
@@ -379,6 +549,21 @@ public final class DemoStore {
         }
         #endif
         
+        // Remove captured photo/pasted-image files (including orphans from earlier launches)
+        #if canImport(UIKit)
+        for entry in knowledgeEntries + liveKnowledgeEntries {
+            if let name = entry.media?.assetName, name.hasPrefix("capture_") {
+                Self.deleteImageFromDisk(fileName: name)
+            }
+        }
+        let docs = Self.documentsDirectory()
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: docs.path) {
+            for name in files where name.hasPrefix("capture_") && name.hasSuffix(".jpg") {
+                Self.deleteImageFromDisk(fileName: name)
+            }
+        }
+        #endif
+        
         // 2. Clear state
         self.session = nil
         self.profile = nil
@@ -387,9 +572,11 @@ public final class DemoStore {
         self.hasCompletedIntegrations = false
         self.hasCompletedSync = false
         self.isGuest = false
+        self.quizAnswers = []
         self.completedSessionActions = []
         self.knowledgeEntries = KnowledgeEntry.seededEntries
-        self.selectedKnowledgeProjectID = nil
+        self.activeProjectID = DemoProject.defaultID
+        self.selectedKnowledgeProjectID = DemoProject.defaultID
         self.liveKnowledgeEntries = []
         #if canImport(UIKit)
         self.loadedPhotoImage = nil
@@ -403,6 +590,22 @@ public final class DemoStore {
         UserDefaults.standard.removeObject(forKey: integrationsCompletedKey)
         UserDefaults.standard.removeObject(forKey: syncCompletedKey)
         UserDefaults.standard.removeObject(forKey: isGuestKey)
+        UserDefaults.standard.removeObject(forKey: quizAnswersKey)
+    }
+    
+    // MARK: - Onboarding Intent (quiz / talk) Actions
+    /// Saves the intent answers and recolours the profile sprite with the revealed family.
+    /// A photo avatar stays the avatar; only the stored sprite colour changes.
+    public func saveIntent(answers: [ThinkingFamily], revealed: ThinkingFamily, updatesProfile: Bool = false) {
+        self.quizAnswers = answers
+        UserDefaults.standard.set(answers.map(\.rawValue), forKey: quizAnswersKey)
+        if updatesProfile, var updated = profile {
+            updated.spriteColorHex = revealed.sprite.hex
+            self.profile = updated
+            if let data = try? JSONEncoder().encode(updated) {
+                UserDefaults.standard.set(data, forKey: profileKey)
+            }
+        }
     }
     
     // MARK: - Nickname Validation Logic

@@ -73,8 +73,9 @@ public struct ThinkingRadarValues: Equatable, Sendable {
 
 // MARK: - Radar Calculations
 public enum ThinkingRadarCalculator {
-    public static func computeCurrentProcess(sessions: [SessionDeclaredActions]) -> ThinkingRadarValues {
+    public static func computeCurrentProcess(sessions: [SessionDeclaredActions], quiz: [ThinkingFamily] = []) -> ThinkingRadarValues {
         guard sessions.count >= 3 else {
+            if !quiz.isEmpty { return values(fromIntent: quiz) }
             // Seeded demo values from original prompt
             return ThinkingRadarValues(systematic: 0.90, tinkering: 0.55, creative: 0.45, observant: 0.60)
         }
@@ -350,7 +351,7 @@ public struct ProfileView: View {
     
     // Dynamically computed Thinking Style from session history
     private var currentProcessValues: ThinkingRadarValues {
-        ThinkingRadarCalculator.computeCurrentProcess(sessions: store.completedSessionActions)
+        ThinkingRadarCalculator.computeCurrentProcess(sessions: store.completedSessionActions, quiz: store.quizAnswers)
     }
     
     private var whereHeadingValues: ThinkingRadarValues {
@@ -366,8 +367,8 @@ public struct ProfileView: View {
     }
     
     private var shareText: String {
-        // Requirement 2: "I'm a [Family] on Ya Ya. [ideas] ideas across [projects] projects."
-        "I'm a \(strongestFamily.rawValue) on Ya Ya. 31 ideas across 2 projects."
+        // Requirement 2: "I'm a [Family] on YaYa. [ideas] ideas across [projects] projects."
+        "I'm a \(strongestFamily.rawValue) on YaYa. 31 ideas across 2 projects."
     }
     
     private var userSprite: BranchSprite {
@@ -381,16 +382,12 @@ public struct ProfileView: View {
         ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 20) {
-                    Spacer().frame(height: 52)
-                    
                     // Top Header: "You" on left, Share button on right (No appearance sun button!)
-                    HStack(alignment: .center) {
+                    ScreenHeader(horizontalPadding: 24) {
                         Text("You")
                             .font(.system(size: 32, weight: .bold))
                             .foregroundStyle(.primary)
-                        
-                        Spacer()
-                        
+                    } trailing: {
                         ShareLink(item: shareText) {
                             ZStack {
                                 Circle()
@@ -405,7 +402,6 @@ public struct ProfileView: View {
                         .buttonStyle(.plain)
                         .accessibilityLabel("Share profile")
                     }
-                    .padding(.horizontal, 24)
                     .id("topSection")
                     
                     // Hero Sprite Banner Card
@@ -483,7 +479,7 @@ public struct ProfileView: View {
                     }
                     .buttonStyle(.plain)
                     .padding(.top, 6)
-                    .padding(.bottom, 96)
+                    .padding(.bottom, 24)
                     .id("bottomReset")
                 }
             }
@@ -597,7 +593,7 @@ public struct ProfileView: View {
                             .foregroundStyle(.secondary)
                             .tracking(0.5)
                     }
-                    Text("Ya Ya, Critical design P3")
+                    Text("Making YaYa, Critical design P3")
                         .font(.system(size: 11, weight: .regular))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -732,7 +728,7 @@ public struct ProfileView: View {
     // MARK: - 5. Bottom Navigation Links
     private var bottomNavigationLinks: some View {
         VStack(spacing: 10) {
-            // Link 1: What Ya Ya has learned
+            // Link 1: What YaYa has learned
             HStack(spacing: 14) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -744,7 +740,7 @@ public struct ProfileView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("What Ya Ya has learned")
+                    Text("What YaYa has learned")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.primary)
                     Text("Something off? Forget it here.")
@@ -780,7 +776,7 @@ public struct ProfileView: View {
                     Text("Settings")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.primary)
-                    Text("Ya Ya's help, sprite, voice, data, account")
+                    Text("YaYa's help, sprite, voice, data, account")
                         .font(.system(size: 11, weight: .regular))
                         .foregroundStyle(.secondary)
                 }

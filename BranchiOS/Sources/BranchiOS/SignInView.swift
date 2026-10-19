@@ -158,7 +158,7 @@ public struct GitHubFallbackLogo: View {
 // MARK: - SSO Sign In Sheet
 public struct SSOSignInSheet: View {
     @Bindable var store: DemoStore
-    public var title: String = "Sign up for Ya Ya"
+    public var title: String = "Sign up for YaYa"
     public var subtitle: String = "Choose an account to get started"
     public var onComplete: ((AuthProvider) -> Void)? = nil
     
@@ -168,7 +168,7 @@ public struct SSOSignInSheet: View {
     
     public init(
         store: DemoStore = DemoStore.shared,
-        title: String = "Sign up for Ya Ya",
+        title: String = "Sign up for YaYa",
         subtitle: String = "Choose an account to get started",
         onComplete: ((AuthProvider) -> Void)? = nil
     ) {
@@ -306,7 +306,7 @@ public struct SignInView: View {
                         showsArms: false
                     )
                     .frame(width: 250, height: 250)
-                    .position(x: w - 25, y: max(topInset, 50) + 130)
+                    .position(x: w - 95, y: max(topInset, 50) + 120)
                     .accessibilityHidden(true)
                     
                     // Sage Spark Sprite tucked slightly overlapping bottom-right of Cloud
@@ -316,13 +316,13 @@ public struct SignInView: View {
                         showsArms: false
                     )
                     .frame(width: 135, height: 135)
-                    .position(x: w - 65, y: max(topInset, 50) + 245)
+                    .position(x: w - 55, y: max(topInset, 50) + 240)
                     .accessibilityHidden(true)
                 }
                 .allowsHitTesting(false)
                 
-                // 3. Top-Left Brand Wordmark: "Ya Ya." via YaYaWordmark
-                YaYaWordmark(size: 28, showsPeriod: true, isHeader: true)
+                // 3. Top-Left Brand Wordmark (decorative: the headline below says the name)
+                YaYaWordmark(size: 28, blinks: true, decorative: true)
                     .padding(.top, max(topInset, 50) + 26)
                     .padding(.leading, 28)
                 
@@ -330,15 +330,15 @@ public struct SignInView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Spacer(minLength: 24)
                     
-                    // Headline: "Ready to Ya Ya." in Berkeley Mono Bold
-                    Text("Ready to Ya Ya.")
+                    // Headline: "Ready to YaYa." in Berkeley Mono Bold
+                    Text("Ready to YaYa.")
                         .font(.yaya(size: 34, weight: .bold))
                         .foregroundStyle(Color.primary)
                         .padding(.bottom, 14)
                         .accessibilityAddTraits(.isHeader)
                     
                     // Body Text: System font, secondary text color
-                    Text("Talk through and import projects that you're working on. Ya Ya extracts insights in your process to craft your narrative.")
+                    Text("Talk through and import projects that you're working on. YaYa extracts insights in your process to craft your narrative.")
                         .font(.system(size: 15, weight: .regular))
                         .foregroundStyle(Color.secondary)
                         .lineSpacing(4)
@@ -346,11 +346,11 @@ public struct SignInView: View {
                     
                     // Buttons Stack
                     VStack(spacing: 12) {
-                        // Primary Button: "Try Ya Ya without an account"
+                        // Primary Button: "Try YaYa without an account"
                         Button {
                             handleGuestModeTap()
                         } label: {
-                            Text("Try Ya Ya without an account")
+                            Text("Try YaYa without an account")
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
                                 .frame(maxWidth: .infinity)
@@ -362,8 +362,8 @@ public struct SignInView: View {
                                 .contentShape(Capsule())
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Try Ya Ya without an account")
-                        .accessibilityHint("Start using Ya Ya immediately in guest mode")
+                        .accessibilityLabel("Try YaYa without an account")
+                        .accessibilityHint("Start using YaYa immediately in guest mode")
                         
                         // Secondary Button: "Sign up"
                         Button {

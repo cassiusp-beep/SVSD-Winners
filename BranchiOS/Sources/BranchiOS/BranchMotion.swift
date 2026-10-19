@@ -16,4 +16,18 @@ public struct BranchMotion: Sendable {
     
     /// Stagger interval for overlapping step transitions so departing and entering content cross-fade
     public static let stepOverlapStagger: Double = 0.08
+
+    /// Placeholders for the Takeaways isometric slice (wired in steps b and c).
+    public enum Takeaways {
+        public static let tiltDuration: Double = 0.45
+        public static let extrudeDuration: Double = 1.0
+        /// Slabs lowering when switching back to FLAT.
+        public static let lowerDuration: Double = 0.5
+        public static let tagFadeDuration: Double = 0.25
+        /// Fraction of the extrude window by which later columns start behind earlier ones.
+        public static let extrudeStagger: Double = 0.6
+        public static let hopSegmentDuration: Double = 0.22
+        public static let spriteStagger: Double = 0.18
+        public static let highlightDimOpacity: Double = 0.30
+    }
 }

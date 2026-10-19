@@ -25,6 +25,10 @@ _Not written yet._
 
 Collect these as they happen, so we don't have to reconstruct them on Monday.
 
+- **19 October: Rejected isometric look, then reference-driven frosted slabs.** The first isometric grid used hard side faces and a sprite on every lane. The user rejected it and redirected the grid to frosted slabs tinted by agent, with blurred artifact images and "Artifact · time" callouts (Decision 019).
+- **19 October: Welcome arrow redesign rejected, original buttons kept.** We tried a round arrow with text links; the user restored the original full-width buttons as an approved exception (Decision 017).
+- **19 October: The quiz and the talk reveal the first shape.** Intro, then a three-question quiz or a simulated talk, then Reveal settles the sprite into your family and lets you try another. This is the onboarding story (Decision 015).
+
 - **18 October, later clarification: Establish the individual experience first.** The latest onboarding whiteboard governs three entry paths; team context can be imported, while team integration comes later. Figma remains a UI/UX precedent rather than a flow specification.
 
 - **18 October: Creative discovery before commitment.** We shifted from a maker exchange and individual memory toward a live team map that keeps differences, possible collaborations and alternative directions open. This is the new product hypothesis; the existing prototype has not yet been rebuilt for it.

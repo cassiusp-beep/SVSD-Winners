@@ -10,6 +10,10 @@ import UIKit
 public enum OnboardingStep: String, CaseIterable, Sendable {
     case signIn
     case profile
+    case intro
+    case quiz
+    case talk
+    case reveal
     case integrations
     case syncing
     case complete
@@ -74,6 +78,22 @@ public struct OnboardingFlowView: View {
     @State private var spriteDragOffset: CGFloat = 0
     @State private var spriteTapBounce: Bool = false
     
+    // MARK: - Intent State (Intro / Quiz / Talk / Reveal)
+    @State private var quizIndex: Int = 0
+    @State private var quizSelections: [Int?] = [nil, nil, nil]
+    @State private var quizAdvanceTask: Task<Void, Never>? = nil
+    @State private var talkPhase: TalkPhase = .ready
+    @State private var talkText: String = ""
+    @State private var talkElapsed: Double = 0
+    @State private var talkShownLines: Int = 0
+    @State private var talkTask: Task<Void, Never>? = nil
+    @State private var talkFrozen: Bool = false
+    @State private var revealedFamily: ThinkingFamily = .cloud
+    @State private var cameFromTalk: Bool = false
+    @State private var navigatingBack: Bool = false
+    @State private var slots: [OnboardingSlot: CGRect] = [:]
+    @State private var autoplayTask: Task<Void, Never>? = nil
+    
     private enum FocusField: Hashable {
         case fullName, nickname
     }
@@ -81,6 +101,8 @@ public struct OnboardingFlowView: View {
     @State private var editingField: FocusField? = nil
     @State private var keyboardHeight: CGFloat = 0
     @State private var arrowSlotFrame: CGRect? = nil
+    /// Real safe-area insets (see `body`). Defaults match a Dynamic Island iPhone until measured.
+    @State private var safeInsets: EdgeInsets = EdgeInsets(top: 59, leading: 0, bottom: 34, trailing: 0)
     
     private var isTyping: Bool {
         currentStep == .profile && (focusedField != nil || editingField != nil)
@@ -109,7 +131,19 @@ public struct OnboardingFlowView: View {
         }
     }
     
-    private func profileArrowCenterY(h: CGFloat, topInset: CGFloat) -> CGFloat {
+    /// How far the Profile sprite is raised so the eyes of every family clear the home-indicator area.
+    /// The "Sprite Selection" label and the arrow slot rise by the same amount.
+    private func profileSpriteLift(w: CGFloat, h: CGFloat) -> CGFloat {
+        let spriteH = min(w * 0.72, 300) * 0.88
+        let maxEyeFrac = BranchSprite.allCases.map { sp -> CGFloat in
+            let e = SpriteMorphSampler.eyes(for: sp); return (e.left.y + e.ry) / 100
+        }.max() ?? 0.65
+        let baseCenter = h - spriteH * 0.08
+        let eyeBottom = baseCenter - spriteH / 2 + maxEyeFrac * spriteH
+        return max(0, eyeBottom - (h - safeInsets.bottom - 8))
+    }
+    
+    private func profileArrowCenterY(w: CGFloat, h: CGFloat, topInset: CGFloat) -> CGFloat {
         let hubY = profileHubCenterY(h: h, topInset: topInset)
         let nameBottomY = hubY + 80 // bottom of full name text
         
@@ -118,7 +152,7 @@ public struct OnboardingFlowView: View {
             // Centered between bottom of name block and top of keyboard
             return (nameBottomY + effectiveKeyboardTop) / 2
         } else {
-            let spriteLabelTop = h - 174 // "Sprite Selection" label top (padding bottom 160 + font size 11 + margin)
+            let spriteLabelTop = h - 174 - profileSpriteLift(w: w, h: h) // "Sprite Selection" label top (padding bottom 160 + font size 11 + margin)
             // Centered in empty space between bottom of full name and "Sprite Selection"
             return (nameBottomY + spriteLabelTop) / 2
         }
@@ -144,6 +178,11 @@ public struct OnboardingFlowView: View {
     @State private var orbsScale: [CGFloat] = [1.0, 1.0, 1.0, 1.0, 1.0]
     @State private var spriteSlideProgress: CGFloat = 0.0
     @State private var leftArmFlexProgress: CGFloat = 0.0
+    /// False while the sprite is travelling into the bottom stage (Integrations / Sync): body and arms stay
+    /// hidden, then fade in together once the destination has settled. Keeps arms attached and keeps the
+    /// body from sweeping across the arrow.
+    @State private var spriteLanded: Bool = false
+    @State private var landingTask: Task<Void, Never>? = nil
     @State private var isDoubleBlinking: Bool = false
     @State private var syncTask: Task<Void, Never>? = nil
     @State private var syncPhysicsTimer: Timer? = nil
@@ -186,17 +225,69 @@ public struct OnboardingFlowView: View {
         }
         self._currentStep = State(initialValue: resolvedStep)
         self._currentSyncBeat = State(initialValue: startFromSyncBeat)
+        if let existing = store.profile {
+            // Seed from the stored profile so the first frame already has the nickname (banner, hub, sprite).
+            self._fullName = State(initialValue: existing.fullName)
+            self._nickname = State(initialValue: existing.nickname)
+            self._avatarType = State(initialValue: existing.avatarType)
+            self._activeSprite = State(initialValue: CMYKSprite.from(hex: existing.spriteColorHex))
+            self._nicknameStatus = State(initialValue: .available)
+            self._hasSelectedAvatar = State(initialValue: true)
+        }
         if CommandLine.arguments.contains("-onboardingProfileKeyboardEmpty") || CommandLine.arguments.contains("-onboardingProfileKeyboardMidTyping") || CommandLine.arguments.contains("-profileMidTyping") {
             self._editingField = State(initialValue: .nickname)
+        }
+        
+        // Screenshot / demo launch states for the intent steps
+        let args = CommandLine.arguments
+        if resolvedStep == .quiz {
+            let index = args.contains("-quizQ3") ? 2 : (args.contains("-quizQ2") ? 1 : 0)
+            var selections: [Int?] = [nil, nil, nil]
+            for i in 0..<index { selections[i] = 0 }
+            if args.contains("-quizSelected") { selections[index] = 1 }
+            self._quizIndex = State(initialValue: index)
+            self._quizSelections = State(initialValue: selections)
+        }
+        if resolvedStep == .talk {
+            if args.contains("-onboardingTalkSpeaking") {
+                self._talkPhase = State(initialValue: .speaking)
+                self._talkElapsed = State(initialValue: 9)
+                self._talkShownLines = State(initialValue: 2)
+                self._talkFrozen = State(initialValue: true)
+            } else if args.contains("-onboardingTalkWrite") {
+                self._talkPhase = State(initialValue: .writing)
+            }
+        }
+        if resolvedStep == .reveal {
+            let family = ThinkingFamily.allCases.first { args.contains("-reveal\($0.rawValue)") } ?? .cloud
+            self._revealedFamily = State(initialValue: family)
         }
     }
     
     // MARK: - Body
     public var body: some View {
+        ZStack {
+            // Real safe-area insets, read by a reader that RESPECTS the safe area. (The canvas below is full-bleed so
+            // its proxy reads 0, and reading UIWindow insets inside body freezes SwiftUI updates.)
+            GeometryReader { probe in
+                Color.clear
+                    .onChange(of: probe.safeAreaInsets, initial: true) { _, insets in
+                        if safeInsets != insets { safeInsets = insets }
+                    }
+            }
+            .allowsHitTesting(false)
+            flowCanvas
+        }
+    }
+    
+    private var flowCanvas: some View {
         GeometryReader { geo in
             let w = geo.size.width
             let h = geo.size.height
-            let topInset = geo.safeAreaInsets.top
+            // The flow's canvas is full-bleed (backgrounds + the sprites' bottom crop), but every piece of
+            // content is laid out from the REAL safe-area top. The proxy reads 0 under a full-bleed reader,
+            // so take the max with the window's inset. +8pt = banner top offset below the safe-area edge.
+            let topInset = safeInsets.top + 8
             
             ZStack(alignment: .top) {
                 // 1. PERSISTENT BACKGROUND LAYER
@@ -207,10 +298,12 @@ public struct OnboardingFlowView: View {
                 VStack(spacing: 0) {
                     Spacer().frame(height: topInset)
                     persistentBannerView
-                        .frame(height: UsernameBanner.bannerHeight)
+                        .frame(height: bannerHeightNow)
+                        .clipped()
                     persistentTopContinueRow
                         .frame(height: 36)
                 }
+                .animation(BranchMotion.sharedSpring, value: bannerHeightNow)
                 .zIndex(20)
                 .ignoresSafeArea(.keyboard)
                 
@@ -232,6 +325,61 @@ public struct OnboardingFlowView: View {
                                 removal: .opacity.combined(with: .offset(y: -20))
                             ))
                             .zIndex(2)
+                    }
+                    
+                    if currentStep == .intro {
+                        OnboardingIntroStep(
+                            firstName: firstName,
+                            contentTop: intentContentTop(topInset: topInset),
+                            viewportHeight: h,
+                            onTalk: { openTalk() }
+                        )
+                        .frame(width: w, height: h)
+                        .transition(stepTransition)
+                        .zIndex(2.2)
+                    }
+                    
+                    if currentStep == .quiz {
+                        OnboardingQuizStep(
+                            index: quizIndex,
+                            selections: quizSelections,
+                            contentTop: intentContentTop(topInset: topInset),
+                            rowTop: topInset + bannerHeightNow,
+                            viewportHeight: h,
+                            backward: navigatingBack,
+                            onSelect: { selectQuizAnswer($0) }
+                        )
+                        .frame(width: w, height: h)
+                        .transition(stepTransition)
+                        .zIndex(2.4)
+                    }
+                    
+                    if currentStep == .talk {
+                        OnboardingTalkStep(
+                            phase: talkPhase,
+                            elapsed: talkElapsed,
+                            shownLines: talkShownLines,
+                            text: $talkText,
+                            contentTop: intentContentTop(topInset: topInset),
+                            viewportHeight: h,
+                            onRecordTap: { toggleTalk() },
+                            onWriteInstead: { enterWriting() },
+                            onTalkInstead: { leaveWriting() }
+                        )
+                        .frame(width: w, height: h)
+                        .transition(stepTransition)
+                        .zIndex(2.6)
+                    }
+                    
+                    if currentStep == .reveal {
+                        OnboardingRevealStep(
+                            family: revealedFamily,
+                            contentTop: intentContentTop(topInset: topInset),
+                            viewportHeight: h
+                        )
+                        .frame(width: w, height: h)
+                        .transition(stepTransition)
+                        .zIndex(2.8)
                     }
                     
                     if currentStep == .integrations {
@@ -256,35 +404,51 @@ public struct OnboardingFlowView: View {
                 .frame(width: w, height: h)
                 
                 // 5. PERSISTENT NEXT ARROW BUTTON (Smoothly travels to current step anchor)
-                if currentStep == .profile || currentStep == .integrations {
+                if showsPersistentArrow {
                     persistentNextArrowButton(w: w, h: h, topInset: topInset)
                         .zIndex(15)
                 }
                 
                 // 6. PERSISTENT SPRITE INSTANCE (Single instance for the entire flow)
-                persistentSpriteLayer(w: w, h: h)
+                persistentSpriteLayer(w: w, h: h, topInset: topInset)
                     .zIndex(12)
                     .ignoresSafeArea(.keyboard)
             }
             .frame(width: w, height: h)
             .coordinateSpace(name: "OnboardingFlowSpace")
+            .onPreferenceChange(OnboardingSlotsKey.self) { newSlots in
+                applySlots(newSlots)
+            }
             .onPreferenceChange(ArrowSlotFrameKey.self) { newFrame in
                 if let newFrame = newFrame {
-                    withAnimation(BranchMotion.sharedSpring) {
-                        self.arrowSlotFrame = newFrame
+                    // Hop off the layout pass: state written from a preference callback mid-layout can be dropped.
+                    DispatchQueue.main.async {
+                        withAnimation(BranchMotion.sharedSpring) {
+                            self.arrowSlotFrame = newFrame
+                        }
                     }
                 }
             }
             .ignoresSafeArea()
         }
+        // Full-bleed canvas only so absolute coordinates match the screen; content respects `topInset`.
+        // Backgrounds (wash) ignore the safe area individually.
         .ignoresSafeArea()
         .onAppear {
             initializeFlow()
+            spriteLanded = Self.isStageStep(currentStep)
             startContinuousBlinkLoop()
             startJuggleClock()
             if currentStep == .syncing || currentStep == .complete {
                 startSyncSequence()
             }
+            if currentStep == .talk && talkPhase == .speaking && !talkFrozen {
+                startTalkClock()
+            }
+            if currentStep == .reveal {
+                celebrateReveal()
+            }
+            startAutoplayIfRequested()
             if CommandLine.arguments.contains("-onboardingProfileKeyboardEmpty") {
                 self.nickname = ""
                 self.fullName = ""
@@ -313,6 +477,9 @@ public struct OnboardingFlowView: View {
             syncPhysicsTimer?.invalidate()
             syncTask?.cancel()
             connectionTask?.cancel()
+            talkTask?.cancel()
+            quizAdvanceTask?.cancel()
+            autoplayTask?.cancel()
         }
         .onChange(of: focusedField) { _, newFocus in
             if newFocus != editingField {
@@ -323,6 +490,7 @@ public struct OnboardingFlowView: View {
         }
         .onChange(of: currentStep) { oldStep, newStep in
             handleStepChange(from: oldStep, to: newStep)
+            updateSpriteLanding(to: newStep)
         }
         .onChange(of: store.session) { _, newSession in
             if newSession != nil && currentStep == .signIn {
@@ -351,23 +519,16 @@ public struct OnboardingFlowView: View {
     
     // MARK: - 1. Persistent Background Layer
     private var persistentBackgroundLayer: some View {
-        ZStack {
-            (colorScheme == .dark ? Color.black : Color.white)
-                .ignoresSafeArea()
-            
-            if currentStep == .signIn {
-                WelcomeSoftWashBackground()
-                    .transition(.opacity)
-            }
-        }
-        .animation(.easeInOut(duration: 0.35), value: currentStep == .signIn)
-        .ignoresSafeArea()
+        // The wash lives behind every onboarding step and is never part of a step transition,
+        // so it never reloads. It leaves with the whole flow when AppRootView fades onboarding out.
+        WelcomeSoftWashBackground()
+            .ignoresSafeArea()
     }
     
     // MARK: - 2. Persistent Username Banner
     private var persistentBannerView: some View {
         let displayNickname = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-        let shouldShowBanner = currentStep != .signIn && !displayNickname.isEmpty && !store.isGuest
+        let shouldShowBanner = bannerVisible
         
         return UsernameBanner(nickname: displayNickname)
             .opacity(shouldShowBanner ? 1.0 : 0.0)
@@ -377,50 +538,74 @@ public struct OnboardingFlowView: View {
     
     // MARK: - 3. Persistent Top Continue Button Row
     private var persistentTopContinueRow: some View {
-        let isVisible: Bool = {
+        let title: String? = {
             switch currentStep {
-            case .signIn:
-                return false
-            case .profile:
-                return true
-            case .integrations:
-                return true
+            case .signIn, .talk:
+                return nil
+            case .intro, .quiz:
+                return "Skip"
+            case .profile, .reveal, .integrations, .complete:
+                return "Continue"
             case .syncing:
-                return currentSyncBeat == .beat4Complete
-            case .complete:
-                return true
+                return currentSyncBeat == .beat4Complete ? "Continue" : nil
             }
         }()
+        let isVisible = title != nil
         
         let isEnabled: Bool = {
             switch currentStep {
-            case .signIn:
+            case .signIn, .talk:
                 return false
             case .profile:
                 return isProfileValid
-            case .integrations:
-                return true
-            case .syncing, .complete:
+            case .intro, .quiz, .reveal, .integrations, .syncing, .complete:
                 return true
             }
         }()
         
+        let showsBack = currentStep == .quiz || currentStep == .talk || currentStep == .reveal
+        
         return HStack {
+            backButton
+                .opacity(showsBack ? 1.0 : 0.0)
+                .allowsHitTesting(showsBack)
+                .animation(BranchMotion.sharedSpring, value: showsBack)
             Spacer()
             ContinueButton(
-                title: "Continue",
+                title: title ?? "Continue",
                 isEnabled: isEnabled,
                 disabledHint: "Enter name and nickname to continue"
             ) {
-                handleContinueTap()
+                handleTopRightTap()
             }
+            // Label swaps without overlap ("Skip" never ghosts into "Continue").
+            .id(title ?? "Continue")
+            .transition(.identity)
             .opacity(isVisible ? 1.0 : 0.0)
             .animation(BranchMotion.sharedSpring, value: isVisible)
             .animation(BranchMotion.quickSpring, value: isEnabled)
+            .allowsHitTesting(isVisible)
         }
         .padding(.horizontal, 24)
         .frame(height: 36)
-        .allowsHitTesting(isVisible)
+    }
+    
+    private var backButton: some View {
+        Button {
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+            goBack()
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color.primary)
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: Circle())
+        .accessibilityLabel("Back")
     }
     
     // MARK: - 5. Persistent Next Arrow Button
@@ -433,21 +618,31 @@ public struct OnboardingFlowView: View {
             switch currentStep {
             case .profile:
                 return isProfileValid
-            case .integrations, .syncing, .complete:
+            case .integrations, .syncing, .complete, .intro, .reveal:
                 return true
+            case .quiz:
+                return quizSelections.indices.contains(quizIndex) && quizSelections[quizIndex] != nil
+            case .talk:
+                return !talkText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             case .signIn:
                 return false
             }
         }()
         
-        let arrowX: CGFloat = arrowSlotFrame?.midX ?? (w * 0.50)
+        let intentSlot: CGRect? = isIntentStep ? slots[.arrow(currentStep)] : nil
+        let arrowX: CGFloat = intentSlot?.midX ?? arrowSlotFrame?.midX ?? (w * 0.50)
         let arrowY: CGFloat = {
-            if let slot = arrowSlotFrame {
+            if let slot = intentSlot {
+                return slot.midY
+            }
+            if !isIntentStep, let slot = arrowSlotFrame {
                 return slot.midY
             }
             switch currentStep {
+            case .intro, .quiz, .talk, .reveal:
+                return h * 0.80
             case .profile:
-                return profileArrowCenterY(h: h, topInset: topInset)
+                return profileArrowCenterY(w: w, h: h, topInset: topInset)
             case .integrations:
                 return h * 0.65
             case .syncing, .complete:
@@ -456,9 +651,17 @@ public struct OnboardingFlowView: View {
                 return h * 1.2
             }
         }()
+        let arrowLabel: String = {
+            switch currentStep {
+            case .intro: return "Start the questions"
+            case .quiz: return quizIndex < 2 ? "Next question" : "See your shape"
+            case .talk: return "Done writing"
+            default: return "Continue to next step"
+            }
+        }()
         return NextArrowButton(
             isEnabled: isEnabled,
-            accessibilityLabel: "Continue to next step"
+            accessibilityLabel: arrowLabel
         ) {
             handleContinueTap()
         }
@@ -470,15 +673,34 @@ public struct OnboardingFlowView: View {
     }
     
     // MARK: - 6. Persistent Sprite Layer
-    private func persistentSpriteLayer(w: CGFloat, h: CGFloat) -> some View {
-        let color = activeSprite.color(for: colorScheme)
-        
+    /// Integrations / Sync sprite placement: full dome and both eyes visible, eyes end at least
+    /// max(20% of the sprite height, home-indicator inset + 6pt) above the screen edge; only the lower body is cropped.
+    private func stageSpriteGeometry(h: CGFloat, topInset: CGFloat) -> (side: CGFloat, centerY: CGFloat, crop: CGFloat, headTop: CGFloat) {
+        let eye = SpriteMorphSampler.eyes(for: activeSprite)
+        let eyeFrac = (eye.left.y + eye.ry) / 100
+        let bottomInset = safeInsets.bottom
+        func visible(_ side: CGFloat) -> CGFloat { eyeFrac * side + max(0.2 * side, bottomInset + 6) }
+        // Space left under the Integrations content (top block + arrow slot + "Connected" label) for
+        // juggle band (~104) + 8 gap above the label + 16 gap above the head: the sprite takes whatever fits.
+        let available = h - (topInset + 430) - 88 - 22 - 136 - 8
+        var side: CGFloat = 140
+        while side < 250 && visible(side + 2) <= available { side += 2 }
+        let vis = min(visible(side), side)
+        return (side, h - vis + side / 2, vis / side, h - vis)
+    }
+    
+    private func persistentSpriteLayer(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
+        let stage = stageSpriteGeometry(h: h, topInset: topInset)
         // Sprite geometry computation per step
-        let spriteW: CGFloat = (currentStep == .profile) ? min(w * 0.72, 300) : 220
-        let spriteH: CGFloat = (currentStep == .profile) ? spriteW * 0.88 : 140
+        let intentSlot: CGRect? = isIntentStep ? slots[.sprite(currentStep)] : nil
+        let intentSide: CGFloat = intentSlot.map { min($0.width, $0.height) } ?? 0
+        let spriteW: CGFloat = isIntentStep ? intentSide : ((currentStep == .profile) ? min(w * 0.72, 300) : max(220, stage.side * 1.6))
+        let spriteH: CGFloat = isIntentStep ? intentSide : ((currentStep == .profile) ? spriteW * 0.88 : stage.side)
         
         let spriteX: CGFloat = {
             switch currentStep {
+            case .intro, .quiz, .talk, .reveal:
+                return intentSlot?.midX ?? w * 0.50
             case .signIn:
                 return w * 0.50
             case .profile:
@@ -490,25 +712,28 @@ public struct OnboardingFlowView: View {
                     return w * 0.50
                 }
                 let centeredX = w * 0.50
-                let shiftedX = w * 0.72
+                let shiftedX = min(w * 0.72, w - stage.side / 2 - 12)
                 return centeredX + (shiftedX - centeredX) * spriteSlideProgress
             }
         }()
         
         let spriteY: CGFloat = {
             switch currentStep {
+            case .intro, .quiz, .talk, .reveal:
+                return intentSlot?.midY ?? (h + 220)
             case .signIn:
                 return h + 220
             case .profile:
-                return h - spriteH * 0.08
+                // Eyes of every family stay above the home-indicator area; only the lower body is cropped.
+                return h - spriteH * 0.08 - profileSpriteLift(w: w, h: h)
             case .integrations:
-                return h - spriteH * 0.02
+                return stage.centerY
             case .syncing, .complete:
                 if currentSyncBeat == .beat0Handoff {
-                    return h - spriteH * 0.02
+                    return stage.centerY
                 }
-                let startY = h - spriteH * 0.40
-                let endY = h - spriteH * 0.06
+                let startY = stage.centerY + spriteH * 0.34
+                let endY = stage.centerY
                 return startY + (endY - startY) * spriteSlideProgress
             }
         }()
@@ -516,9 +741,12 @@ public struct OnboardingFlowView: View {
         let spriteOpacity: Double = {
             if currentStep == .signIn { return 0.0 }
             if currentStep == .profile && isTyping { return 0.0 }
+            if isIntentStep && intentSlot == nil { return 0.0 }
+            if Self.isStageStep(currentStep) && !spriteLanded { return 0.0 }
             return 1.0
         }()
-        let showsArms: Bool = (currentStep != .profile && currentStep != .signIn)
+        let showsArms: Bool = (currentStep == .integrations)
+        let stageHidden = Self.isStageStep(currentStep) && !spriteLanded
         
         // Arm poses
         let (armL, armR) = calculateArmPoses(totalOrbs: juggleItems.count)
@@ -527,35 +755,36 @@ public struct OnboardingFlowView: View {
             if currentStep == .syncing || currentStep == .complete {
                 if currentSyncBeat == .beat1BigToss {
                     // Big toss: both arms push high
-                    SpriteArmShape(pose: 1.0, isLeft: true, sprite: activeSprite)
-                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW, height: spriteH)
+                    SpriteArmShape(pose: 1.0, isLeft: true, sprite: activeSprite, crop: stage.crop)
+                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(stage.side * 0.085, 9), lineCap: .round, lineJoin: .round))
+                        .frame(width: min(spriteW, spriteH), height: min(spriteW, spriteH))
                     
-                    SpriteArmShape(pose: 1.0, isLeft: false, sprite: activeSprite)
-                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW, height: spriteH)
+                    SpriteArmShape(pose: 1.0, isLeft: false, sprite: activeSprite, crop: stage.crop)
+                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(stage.side * 0.085, 9), lineCap: .round, lineJoin: .round))
+                        .frame(width: min(spriteW, spriteH), height: min(spriteW, spriteH))
                 } else if currentSyncBeat >= .beat2Gathering {
                     // Beats 2-4: left arm resting -> bicep flex
-                    SpriteFlexArmShape(flexProgress: leftArmFlexProgress, sprite: activeSprite)
-                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW, height: spriteH)
+                    SpriteFlexArmShape(flexProgress: leftArmFlexProgress, sprite: activeSprite, crop: stage.crop)
+                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(stage.side * 0.085, 9), lineCap: .round, lineJoin: .round))
+                        .frame(width: min(spriteW, spriteH), height: min(spriteW, spriteH))
                 }
             } else if showsArms {
                 // Juggling arms in Step 3 (Integrations) & Beat 0
-                SpriteArmShape(pose: armL, isLeft: true, sprite: activeSprite)
-                    .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                    .frame(width: spriteW, height: spriteH)
+                SpriteArmShape(pose: armL, isLeft: true, sprite: activeSprite, crop: stage.crop)
+                    .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(stage.side * 0.085, 9), lineCap: .round, lineJoin: .round))
+                    .frame(width: min(spriteW, spriteH), height: min(spriteW, spriteH))
                 
-                SpriteArmShape(pose: armR, isLeft: false, sprite: activeSprite)
-                    .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
-                    .frame(width: spriteW, height: spriteH)
+                SpriteArmShape(pose: armR, isLeft: false, sprite: activeSprite, crop: stage.crop)
+                    .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(stage.side * 0.085, 9), lineCap: .round, lineJoin: .round))
+                    .frame(width: min(spriteW, spriteH), height: min(spriteW, spriteH))
             }
             
-            // Central Vector Sprite Body with Dual-Layer Eyes
-            SpriteView(
-                sprite: activeSprite,
+            // Central morphing sprite (single instance for the entire flow)
+            MorphingSpriteView(
+                family: spriteFamily,
                 isBlinking: isSpriteBlinking || isDoubleBlinking,
-                showsArms: false
+                eyeStyle: isListening ? .listening : .open,
+                breathing: isListening
             )
             .frame(width: spriteW, height: spriteH)
             .scaleEffect(spriteTapBounce ? 0.94 : 1.0, anchor: .bottom)
@@ -565,6 +794,8 @@ public struct OnboardingFlowView: View {
                     selectCurrentSpriteForAvatar()
                 } else if currentStep == .integrations {
                     triggerFumble()
+                } else if currentStep == .reveal {
+                    cycleRevealedFamily()
                 }
             }
             .gesture(
@@ -602,11 +833,16 @@ public struct OnboardingFlowView: View {
         .frame(width: spriteW, height: spriteH)
         .position(x: spriteX, y: spriteY)
         .opacity(spriteOpacity)
-        .allowsHitTesting((currentStep == .profile && !isTyping) || currentStep == .integrations)
+        .allowsHitTesting((currentStep == .profile && !isTyping) || currentStep == .integrations || currentStep == .reveal)
         .animation(BranchMotion.sharedSpring, value: currentStep)
         .animation(BranchMotion.sharedSpring, value: isTyping)
         .animation(BranchMotion.sharedSpring, value: spriteSlideProgress)
         .animation(BranchMotion.quickSpring, value: spriteTapBounce)
+        // Outermost on purpose: the sprite vanishes at once when it has to travel into the stage (it never sweeps
+        // over the arrow, and arms never show detached), then fades in at the destination.
+        .transaction { t in
+            if stageHidden { t.animation = nil; t.disablesAnimations = true }
+        }
     }
     
     // MARK: - STEP CONTENT 1: Sign-In
@@ -641,7 +877,7 @@ public struct OnboardingFlowView: View {
             
             // Profile Step Arrow Slot: between full name and "Sprite Selection"
             let nameBottomY = hubY + 80
-            let slotBottomY = isTyping ? (h - effectiveKeyboardHeight) : (h - 174)
+            let slotBottomY = isTyping ? (h - effectiveKeyboardHeight) : (h - 174 - profileSpriteLift(w: w, h: h))
             let slotHeight = max(slotBottomY - nameBottomY, 104)
             let slotCenterY = (nameBottomY + slotBottomY) / 2
             
@@ -663,7 +899,7 @@ public struct OnboardingFlowView: View {
                 Text("Sprite Selection")
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(Color.secondary.opacity(0.8))
-                    .padding(.bottom, 160)
+                    .padding(.bottom, 160 + profileSpriteLift(w: w, h: h))
             }
             .frame(width: w, height: h)
             .opacity(isTyping ? 0.0 : 1.0)
@@ -893,7 +1129,7 @@ public struct OnboardingFlowView: View {
     // MARK: - STEP CONTENT 3: Integrations
     private func integrationsStepContent(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: topInset + UsernameBanner.bannerHeight + 36 + (h < 700 ? 4 : 8))
+            Spacer().frame(height: topInset + UsernameBanner.bannerHeight + 36 + 4)
             
             // Search underline field
             VStack(spacing: 6) {
@@ -927,7 +1163,6 @@ public struct OnboardingFlowView: View {
                     .frame(height: 1)
             }
             .padding(.horizontal, 26)
-            .padding(.top, 4)
             
             // Guidance Copy
             HStack(spacing: 0) {
@@ -943,7 +1178,7 @@ public struct OnboardingFlowView: View {
                 Spacer()
             }
             .padding(.horizontal, 26)
-            .padding(.top, 10)
+            .padding(.top, 6)
             
             // "Supported" label
             Text("Supported")
@@ -951,15 +1186,15 @@ public struct OnboardingFlowView: View {
                 .foregroundStyle(colorScheme == .dark ? Color(white: 0.65) : Color(white: 0.45))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 26)
-                .padding(.top, 10)
-                .padding(.bottom, 6)
+                .padding(.top, 6)
+                .padding(.bottom, 4)
             
             // Paged Grid (13 supported items)
             integrationsGridArea(h: h)
             
             // Arrow Slot: Between page dots and "Connected"
             // Has minimum height of arrow size (56) + 24pt above + 24pt below = 104pt
-            ArrowSlotView(minHeight: 104)
+            ArrowSlotView(minHeight: 88)
             
             // "Connected" label
             Text("Connected")
@@ -967,13 +1202,19 @@ public struct OnboardingFlowView: View {
                 .foregroundStyle(colorScheme == .dark ? Color(white: 0.65) : Color(white: 0.45))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 26)
-                .padding(.bottom, h < 700 ? 6 : 12)
             
-            // Juggling stage space (orbs rendered in juggle loop)
-            juggleOrbsOverlay(w: w, h: h < 700 ? 125 : 165)
-                .frame(height: h < 700 ? 125 : 165)
+            // Fixed reserve under the label: juggle band + gaps + the visible sprite. The arrow slot absorbs the slack.
+            Color.clear.frame(height: h - stageSpriteGeometry(h: h, topInset: topInset).headTop + 136)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: .top) {
+            // Juggling stage: orbs bottom out 24pt above the head; stage height 140 (orbs span about -121...-11 from its centre).
+            let headTop = stageSpriteGeometry(h: h, topInset: topInset).headTop
+            juggleOrbsOverlay(w: w, h: 140)
+                .frame(width: w, height: 140)
+                .position(x: w / 2, y: headTop - 24 + 11 - 0)
+                .allowsHitTesting(false)
+        }
     }
     
     @ViewBuilder
@@ -981,7 +1222,7 @@ public struct OnboardingFlowView: View {
         let items = filteredIntegrations
         let p1 = Array(items.prefix(12))
         let p2 = Array(items.dropFirst(12))
-        let gridH: CGFloat = (h < 700 ? 218 : 236)
+        let gridH: CGFloat = 214
         
         if items.isEmpty {
             VStack {
@@ -1001,7 +1242,8 @@ public struct OnboardingFlowView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: gridH)
+                .frame(height: gridH + 26)   // +26 room for the orb shadow inside the paged clip
+                .padding(.bottom, -26)       // net layout height unchanged
                 
                 HStack(spacing: 6) {
                     Circle()
@@ -1038,6 +1280,8 @@ public struct OnboardingFlowView: View {
             }
         }
         .padding(.horizontal, 26)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.bottom, 26)
     }
     
     private func orbItemView(for item: Integration) -> some View {
@@ -1068,8 +1312,9 @@ public struct OnboardingFlowView: View {
                 )
                 
                 orbItemVisual(for: item)
-                    .offset(offset)
+                    // Rotate in place, then offset: the other order swings the orb around the stage centre.
                     .rotationEffect(.degrees(rotation))
+                    .offset(offset)
             }
         }
         .frame(width: w, height: h)
@@ -1088,7 +1333,8 @@ public struct OnboardingFlowView: View {
                     .font(.system(size: 17, weight: .regular, design: .rounded))
                     .foregroundStyle(Color.primary)
                     .multilineTextAlignment(.center)
-                    .position(x: w * 0.50, y: hubCenter.y - hubRadius - 62)
+                    // Upper area: >=48pt above the highest orb (orbit radius up to 160 + orb radius 31)
+                    .position(x: w * 0.50, y: hubCenter.y - 160 - 31 - 48 - 12)
                     .transition(.opacity)
                     .id(statusCopyText)
             }
@@ -1224,16 +1470,8 @@ public struct OnboardingFlowView: View {
     private func orbItemVisual(for item: JuggleItem) -> some View {
         ZStack {
             Circle()
-                .fill(colorScheme == .dark ? Color(white: 0.22) : Color.white)
-                .overlay(
-                    Circle()
-                        .stroke(
-                            colorScheme == .dark
-                            ? Color.white.opacity(0.14)
-                            : Color.black.opacity(0.07),
-                            lineWidth: 1
-                        )
-                )
+                .fill(Color.white)
+                .overlay(Circle().stroke(Color.black.opacity(0.06), lineWidth: 1))
                 .shadow(
                     color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.15),
                     radius: 5,
@@ -1261,11 +1499,11 @@ public struct OnboardingFlowView: View {
                 }
             case .integration(let integration):
                 if let image = resolveLogoImage(for: integration) {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 22, height: 22)
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    IntegrationLogoBadge(
+                        image: image,
+                        isOpaqueTile: IntegrationLogoBadge.isOpaqueTile(named: integration.logoAssetName),
+                        diameter: 30
+                    )
                 } else {
                     Text(integration.initial)
                         .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -1331,13 +1569,16 @@ public struct OnboardingFlowView: View {
             return (CGSize(width: x, height: y + fumbleDrop), tilt + fumbleTilt)
         }
         
+        // Cascade: every orb owns a lane at least 52pt wide (orbs are 44pt), so no two orbs can overlap at
+        // any count; a hop travels across the lanes like a wave while each orb sways a few points.
         let period = 1.6
-        let phase = Double(index) * (2 * .pi / Double(total))
-        let angle = (time * (2 * .pi / period) + phase).truncatingRemainder(dividingBy: 2 * .pi)
-        let arcWidth = min(width * 0.28, 82)
-        let x = sin(angle) * arcWidth
-        let y = (baseHandY - 14) - cos(angle * 2) * 18 + (cos(angle) > 0 ? 6 : -6)
-        let tilt = sin(angle) * 10
+        let spacing = min(54, (width - 72) / CGFloat(max(total - 1, 1)))
+        let laneX = (CGFloat(index) - CGFloat(total - 1) / 2) * spacing
+        let angle = (time * (2 * .pi / period)) - Double(index) * (2 * .pi / Double(total))
+        let hop = (1 - cos(angle)) / 2            // 0...1
+        let x = laneX + CGFloat(sin(angle)) * 3
+        let y = (baseHandY + 4) - CGFloat(hop) * 34
+        let tilt = sin(angle) * 9
         return (CGSize(width: x, height: y + fumbleDrop), tilt + fumbleTilt)
     }
     
@@ -1401,18 +1642,12 @@ public struct OnboardingFlowView: View {
             }
             .prefix(5)
         
-        if items.isEmpty {
-            return []
-        }
+        // The "Connected" area is never empty: with nothing connected the sprite juggles the single avatar orb.
         let avatarOrb = JuggleItem.avatar(store.profile, activeSprite)
         return [avatarOrb] + items.map { .integration($0) }
     }
     
     private var syncOrbsList: [JuggleItem] {
-        if juggleItems.isEmpty {
-            let avatarOrb = JuggleItem.avatar(store.profile, activeSprite)
-            return [avatarOrb]
-        }
         return juggleItems
     }
     
@@ -1450,8 +1685,16 @@ public struct OnboardingFlowView: View {
             )
             #endif
             withAnimation(BranchMotion.sharedSpring) {
-                currentStep = .integrations
+                currentStep = .intro
             }
+        case .intro:
+            startQuiz()
+        case .quiz:
+            advanceQuiz()
+        case .talk:
+            finishWriting()
+        case .reveal:
+            finishReveal()
         case .integrations:
             store.completeIntegrationsStep()
             withAnimation(BranchMotion.sharedSpring) {
@@ -1466,6 +1709,15 @@ public struct OnboardingFlowView: View {
     private func handleStepChange(from oldStep: OnboardingStep, to newStep: OnboardingStep) {
         if newStep == .syncing {
             startSyncSequence()
+        }
+        if oldStep == .talk && newStep != .talk {
+            talkTask?.cancel()
+        }
+        if oldStep == .quiz && newStep != .quiz {
+            quizAdvanceTask?.cancel()
+        }
+        if newStep == .reveal {
+            celebrateReveal()
         }
     }
     
@@ -1557,7 +1809,391 @@ public struct OnboardingFlowView: View {
         }
     }
     
+    // MARK: - Intent Steps (Intro / Quiz / Talk / Reveal)
+    private var isIntentStep: Bool {
+        switch currentStep {
+        case .intro, .quiz, .talk, .reveal: return true
+        default: return false
+        }
+    }
+    
+    private var showsPersistentArrow: Bool {
+        switch currentStep {
+        case .profile, .integrations, .intro, .quiz, .reveal: return true
+        case .talk: return talkPhase == .writing
+        default: return false
+        }
+    }
+    
+    private var firstName: String? {
+        let trimmed = fullName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let first = trimmed.split(whereSeparator: { $0.isWhitespace }).first else { return nil }
+        return String(first)
+    }
+    
+    private var bannerVisible: Bool {
+        let displayNickname = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Banner shows only on Profile, Integrations and Sync; hidden on signIn and the intent steps (no reserved height there).
+        let showsOnStep: Bool = { switch currentStep { case .profile, .integrations, .syncing, .complete: return true; default: return false } }()
+        return showsOnStep && !displayNickname.isEmpty && !store.isGuest
+    }
+    
+    private var bannerHeightNow: CGFloat {
+        bannerVisible ? UsernameBanner.bannerHeight : 0
+    }
+    
+    private func intentContentTop(topInset: CGFloat) -> CGFloat {
+        topInset + bannerHeightNow + 36 + 8
+    }
+    
+    private var stepTransition: AnyTransition {
+        // Outgoing content clears fast; incoming waits a beat, so two screens of full-weight text never overlap.
+        .asymmetric(
+            insertion: AnyTransition.opacity.combined(with: .offset(y: navigatingBack ? -24 : 24))
+                .animation(BranchMotion.sharedSpring.delay(0.1)),
+            removal: AnyTransition.opacity.combined(with: .offset(y: navigatingBack ? 24 : -24))
+                .animation(.easeOut(duration: 0.12))
+        )
+    }
+    
+    /// The family the persistent sprite wears. `nil` means shapeless (cycling).
+    private var spriteFamily: BranchSprite? {
+        switch currentStep {
+        case .intro, .talk:
+            return nil
+        case .quiz:
+            guard quizSelections.indices.contains(quizIndex),
+                  let sel = quizSelections[quizIndex] else { return nil }
+            return QuizContent.questions[quizIndex].answers[sel].family.sprite
+        case .reveal:
+            return revealedFamily.sprite
+        default:
+            return activeSprite
+        }
+    }
+    
+    private var isListening: Bool {
+        currentStep == .talk && (talkPhase == .speaking || talkPhase == .writing)
+    }
+    
+    /// Stores the reported slot frames. A change in which slots exist (new step or phase) or in a slot's
+    /// size springs; a pure position change (scrolling) follows the content without lag.
+    private func applySlots(_ newSlots: [OnboardingSlot: CGRect]) {
+        let sameKeys = Set(newSlots.keys) == Set(slots.keys)
+        let sizeChanged = newSlots.contains { key, frame in
+            guard let old = slots[key] else { return false }
+            return abs(old.width - frame.width) > 0.5 || abs(old.height - frame.height) > 0.5
+        }
+        if sameKeys && !sizeChanged {
+            var t = Transaction()
+            t.disablesAnimations = true
+            withTransaction(t) { slots = newSlots }
+        } else {
+            withAnimation(BranchMotion.sharedSpring) { slots = newSlots }
+        }
+    }
+    
+    private func handleTopRightTap() {
+        switch currentStep {
+        case .intro, .quiz:
+            skipIntent()
+        default:
+            handleContinueTap()
+        }
+    }
+    
+    private func skipIntent() {
+        quizAdvanceTask?.cancel()
+        withAnimation(BranchMotion.sharedSpring) {
+            currentStep = .integrations
+        }
+    }
+    
+    /// Backward moves use the mirrored transition: the flag is set one tick ahead so the departing view picks it up.
+    private func navigate(to step: OnboardingStep, backward: Bool) {
+        navigatingBack = backward
+        DispatchQueue.main.async {
+            withAnimation(BranchMotion.sharedSpring) {
+                currentStep = step
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                navigatingBack = false
+            }
+        }
+    }
+    
+    private func goBack() {
+        switch currentStep {
+        case .quiz:
+            quizAdvanceTask?.cancel()
+            if quizIndex > 0 {
+                navigatingBack = true
+                DispatchQueue.main.async {
+                    withAnimation(BranchMotion.sharedSpring) { quizIndex -= 1 }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { navigatingBack = false }
+                }
+            } else {
+                navigate(to: .intro, backward: true)
+            }
+        case .talk:
+            talkTask?.cancel()
+            navigate(to: .intro, backward: true)
+        case .reveal:
+            if cameFromTalk {
+                resetTalk()
+                navigate(to: .talk, backward: true)
+            } else {
+                quizIndex = 2
+                navigate(to: .quiz, backward: true)
+            }
+        default:
+            break
+        }
+    }
+    
+    // MARK: Quiz
+    private func startQuiz() {
+        quizIndex = 0
+        cameFromTalk = false
+        withAnimation(BranchMotion.sharedSpring) {
+            currentStep = .quiz
+        }
+    }
+    
+    private func selectQuizAnswer(_ answer: Int) {
+        guard quizSelections.indices.contains(quizIndex) else { return }
+        triggerSelectionFeedback()
+        withAnimation(BranchMotion.quickSpring) {
+            quizSelections[quizIndex] = answer
+        }
+        quizAdvanceTask?.cancel()
+        guard !reduceMotion else { return }
+        let questionAtTap = quizIndex
+        quizAdvanceTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            guard !Task.isCancelled, currentStep == .quiz, quizIndex == questionAtTap else { return }
+            advanceQuiz()
+        }
+    }
+    
+    private func advanceQuiz() {
+        quizAdvanceTask?.cancel()
+        guard quizSelections.indices.contains(quizIndex), quizSelections[quizIndex] != nil else { return }
+        if quizIndex < QuizContent.questions.count - 1 {
+            navigatingBack = false
+            withAnimation(BranchMotion.sharedSpring) { quizIndex += 1 }
+        } else {
+            cameFromTalk = false
+            revealedFamily = QuizContent.result(for: quizSelections)
+            store.saveIntent(answers: QuizContent.families(for: quizSelections), revealed: revealedFamily)
+            withAnimation(BranchMotion.sharedSpring) { currentStep = .reveal }
+        }
+    }
+    
+    // MARK: Talk it through (simulated; no microphone is used)
+    private func openTalk() {
+        resetTalk()
+        withAnimation(BranchMotion.sharedSpring) { currentStep = .talk }
+    }
+    
+    private func resetTalk() {
+        talkTask?.cancel()
+        talkPhase = .ready
+        talkElapsed = 0
+        talkShownLines = 0
+        talkFrozen = false
+    }
+    
+    private func toggleTalk() {
+        switch talkPhase {
+        case .ready:
+            talkElapsed = 0
+            talkShownLines = 0
+            withAnimation(BranchMotion.sharedSpring) { talkPhase = .speaking }
+            startTalkClock()
+        case .speaking:
+            finishTalk(family: TalkScript.family)
+        case .writing:
+            break
+        }
+    }
+    
+    private func startTalkClock() {
+        talkTask?.cancel()
+        talkTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 100_000_000)
+                guard !Task.isCancelled, talkPhase == .speaking else { return }
+                talkElapsed += 0.1 * TalkScript.speed
+                let due = talkElapsed >= 2 ? min(TalkScript.lines.count, Int((talkElapsed - 2) / TalkScript.lineInterval) + 1) : 0
+                if due > talkShownLines {
+                    talkShownLines = due
+                    announceTalkLine(TalkScript.lines[due - 1])
+                }
+                if talkElapsed >= TalkScript.totalSeconds {
+                    // The script has ended (last line + a short pause): move on by itself.
+                    finishTalk(family: TalkScript.family)
+                    return
+                }
+            }
+        }
+    }
+    
+    private func announceTalkLine(_ line: String) {
+        var text = AttributedString(line)
+        text.accessibilitySpeechAnnouncementPriority = .low
+        AccessibilityNotification.Announcement(text).post()
+    }
+    
+    private func enterWriting() {
+        talkTask?.cancel()
+        withAnimation(BranchMotion.sharedSpring) { talkPhase = .writing }
+    }
+    
+    private func leaveWriting() {
+        resetTalk()
+    }
+    
+    private func finishWriting() {
+        guard !talkText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        finishTalk(family: TalkScript.family(forWritten: talkText))
+    }
+    
+    private func finishTalk(family: ThinkingFamily) {
+        talkTask?.cancel()
+        cameFromTalk = true
+        revealedFamily = family
+        store.saveIntent(answers: [family], revealed: family)
+        withAnimation(BranchMotion.sharedSpring) { currentStep = .reveal }
+    }
+    
+    // MARK: Reveal
+    private func celebrateReveal() {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            guard currentStep == .reveal else { return }
+            triggerSuccessFeedback()
+            triggerDoubleBlink()
+        }
+    }
+    
+    private func cycleRevealedFamily() {
+        let all = ThinkingFamily.allCases
+        let next = all[((all.firstIndex(of: revealedFamily) ?? 0) + 1) % all.count]
+        triggerSelectionFeedback()
+        withAnimation(BranchMotion.quickSpring) { revealedFamily = next }
+    }
+    
+    private func finishReveal() {
+        activeSprite = revealedFamily.sprite
+        // The Profile sprite is written only when the user commits on Reveal, not on every cycle.
+        store.saveIntent(answers: store.quizAnswers, revealed: revealedFamily, updatesProfile: true)
+        withAnimation(BranchMotion.sharedSpring) { currentStep = .integrations }
+    }
+    
+    // MARK: Scripted autoplay (-autoplayOnboarding quiz|talk|skip)
+    private func startAutoplayIfRequested() {
+        let args = CommandLine.arguments
+        guard let flag = args.firstIndex(of: "-autoplayOnboarding"), args.indices.contains(flag + 1) else { return }
+        let mode = args[flag + 1]
+        guard ["quiz", "talk", "skip"].contains(mode), autoplayTask == nil else { return }
+        
+        func pause(_ seconds: Double) async {
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+        }
+        
+        autoplayTask = Task { @MainActor in
+            if currentStep == .signIn {
+                await pause(1.6)
+                guard !Task.isCancelled else { return }
+                store.signIn(provider: .apple)
+                await pause(1.4)
+            }
+            if currentStep == .profile {
+                fullName = "Cash Palacio"
+                nickname = "cashp"
+                nicknameStatus = .available
+                withAnimation(BranchMotion.sharedSpring) {
+                    activeSprite = .prism
+                    hasSelectedAvatar = true
+                }
+                await pause(1.6)
+                guard !Task.isCancelled else { return }
+                handleContinueTap()
+            }
+            await pause(2.8)
+            guard !Task.isCancelled, currentStep == .intro else { return }
+            
+            switch mode {
+            case "skip":
+                skipIntent()
+            case "talk":
+                openTalk()
+                await pause(1.6)
+                toggleTalk()
+                while currentStep == .talk && !Task.isCancelled { await pause(0.3) }
+            default:
+                startQuiz()
+                for (q, pick) in [0, 0, 1].enumerated() {
+                    await pause(1.3)
+                    guard !Task.isCancelled, currentStep == .quiz, quizIndex == q else { return }
+                    selectQuizAnswer(pick)
+                    await pause(1.0)
+                    // Reduce Motion disables the tap auto-advance; the script advances explicitly.
+                    if reduceMotion, currentStep == .quiz, quizIndex == q { advanceQuiz() }
+                }
+            }
+            
+            if mode != "skip" {
+                await pause(2.0)
+                guard !Task.isCancelled, currentStep == .reveal else { return }
+                cycleRevealedFamily()
+                await pause(1.4)
+                cycleRevealedFamily()
+                await pause(1.4)
+                cycleRevealedFamily()
+                await pause(1.4)
+                cycleRevealedFamily()
+                await pause(1.6)
+                finishReveal()
+            }
+            
+            await pause(1.8)
+            guard !Task.isCancelled, currentStep == .integrations else { return }
+            for id in ["github", "pinterest", "printables"] where Integration.allSupported.contains(where: { $0.id == id }) {
+                if let item = Integration.allSupported.first(where: { $0.id == id }) {
+                    handleOrbTap(for: item)
+                }
+                await pause(1.2)
+            }
+            await pause(0.8)
+            handleContinueTap()
+            while currentSyncBeat != .beat4Complete && !Task.isCancelled { await pause(0.3) }
+            await pause(1.5)
+            handleContinueTap()
+        }
+    }
+    
     // MARK: - Helpers
+    private static func isStageStep(_ step: OnboardingStep) -> Bool {
+        step == .integrations || step == .syncing || step == .complete
+    }
+    
+    private func updateSpriteLanding(to step: OnboardingStep) {
+        landingTask?.cancel()
+        guard Self.isStageStep(step) else {
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { spriteLanded = false }
+            return
+        }
+        guard !spriteLanded else { return }
+        landingTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 480_000_000)
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.30)) { spriteLanded = true }
+        }
+    }
+    
     private func initializeFlow() {
         if let existing = store.profile {
             self.fullName = existing.fullName

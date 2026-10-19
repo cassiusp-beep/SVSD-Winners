@@ -95,7 +95,6 @@ public struct TakeawaysContributionGridView: View {
     
     @State private var replayProgressColumns: Int = 0
     @State private var isReplayDone: Bool = false
-    @State private var spriteNodOffsets: [CGFloat] = [0, 0, 0, 0]
     
     public init(
         rows: [AgentGridRow],
@@ -120,10 +119,7 @@ public struct TakeawaysContributionGridView: View {
     }
     
     public var body: some View {
-        TimelineView(.animation(paused: reduceMotion || !isReplayDone)) { timeline in
-            let currentTime = timeline.date.timeIntervalSinceReferenceDate
-            let waveHead = (currentTime / ContributionGridConstants.waveDuration).truncatingRemainder(dividingBy: 1.0)
-            
+        Group {
             VStack(alignment: .leading, spacing: 10) {
                 // Main Grid Layout: Pinned left agent column + horizontally scrolling cells
                 HStack(alignment: .top, spacing: 12) {
@@ -134,7 +130,6 @@ public struct TakeawaysContributionGridView: View {
                             HStack(spacing: 8) {
                                 SpriteView(sprite: row.sprite, isBlinking: false, showsArms: false)
                                     .frame(width: 28, height: 28)
-                                    .offset(y: spriteNodOffsets.indices.contains(rowIndex) ? spriteNodOffsets[rowIndex] : 0)
                                 
                                 Text(row.name)
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -160,8 +155,7 @@ public struct TakeawaysContributionGridView: View {
                                             cell: cell,
                                             sprite: row.sprite,
                                             colIndex: colIndex,
-                                            isVisible: isVisible,
-                                            waveHead: waveHead
+                                            isVisible: isVisible
                                         )
                                     }
                                 }
@@ -202,8 +196,7 @@ public struct TakeawaysContributionGridView: View {
         cell: ContributionCellContext?,
         sprite: BranchSprite,
         colIndex: Int,
-        isVisible: Bool,
-        waveHead: Double
+        isVisible: Bool
     ) -> some View {
         let actionCount = cell?.actions.values.reduce(0, +) ?? 0
         let isActive = actionCount > 0
@@ -216,19 +209,6 @@ public struct TakeawaysContributionGridView: View {
             case 3: return 0.80
             default: return 1.00
             }
-        }()
-        
-        // Wave brightness lift: subtle 10-15% passing sweep over active cells
-        let waveLift: Double = {
-            guard isReplayDone, !reduceMotion, isActive else { return 0.0 }
-            let normalizedCol = Double(colIndex) / Double(max(1, totalColumns - 1))
-            let dist = abs(normalizedCol - waveHead)
-            let wrappedDist = min(dist, 1.0 - dist)
-            if wrappedDist < ContributionGridConstants.waveWidth {
-                let factor = cos(wrappedDist / ContributionGridConstants.waveWidth * (.pi / 2.0))
-                return factor * ContributionGridConstants.waveBrightnessLift
-            }
-            return 0.0
         }()
         
         let emptyColor = colorScheme == .dark
@@ -244,7 +224,7 @@ public struct TakeawaysContributionGridView: View {
             if isActive {
                 RoundedRectangle(cornerRadius: ContributionGridConstants.cellCornerRadius, style: .continuous)
                     .fill(sprite.takeawayGradient(for: colorScheme))
-                    .opacity(min(1.0, intensityOpacity + waveLift))
+                    .opacity(min(1.0, intensityOpacity))
             }
         }
         .frame(width: ContributionGridConstants.cellSize, height: ContributionGridConstants.cellSize)
@@ -277,7 +257,6 @@ public struct TakeawaysContributionGridView: View {
         
         replayProgressColumns = 0
         isReplayDone = false
-        spriteNodOffsets = [0, 0, 0, 0]
         
         let totalDuration: Double = 1.2
         let stepInterval = totalDuration / Double(max(1, totalColumns))
@@ -290,25 +269,8 @@ public struct TakeawaysContributionGridView: View {
             }
         }
         
-        // After grid completes, trigger staggered Agree gesture for the 4 pinned sprites
         DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration + 0.05) {
             self.isReplayDone = true
-            for (idx, _) in self.rows.enumerated() {
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.15) {
-                    withAnimation(.spring(response: 0.25, dampingFraction: 0.50)) {
-                        if self.spriteNodOffsets.indices.contains(idx) {
-                            self.spriteNodOffsets[idx] = 4.0
-                        }
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.70)) {
-                            if self.spriteNodOffsets.indices.contains(idx) {
-                                self.spriteNodOffsets[idx] = 0.0
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

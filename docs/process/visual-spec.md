@@ -2,6 +2,19 @@
 
 **Historical prototype reference · 18 October 2026:** the document below describes the earlier creative-exchange concept and is preserved for design history. Read [current context](../../CONTEXT.md) and the [team-first product definition](../../docs/context/product-definition.md) before new design/build work. Inherited “primary source,” screen and interaction requirements below do not override that direction. The live team experience remains proposed, not implemented or validated by this sync.
 
+## Current iOS app rules · 19 October 2026
+
+The native iOS prototype (`BranchiOS/`) follows these rules. Full text: [.agents/rules/swiftui-ios.md](../../.agents/rules/swiftui-ios.md). Decisions: [DECISIONS.md](../../DECISIONS.md), Decisions 014 to 019.
+
+- **Background.** Main tabs are plain white or black. The Welcome wash (warm off-white with lavender and sage glows, dimmed in dark mode) runs behind every onboarding step from Welcome through Sync, and fades out when onboarding ends.
+- **Safe area.** Only background layers ignore it. Controls stay inside it. The shared header sits 12 pt below the top inset.
+- **Accent.** The selected tab uses the user's family colour, at least 3:1 in both modes.
+- **One moment.** Each screen gets one arrival motion, then only ambient motion.
+- **Logo.** The SVG wordmark and mark in `docs/references/brand/` are the source of truth.
+- **Takeaways.** Grid with no sprites. Agent colour, frosted slabs, and artifact callouts.
+
+The "Night Lab" palette and sections below describe the earlier web prototype unless a section says otherwise.
+
 Source for product decisions: `docs/context/conceptual-model.md`. An empty section means it has not been decided yet. Agents should propose an option, label it provisional and flag it for the team rather than treat a guess as the spec.
 
 ## Platform and viewports

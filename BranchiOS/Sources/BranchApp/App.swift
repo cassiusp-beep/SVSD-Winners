@@ -14,7 +14,9 @@ struct BranchApp: App {
     
     @ViewBuilder
     private var rootView: some View {
-        if CommandLine.arguments.contains("-signIn") {
+        if CommandLine.arguments.contains("-logoSheet") {
+            LogoSheetView()
+        } else if CommandLine.arguments.contains("-signIn") {
             SignInView(store: DemoStore())
         } else if CommandLine.arguments.contains("-onboardingProfileEmpty") {
             OnboardingFlowView(store: emptySessionStore, initialStep: .profile)
@@ -24,10 +26,19 @@ struct BranchApp: App {
             OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
         } else if CommandLine.arguments.contains("-onboardingProfileFilled") || CommandLine.arguments.contains("-onboardingProfile") {
             OnboardingFlowView(store: mockFilledStore, initialStep: .profile)
+        } else if let intentStep = intentLaunchStep {
+            OnboardingFlowView(store: intentStore, initialStep: intentStep)
         } else if CommandLine.arguments.contains("-onboardingIntegrations") {
-            OnboardingFlowView(store: mockFilledStore, initialStep: .integrations)
+            OnboardingFlowView(
+                store: CommandLine.arguments.contains("-integrationsConnected") ? mockConnectedStore : mockFilledStore,
+                initialStep: .integrations
+            )
         } else if CommandLine.arguments.contains("-onboardingSyncing") {
-            OnboardingFlowView(store: mockConnectedStore, initialStep: .syncing)
+            OnboardingFlowView(
+                store: mockConnectedStore,
+                initialStep: .syncing,
+                startFromSyncBeat: CommandLine.arguments.contains("-syncingComplete") ? .beat4Complete : .beat0Handoff
+            )
         } else if CommandLine.arguments.contains("-profileSetup") {
             ProfileSetupView(store: DemoStore())
         } else if CommandLine.arguments.contains("-profileSetupFilled") {
@@ -51,11 +62,11 @@ struct BranchApp: App {
         } else if CommandLine.arguments.contains("-syncingZero") {
             SyncingView(store: mockFilledStore)
         } else if CommandLine.arguments.contains("-collaborationReady") {
-            CollaborationSessionView(initialMode: .ready)
+            CollaborationSessionView(store: mockFilledStore, initialMode: .ready)
         } else if CommandLine.arguments.contains("-collaborationMeeting") {
             CollaborationSessionView(initialMode: .meeting)
         } else if CommandLine.arguments.contains("-collaborationTakeaways") {
-            CollaborationSessionView(initialMode: .takeaways)
+            CollaborationSessionView(store: mockFilledStore, initialMode: .takeaways)
         } else if CommandLine.arguments.contains("-guestReady") {
             CollaborationSessionView(store: guestStore, initialMode: .ready)
         } else if CommandLine.arguments.contains("-guestTakeaways") {
@@ -78,7 +89,9 @@ struct BranchApp: App {
                   CommandLine.arguments.contains("-knowledgeTab") ||
                   CommandLine.arguments.contains("-tabKnowledgeDated") ||
                   CommandLine.arguments.contains("-tabKnowledgeLive") ||
-                  CommandLine.arguments.contains("-tabKnowledgeHandoff") {
+                  CommandLine.arguments.contains("-tabKnowledgeHandoff") ||
+                  CommandLine.arguments.contains("-seedCapturePhoto") ||
+                  CommandLine.arguments.contains("-seedCaptureLink") {
             CollaborationSessionView(store: mockFilledStore, initialMode: .ready)
         } else {
             // Standard end-to-end launch routing:
@@ -87,19 +100,44 @@ struct BranchApp: App {
         }
     }
     
+    /// Launch args for the intent steps: -onboardingIntro, -onboardingQuiz (-quizQ2 / -quizQ3 / -quizSelected),
+    /// -onboardingTalk / -onboardingTalkSpeaking / -onboardingTalkWrite, -onboardingReveal (-revealSpark etc.).
+    private var intentLaunchStep: OnboardingStep? {
+        let args = CommandLine.arguments
+        if args.contains("-onboardingIntro") { return .intro }
+        if args.contains("-onboardingQuiz") { return .quiz }
+        if args.contains("-onboardingTalk") || args.contains("-onboardingTalkSpeaking") || args.contains("-onboardingTalkWrite") { return .talk }
+        if args.contains("-onboardingReveal") { return .reveal }
+        return nil
+    }
+    
+    private var intentStore: DemoStore { Self.intentStoreOnce }
+    private static let intentStoreOnce: DemoStore = {
+        let store = makeMockFilledStore()
+        store.hasCompletedSync = false
+        store.profile = UserProfile(fullName: "Cash Palacio", nickname: "cashp", avatarType: .sprite, spriteColorHex: "#4598BB")
+        return store
+    }()
+    
     private var guestStore: DemoStore {
         let store = DemoStore()
         store.startGuestSession()
         return store
     }
     
-    private var emptySessionStore: DemoStore {
+    private var emptySessionStore: DemoStore { Self.emptySessionStoreOnce }
+    private static let emptySessionStoreOnce: DemoStore = {
         let store = DemoStore()
         store.session = UserSession(providerName: "Apple")
         return store
-    }
+    }()
     
-    private var mockFilledStore: DemoStore {
+    /// Debug stores are created once per process. Computed properties re-ran on every App body
+    /// evaluation, handing views a fresh store (and fresh seeded IDs) each time.
+    private var mockFilledStore: DemoStore { Self.mockFilledStoreOnce }
+    private static let mockFilledStoreOnce: DemoStore = makeMockFilledStore()
+    
+    private static func makeMockFilledStore() -> DemoStore {
         let store = DemoStore()
         store.session = UserSession(providerName: "Apple")
         let (name, nick): (String, String) = {
@@ -117,14 +155,22 @@ struct BranchApp: App {
             fullName: name,
             nickname: nick,
             avatarType: .sprite,
-            spriteColorHex: "#F5A623"
+            spriteColorHex: spriteFamilyOverrideHexStatic ?? "#F5A623"
         )
         store.hasCompletedSync = true
         return store
     }
     
-    private var mockConnectedStore: DemoStore {
-        let store = mockFilledStore
+    /// Screenshot arg: `-spriteFamily Cloud|Bloom|Prism|Spark` picks the profile's sprite family.
+    private static var spriteFamilyOverrideHexStatic: String? {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "-spriteFamily"), i + 1 < args.count else { return nil }
+        return BranchSprite(rawValue: args[i + 1].capitalized)?.primaryHex
+    }
+    
+    private var mockConnectedStore: DemoStore { Self.mockConnectedStoreOnce }
+    private static let mockConnectedStoreOnce: DemoStore = {
+        let store = makeMockFilledStore()
         store.connectedIntegrationIds = ["autodesk_fusion", "pinterest", "github", "printables"]
         store.connectedTimestamps = [
             "autodesk_fusion": Date().addingTimeInterval(-300),
@@ -133,5 +179,5 @@ struct BranchApp: App {
             "printables": Date()
         ]
         return store
-    }
+    }()
 }

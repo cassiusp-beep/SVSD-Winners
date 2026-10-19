@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - Collaboration Screen Mode
 public enum CollaborationMode: Equatable {
@@ -15,6 +16,16 @@ public enum AppTab: String, CaseIterable, Identifiable {
     case profile = "Profile"
     
     public var id: String { rawValue }
+    
+    /// User-facing tab title (raw values stay as internal identifiers).
+    public var title: String {
+        switch self {
+        case .session: return "YaYa"
+        case .liveMap: return "Projects"
+        case .knowledge: return "Insights"
+        case .profile: return "Profile"
+        }
+    }
     
     public var iconName: String {
         switch self {
@@ -134,6 +145,7 @@ public struct CollaborationSessionView: View {
     
     // Knowledge handoff context from contribution grid tap
     @State private var passedKnowledgeContext: ContributionCellContext? = nil
+    @State private var gridIsometric: Bool = TakeawaysViewMemory.isometric
     
     // Guest Mode SSO & Profile Setup Sheets
     @State private var isShowingSSOSheet: Bool = false
@@ -153,11 +165,20 @@ public struct CollaborationSessionView: View {
     // Takeaways Opening Nod State
     @State private var isTakeawaysNodding: Bool = false
     
+    // Capture toast (photo / link added, or empty-clipboard hint)
+    @State private var captureToast: CaptureToastItem? = nil
+    @State private var knowledgeFocusEntryID: String? = nil
+    @State private var captureSuccessTick: Int = 0
+    @State private var captureHintTick: Int = 0
+    
+    // Profile tab icon: the user's sprite rendered once to a bitmap
+    @State private var profileTabImage: UIImage? = nil
+    
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
-    // MARK: - Play / Primary Button Layout Tuning
-    /// Tuning offset for the primary play / stop button from canvas anchor (x: w * 0.35, y: h * 0.52).
+    // MARK: - Capture Cluster Layout Tuning
+    /// Tuning offset for the capture cluster from canvas anchor (x: w * 0.35, y: h * 0.52).
     /// Defaults to 24pt up and 24pt left as requested.
     public static let playButtonOffset: CGSize = CGSize(width: -24, height: -24)
     
@@ -171,7 +192,7 @@ public struct CollaborationSessionView: View {
             state: .talking,
             energy: 0.55,
             xFraction: 0.17,
-            yFraction: 0.18,
+            yFraction: 0.30,
             widthFraction: 0.58,
             tagOffset: CGSize(width: 45, height: 50),
             takeawayLabel: "most artifacts added"
@@ -261,6 +282,8 @@ public struct CollaborationSessionView: View {
         )
     ]
     
+    @MainActor private static var seededStores: Set<ObjectIdentifier> = []
+    
     public init(store: DemoStore = DemoStore.shared, initialMode: CollaborationMode = .ready) {
         self.store = store
         var resolvedMode = initialMode
@@ -272,10 +295,11 @@ public struct CollaborationSessionView: View {
         if CommandLine.arguments.contains("-tabKnowledgeLive") || CommandLine.arguments.contains("-knowledgeLive") {
             self._selectedTab = State(initialValue: .knowledge)
             self._mode = State(initialValue: .meeting)
+            let existingCaptures = store.liveKnowledgeEntries.filter { $0.id.hasPrefix("capture_") }
             store.liveKnowledgeEntries = [
                 KnowledgeEntry(
                     id: "live_04",
-                    projectID: "yaya",
+                    projectID: store.activeProjectID,
                     type: .question,
                     text: "What if individuals need spatial synthesis before the room gathers?",
                     timestamp: Date().addingTimeInterval(-24),
@@ -287,7 +311,7 @@ public struct CollaborationSessionView: View {
                 ),
                 KnowledgeEntry(
                     id: "live_07",
-                    projectID: "yaya",
+                    projectID: store.activeProjectID,
                     type: .addition,
                     text: "Auto-link whiteboards when two people cite the same diagram",
                     timestamp: Date().addingTimeInterval(-21),
@@ -306,7 +330,7 @@ public struct CollaborationSessionView: View {
                 ),
                 KnowledgeEntry(
                     id: "live_11",
-                    projectID: "yaya",
+                    projectID: store.activeProjectID,
                     type: .counterpoint,
                     text: "Real-time speech transcription creates premature convergence",
                     timestamp: Date().addingTimeInterval(-17),
@@ -318,7 +342,7 @@ public struct CollaborationSessionView: View {
                 ),
                 KnowledgeEntry(
                     id: "live_15",
-                    projectID: "yaya",
+                    projectID: store.activeProjectID,
                     type: .reframe,
                     text: "Treat session logs as living branches rather than meeting minutes",
                     timestamp: Date().addingTimeInterval(-13),
@@ -335,7 +359,11 @@ public struct CollaborationSessionView: View {
                     ),
                     elapsedSeconds: 15.0
                 )
-            ]
+            ] + existingCaptures
+        } else if CommandLine.arguments.contains("-tabKnowledge") ||
+                  CommandLine.arguments.contains("-knowledgeTab") ||
+                  CommandLine.arguments.contains("-tabKnowledgeDated") {
+            self._selectedTab = State(initialValue: .knowledge)
         } else if CommandLine.arguments.contains("-tabKnowledgeHandoff") {
             self._selectedTab = State(initialValue: .knowledge)
             self._passedKnowledgeContext = State(initialValue: ContributionCellContext(
@@ -365,6 +393,28 @@ public struct CollaborationSessionView: View {
             }
         } else if CommandLine.arguments.contains("-tabProfile") || CommandLine.arguments.contains("-profileTab") || CommandLine.arguments.contains("-guestProfile") {
             self._selectedTab = State(initialValue: .profile)
+        }
+        
+        // Deterministic capture seeding for screenshots (Simulator camera and clipboard can't be scripted)
+        let seedPhoto = CommandLine.arguments.contains("-seedCapturePhoto")
+        let seedLink = CommandLine.arguments.contains("-seedCaptureLink")
+        // View.init can run many times per launch; seed once or captures (and their files) pile up.
+        let committed = CommandLine.arguments.contains("-seedCaptureCommitted")
+        if (seedPhoto || seedLink) && !committed {
+            self._mode = State(initialValue: .meeting)
+            self._isSequenceRunning = State(initialValue: true)
+        }
+        if (seedPhoto || seedLink) && !Self.seededStores.contains(ObjectIdentifier(store)) {
+            Self.seededStores.insert(ObjectIdentifier(store))
+            let live = !committed
+            if seedPhoto,
+               let path = Bundle.module.path(forResource: "whiteboard_1", ofType: "png"),
+               let image = UIImage(contentsOfFile: path) {
+                store.addCapture(.image(image), source: "CAMERA", isLive: live, elapsedSeconds: 9)
+            }
+            if seedLink, let url = URL(string: "https://svsd.design") {
+                store.addCapture(.link(url), source: "PASTED", isLive: live, elapsedSeconds: 12)
+            }
         }
         
         if initialMode == .takeaways {
@@ -397,66 +447,78 @@ public struct CollaborationSessionView: View {
         }
     }
     
+    /// Selected-tab accent: the user's family colour (Cloud for guests), a deeper step in light mode and a lighter one in dark.
+    private var tabAccent: Color {
+        let family: BranchSprite = store.isGuest ? .cloud : BranchSprite.from(hex: store.profile?.spriteColorHex ?? "")
+        let hex: (light: UInt32, dark: UInt32)
+        switch family {
+        case .cloud: hex = (0x7E5FA6, 0xA083BC)
+        case .bloom: hex = (0xC9652F, 0xE39A57)
+        case .prism: hex = (0x2F7FA3, 0x4598BB)
+        case .spark: hex = (0x5E8A56, 0x8AAE83)
+        }
+        let v = colorScheme == .dark ? hex.dark : hex.light
+        return Color(red: Double((v >> 16) & 0xFF) / 255, green: Double((v >> 8) & 0xFF) / 255, blue: Double(v & 0xFF) / 255)
+    }
+    
     public var body: some View {
-        ZStack {
-            // Background: plain white in light mode, plain black in dark mode (global rule)
-            (colorScheme == .dark ? Color.black : Color.white)
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
+        TabView(selection: $selectedTab) {
+            Tab(AppTab.session.title, systemImage: AppTab.session.iconName, value: AppTab.session) {
+                tabContent(for: .session)
+            }
             
-            // Main Content Area depending on selected tab
-            GeometryReader { geo in
-                let w = geo.size.width
-                let h = geo.size.height
-                let topInset = geo.safeAreaInsets.top
-                let bottomInset = geo.safeAreaInsets.bottom
-                
-                ZStack {
-                    switch selectedTab {
-                    case .session:
-                        switch mode {
-                        case .ready:
-                            readyCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
-                                .transition(.opacity)
-                        case .meeting:
-                            meetingCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
-                                .transition(.opacity)
-                        case .takeaways:
-                            takeawaysCanvas(w: w, h: h)
-                                .transition(.opacity)
-                        }
-                    case .liveMap:
-                        liveMapCanvas(w: w, h: h, topInset: topInset)
-                            .transition(.opacity)
-                    case .knowledge:
-                        knowledgeCanvas(w: w, h: h, topInset: topInset)
-                            .transition(.opacity)
-                    case .profile:
-                        profileCanvas(w: w, h: h)
-                            .transition(.opacity)
+            Tab(AppTab.liveMap.title, systemImage: AppTab.liveMap.iconName, value: AppTab.liveMap) {
+                tabContent(for: .liveMap)
+            }
+            
+            Tab(AppTab.knowledge.title, systemImage: AppTab.knowledge.iconName, value: AppTab.knowledge) {
+                tabContent(for: .knowledge)
+            }
+            
+            Tab(value: AppTab.profile) {
+                tabContent(for: .profile)
+            } label: {
+                Label {
+                    Text(AppTab.profile.title)
+                } icon: {
+                    if let profileTabImage {
+                        Image(uiImage: profileTabImage)
+                            .renderingMode(.original)
+                    } else {
+                        Image(systemName: AppTab.profile.iconName)
                     }
                 }
-                .frame(width: w, height: h)
             }
-            .zIndex(1)
-            
-            // Liquid Glass Navigation Bar: always visible, highest zIndex, strictly hit-testable only on its capsule
-            VStack {
-                Spacer()
-                liquidGlassTabBar
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 12)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .allowsHitTesting(false)
-            .overlay(alignment: .bottom) {
-                liquidGlassTabBar
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 12)
-                    .allowsHitTesting(true)
-            }
-            .zIndex(100)
         }
+        .tint(tabAccent)
+        .onChange(of: selectedTab) { _, tab in
+            if tab != .knowledge { knowledgeFocusEntryID = nil }
+        }
+        .overlay(alignment: .top) {
+            if let toast = captureToast {
+                CaptureToast(item: toast)
+                    .padding(.top, 8)
+                    .onTapGesture {
+                        if !toast.isHint {
+                            knowledgeFocusEntryID = toast.entryID
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                selectedTab = .knowledge
+                            }
+                        }
+                        captureToast = nil
+                    }
+                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                    .id(toast.id)
+            }
+        }
+        .animation(reduceMotion ? .easeInOut(duration: 0.2) : .spring(response: 0.4, dampingFraction: 0.82), value: captureToast?.id)
+        .task(id: captureToast?.id) {
+            guard captureToast != nil else { return }
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            if !Task.isCancelled { captureToast = nil }
+        }
+        .sensoryFeedback(.success, trigger: captureSuccessTick)
+        .sensoryFeedback(.warning, trigger: captureHintTick)
         .animation(.spring(response: 0.45, dampingFraction: 0.82), value: mode)
         .sheet(isPresented: $isShowingSSOSheet) {
             SSOSignInSheet(store: store) { provider in
@@ -478,10 +540,144 @@ public struct CollaborationSessionView: View {
         }
         .onAppear {
             startPhysicsClock()
+            renderProfileTabImage()
+        }
+        .onChange(of: store.profile?.spriteColorHex) { _, _ in
+            renderProfileTabImage()
+        }
+        .onChange(of: colorScheme) { _, _ in
+            renderProfileTabImage()
         }
         .onDisappear {
             stopPhysicsClock()
         }
+    }
+    
+    // MARK: - Tab Content (plain background, content runs behind the system tab bar)
+    private func tabContent(for tab: AppTab) -> some View {
+        ZStack {
+            // Background: plain white in light mode, plain black in dark mode (global rule)
+            (colorScheme == .dark ? Color.black : Color.white)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+            
+            // Outer reader respects the safe area, so its bottom edge is the top of the system tab bar.
+            GeometryReader { safe in
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
+                // Real system insets (status bar / floating tab bar) come from the outer reader, because the inner reader ignores the safe area.
+                let topInset = safe.safeAreaInsets.top
+                let bottomInset = safe.safeAreaInsets.bottom
+                
+                ZStack {
+                    switch tab {
+                    case .session:
+                        switch mode {
+                        case .ready:
+                            readyCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
+                                .transition(.opacity)
+                        case .meeting:
+                            meetingCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
+                                .transition(.opacity)
+                        case .takeaways:
+                            takeawaysCanvas(w: w, h: h, bottomInset: bottomInset)
+                                .transition(.opacity)
+                        }
+                    case .liveMap:
+                        liveMapCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
+                    case .knowledge:
+                        knowledgeCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
+                    case .profile:
+                        profileCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
+                    }
+                }
+                .frame(width: w, height: h)
+            }
+            .ignoresSafeArea()
+            }
+        }
+    }
+    
+    // MARK: - Profile Tab Icon (sprite rendered to a bitmap)
+    private func renderProfileTabImage() {
+        guard store.profile != nil else {
+            profileTabImage = nil
+            return
+        }
+        let sprite = BranchSprite.from(hex: store.profile?.spriteColorHex ?? "")
+        let renderer = ImageRenderer(
+            content: SpriteView(sprite: sprite, isBlinking: false, showsArms: false)
+                .frame(width: 25, height: 25)
+                .environment(\.colorScheme, colorScheme)
+        )
+        renderer.scale = 3
+        profileTabImage = renderer.uiImage?.withRenderingMode(.alwaysOriginal)
+    }
+    
+    // MARK: - Capture Handling
+    private func handleCapture(_ content: DemoStore.CaptureContent, source: String) {
+        let isLive = mode == .meeting
+        let elapsed = max(0, clock - sequenceStartTime)
+        guard let entry = store.addCapture(content, source: source, isLive: isLive, elapsedSeconds: elapsed) else { return }
+        
+        var thumbnail: UIImage? = nil
+        var isLink = false
+        switch content {
+        case .image(let image):
+            thumbnail = DemoStore.downscale(image: image, maxDimension: 112)
+        case .link:
+            isLink = true
+        }
+        
+        captureSuccessTick += 1
+        captureToast = CaptureToastItem(
+            message: "Added to \(store.activeProject.name)",
+            thumbnail: thumbnail,
+            isLink: isLink,
+            isHint: false,
+            entryID: entry.id
+        )
+    }
+    
+    private func handleEmptyPaste() {
+        captureHintTick += 1
+        captureToast = CaptureToastItem(
+            message: "Copy a link or image first.",
+            thumbnail: nil,
+            isLink: false,
+            isHint: true
+        )
+    }
+    
+    /// Capture cluster + project picker shared by the ready and live Session canvases.
+    @ViewBuilder
+    private func sessionControls(w: CGFloat, h: CGFloat, topInset: CGFloat, isLive: Bool) -> some View {
+        // Top-left "Recording to" picker (locked while live)
+        VStack {
+            HStack {
+                ProjectPickerPill(store: store, isLocked: isLive)
+                    .padding(.top, max(topInset, 44) + 6)
+                    .padding(.leading, 24)
+                Spacer()
+            }
+            Spacer()
+        }
+        .zIndex(20)
+        
+        // Camera · Record · Paste cluster, same anchor as the old play button, left edge kept >= 24pt
+        CaptureCluster(
+            isLive: isLive,
+            elapsedSeconds: max(0, clock - sequenceStartTime),
+            onRecordTap: { isLive ? stopMeeting() : startMeeting() },
+            onCapture: { content, source in handleCapture(content, source: source) },
+            onEmptyPaste: { handleEmptyPaste() }
+        )
+        .position(
+            x: max(w * 0.35 + Self.playButtonOffset.width, 24 + CaptureCluster.width / 2),
+            y: h * 0.52 + Self.playButtonOffset.height
+        )
+        .zIndex(10)
     }
     
     // MARK: - 1. Ready Canvas (Recording_1.png)
@@ -493,60 +689,16 @@ public struct CollaborationSessionView: View {
                     .allowsHitTesting(false)
             }
             
-            // Top Right Wordmark (decorative, Berkeley Mono Bold, reads once as "Ya Ya")
-            VStack {
-                HStack {
-                    Spacer()
-                    YaYaWordmark(size: 24, showsPeriod: false)
-                        .padding(.top, max(topInset, 44) + 6)
-                        .padding(.trailing, 24)
-                }
-                Spacer()
-            }
-            .allowsHitTesting(false)
-            .zIndex(20)
+            sessionControls(w: w, h: h, topInset: topInset, isLive: false)
             
-            // Centered Play Button (large circle)
-            VStack(spacing: 10) {
-                Button {
-                    startMeeting()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(colorScheme == .dark ? Color.white : Color(red: 0.125, green: 0.122, blue: 0.125))
-                            .frame(width: 88, height: 88)
-                            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.4 : 0.15), radius: 16, x: 0, y: 8)
-                        
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 32, weight: .semibold))
-                            .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
-                            .offset(x: 3)
-                    }
-                    .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .contentShape(Circle())
-                .accessibilityLabel("Start session")
-                
-                Text("Ready")
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .allowsHitTesting(false)
-            }
-            .position(
-                x: w * 0.35 + Self.playButtonOffset.width,
-                y: h * 0.52 + Self.playButtonOffset.height
-            )
-            .zIndex(10)
-            
-            // People Counter in Bottom Right, just above the tab bar, aligned to right content margin
+            // People Counter in Bottom Right, anchored to the safe area above the tab bar, aligned to right content margin
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     PeopleCounterView(peopleCount: $peopleCount)
                         .padding(.trailing, 24)
-                        .padding(.bottom, max(bottomInset, 16) + 74)
+                        .padding(.bottom, bottomInset + 12)
                 }
             }
             .zIndex(15)
@@ -562,56 +714,16 @@ public struct CollaborationSessionView: View {
                     .allowsHitTesting(false)
             }
             
-            // Top Right Wordmark (decorative, Berkeley Mono Bold, reads once as "Ya Ya")
-            VStack {
-                HStack {
-                    Spacer()
-                    YaYaWordmark(size: 24, showsPeriod: false)
-                        .padding(.top, max(topInset, 44) + 6)
-                        .padding(.trailing, 24)
-                }
-                Spacer()
-            }
-            .allowsHitTesting(false)
-            .zIndex(20)
+            sessionControls(w: w, h: h, topInset: topInset, isLive: true)
             
-            // Centered Stop Button (circle with solid square)
-            VStack(spacing: 10) {
-                Button {
-                    stopMeeting()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(colorScheme == .dark ? Color.white : Color(red: 0.125, green: 0.122, blue: 0.125))
-                            .frame(width: 88, height: 88)
-                            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.4 : 0.15), radius: 16, x: 0, y: 8)
-                        
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(colorScheme == .dark ? Color.black : Color.white)
-                            .frame(width: 28, height: 28)
-                    }
-                    .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .contentShape(Circle())
-                .accessibilityLabel("Stop Collaboration Meeting")
-                
-                // Label is removed during live session
-            }
-            .position(
-                x: w * 0.35 + Self.playButtonOffset.width,
-                y: h * 0.52 + Self.playButtonOffset.height
-            )
-            .zIndex(10)
-            
-            // People Counter in Bottom Right, just above the tab bar, aligned to right content margin
+            // People Counter in Bottom Right, anchored to the safe area above the tab bar, aligned to right content margin
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     PeopleCounterView(peopleCount: $peopleCount)
                         .padding(.trailing, 24)
-                        .padding(.bottom, max(bottomInset, 16) + 74)
+                        .padding(.bottom, bottomInset + 12)
                 }
             }
             .zIndex(15)
@@ -619,7 +731,7 @@ public struct CollaborationSessionView: View {
     }
     
     // MARK: - 3. Project Takeaways Canvas (Contribution Grid)
-    private func takeawaysCanvas(w: CGFloat, h: CGFloat) -> some View {
+    private func takeawaysCanvas(w: CGFloat, h: CGFloat, bottomInset: CGFloat) -> some View {
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 18) {
                 // Header Title
@@ -661,24 +773,40 @@ public struct CollaborationSessionView: View {
                 }
                 .frame(width: w, alignment: .leading)
                 
-                Spacer().frame(height: 18)
-                
-                // GitHub-Style Contribution Grid
-                TakeawaysContributionGridView(
-                    rows: buildAgentGridRows(),
-                    sessionDuration: (frictionCount == 1 && sessionQuestionsCount == 3) ? 10.0 : 28.0,
-                    timeSlice: ContributionGridConstants.takeawayTimeSliceSeconds,
-                    onSelectCell: { cellContext in
+                // Grid region: fills the space below the marquee, centred so the screen stays balanced.
+                GeometryReader { geo in
+                    let selectCell: (ContributionCellContext) -> Void = { cellContext in
                         passedKnowledgeContext = cellContext
                         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                             selectedTab = .knowledge
                         }
                     }
-                )
+                    IsometricContributionGridView(
+                        rows: buildAgentGridRows(),
+                        sessionDuration: takeawaysSessionDuration,
+                        timeSlice: ContributionGridConstants.takeawayTimeSliceSeconds,
+                        width: w,
+                        maxHeight: geo.size.height,
+                        highlightedAgent: TakeawaysLaunch.highlight,
+                        isometric: gridIsometric,
+                        artifacts: TakeawaysArtifact.demo(long: TakeawaysLaunch.long) + TakeawaysArtifact.live(store.liveKnowledgeEntries),
+                        onSelectCell: selectCell
+                    )
+                    .frame(width: w, height: geo.size.height, alignment: .center)
+                }
+                .frame(maxHeight: .infinity)
                 
-                Spacer()
+                // FLAT / ISOMETRIC toggle (choice is remembered for the app session)
+                GridViewModeToggle(isometric: gridIsometric) { iso in
+                    TakeawaysViewMemory.isometric = iso
+                    gridIsometric = iso
+                }
+                .frame(width: w, height: 44)
+                
+                // Row reserved for the up-chevron so it never overlaps the grid or the toggle
+                Color.clear.frame(height: 46 + 12 + bottomInset)
             }
-            .frame(width: w, alignment: .leading)
+            .frame(width: w, height: h, alignment: .topLeading)
             .zIndex(2)
             
             // Up-chevron return button in bottom right (Recording_3.png) - sits above tab bar
@@ -702,11 +830,18 @@ public struct CollaborationSessionView: View {
             }
             .buttonStyle(.plain)
             .contentShape(Circle())
-            .position(x: w - 46, y: h - 98)
+            .position(x: w - 46, y: h - bottomInset - 12 - 23)
             .zIndex(15)
             .accessibilityLabel("Return to Collaboration Ready")
         }
         .frame(width: w, height: h)
+        .task {
+            // Screenshot aid: flip the grid view shortly after launch.
+            if TakeawaysLaunch.autoToggle {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                gridIsometric.toggle()
+            }
+        }
         .task {
             if CommandLine.arguments.contains("-demoAutoTapKnowledge") {
                 try? await Task.sleep(nanoseconds: 3_200_000_000)
@@ -722,10 +857,15 @@ public struct CollaborationSessionView: View {
         }
     }
     
+    private var takeawaysSessionDuration: Double {
+        if TakeawaysLaunch.long { return 60.0 }
+        return (frictionCount == 1 && sessionQuestionsCount == 3) ? 10.0 : 28.0
+    }
+    
     // MARK: - Build Agent Grid Rows (Session Time Slices)
     private func buildAgentGridRows() -> [AgentGridRow] {
         let isShortRun = (frictionCount == 1 && sessionQuestionsCount == 3)
-        let totalDuration = isShortRun ? 10.0 : 28.0
+        let totalDuration = takeawaysSessionDuration
         let timeSlice = ContributionGridConstants.takeawayTimeSliceSeconds
         let totalCols = max(1, Int(ceil(totalDuration / timeSlice)))
         
@@ -745,8 +885,14 @@ public struct CollaborationSessionView: View {
             ? [3: [.agreements: 1]]
             : [3: [.agreements: 1], 7: [.reframes: 1], 9: [.agreements: 2], 11: [.agreements: 2]]
             
-        func makeCells(agentId: Int, name: String, sprite: BranchSprite, map: [Int: [TakeawayAction: Int]]) -> [ContributionCellContext] {
-            (0..<totalCols).map { col in
+        func makeCells(agentId: Int, name: String, sprite: BranchSprite, map baseMap: [Int: [TakeawayAction: Int]]) -> [ContributionCellContext] {
+            // -takeawaysLong: continue the 28s pattern across a 60s session so lanes have something to scroll to.
+            var map = baseMap
+            if TakeawaysLaunch.long {
+                for (col, actions) in baseMap { map[col + 14] = actions }
+                for (col, actions) in baseMap where col + 28 < totalCols { map[col + 28] = actions }
+            }
+            return (0..<totalCols).map { col in
                 ContributionCellContext(
                     agentId: agentId,
                     agentName: name,
@@ -792,7 +938,7 @@ public struct CollaborationSessionView: View {
     }
     
     // MARK: - Live Map Canvas (Collective Emergence Actor-Discourse Network)
-    private func liveMapCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
+    private func liveMapCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat, bottomInset: CGFloat) -> some View {
         VStack(spacing: 0) {
             Color.clear.frame(height: topInset)
             
@@ -813,13 +959,15 @@ public struct CollaborationSessionView: View {
                     }
                 }
             )
-            .frame(width: w, height: max(0, h - topInset))
+            // Stops at the top of the floating tab bar so the recenter button and chips clear it.
+            .frame(width: w, height: max(0, h - topInset - bottomInset))
+            Color.clear.frame(height: bottomInset)
         }
         .frame(width: w, height: h)
     }
     
     // MARK: - Knowledge Canvas (Living Project Repository)
-    private func knowledgeCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat) -> some View {
+    private func knowledgeCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat, bottomInset: CGFloat) -> some View {
         VStack(spacing: 0) {
             Color.clear.frame(height: topInset)
             
@@ -830,15 +978,20 @@ public struct CollaborationSessionView: View {
                 passedContext: passedKnowledgeContext,
                 onDismissContext: {
                     passedKnowledgeContext = nil
-                }
+                },
+                focusEntryID: knowledgeFocusEntryID
             )
             .frame(width: w, height: max(0, h - topInset))
+            // Scroll content margin (not padding, which would grow the frame) so the list scrolls under the floating tab bar but its last row rests above it.
+            .contentMargins(.bottom, bottomInset, for: .scrollContent)
             .clipped()
         }
         .frame(width: w, height: h)
     }
         // MARK: - Profile Canvas & Reset Demo Button
-    private func profileCanvas(w: CGFloat, h: CGFloat) -> some View {
+    private func profileCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat, bottomInset: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            Color.clear.frame(height: topInset)
         ProfileView(
             store: store,
             onResetDemo: {
@@ -853,6 +1006,9 @@ public struct CollaborationSessionView: View {
                 isShowingSSOSheet = true
             }
         )
+        .frame(width: w, height: max(0, h - topInset))
+        .contentMargins(.bottom, bottomInset, for: .scrollContent)
+        }
         .frame(width: w, height: h)
     }
     
@@ -893,7 +1049,7 @@ public struct CollaborationSessionView: View {
                     .foregroundStyle(.secondary)
                 Text(isLive ? collab.state.displayName : collab.role)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.88) : Color.secondary)
             }
             .fixedSize()
             .padding(.horizontal, 12)
@@ -1006,69 +1162,6 @@ public struct CollaborationSessionView: View {
         return talking.count == 1 ? talking.first?.id : nil
     }
     
-    // MARK: - Liquid Glass Tab Bar (4 Tabs)
-    private var liquidGlassTabBar: some View {
-        HStack(spacing: 0) {
-            ForEach(AppTab.allCases) { tab in
-                let isSelected = selectedTab == tab
-                Button {
-                    handleTabSelection(tab)
-                } label: {
-                    VStack(spacing: 4) {
-                        if tab == .profile {
-                            ZStack {
-                                Circle()
-                                    .fill(isSelected ? Color.primary.opacity(0.15) : Color.primary.opacity(0.06))
-                                    .frame(width: 20, height: 20)
-                                
-                                let sprite = BranchSprite.from(hex: store.profile?.spriteColorHex ?? "")
-                                SpriteView(sprite: sprite, isBlinking: false, showsArms: false)
-                                    .frame(width: 17, height: 17)
-                            }
-                            .frame(height: 19)
-                        } else {
-                            Image(systemName: tab.iconName)
-                                .font(.system(size: 19, weight: isSelected ? .bold : .medium))
-                                .foregroundStyle(isSelected ? Color.primary : Color.secondary)
-                        }
-                        
-                        Text(tab.rawValue)
-                            .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                            .foregroundStyle(isSelected ? Color.primary : Color.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(
-                        Capsule()
-                            .fill(isSelected ? Color.primary.opacity(colorScheme == .dark ? 0.16 : 0.08) : Color.clear)
-                    )
-                    .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .contentShape(Capsule())
-            }
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(maxWidth: 360)
-        .glassEffect(.regular, in: Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Color.primary.opacity(0.12), lineWidth: 1)
-        )
-        .contentShape(Capsule())
-        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.35 : 0.08), radius: 14, x: 0, y: 6)
-    }
-    
-    // MARK: - Tab Switching (Sessions Run Across Tabs)
-    private func handleTabSelection(_ tab: AppTab) {
-        if selectedTab == tab { return }
-        
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.78)) {
-            selectedTab = tab
-        }
-    }
-    
     // MARK: - Physics & Script Sequence Clock
     private func startPhysicsClock() {
         animationTimer?.invalidate()
@@ -1119,7 +1212,7 @@ public struct CollaborationSessionView: View {
             isSequenceRunning = false
             isPaused = false
             freezeSessionCounts()
-            store.commitLiveKnowledgeEntriesToSeeded(for: "yaya")
+            store.commitLiveKnowledgeEntriesToSeeded(for: store.activeProjectID)
             mode = .takeaways
             triggerTakeawaysOpeningNod()
         }
@@ -1208,7 +1301,7 @@ public struct CollaborationSessionView: View {
             // Maya introduces problem space
             let entry = KnowledgeEntry(
                 id: "live_00",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .addition,
                 text: "How do we bridge individual reflection with team synthesis?",
                 timestamp: Date(),
@@ -1227,7 +1320,7 @@ public struct CollaborationSessionView: View {
             // Theo asks question
             let entry = KnowledgeEntry(
                 id: "live_04",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .question,
                 text: "What if individuals need spatial synthesis before the room gathers?",
                 timestamp: Date(),
@@ -1247,7 +1340,7 @@ public struct CollaborationSessionView: View {
             // User speaks: establish Branch for individuals first (~25% of moves from user)
             let entry = KnowledgeEntry(
                 id: "live_07",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .addition,
                 text: "Establish Branch for individuals first. Team integration comes later.",
                 timestamp: Date(),
@@ -1271,7 +1364,7 @@ public struct CollaborationSessionView: View {
             // Maya flags constraint / friction
             let entry = KnowledgeEntry(
                 id: "live_11",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .counterpoint,
                 text: "Real-time speech transcription creates premature convergence",
                 timestamp: Date(),
@@ -1293,7 +1386,7 @@ public struct CollaborationSessionView: View {
             // Sam offers reframing
             let entry = KnowledgeEntry(
                 id: "live_15",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .reframe,
                 text: "Treat session logs as living branches rather than meeting minutes",
                 timestamp: Date(),
@@ -1320,7 +1413,7 @@ public struct CollaborationSessionView: View {
             // Combination moment & Emergence! User combines Sam's reframing (live_15) with individual-first (live_07)
             let entry = KnowledgeEntry(
                 id: "live_19",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .addition,
                 text: "Living project stories emerge from dialogue, not retroactive documentation",
                 timestamp: Date(),
@@ -1353,7 +1446,7 @@ public struct CollaborationSessionView: View {
             // Maya agrees and builds on emergent node
             let entry = KnowledgeEntry(
                 id: "live_23",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .addition,
                 text: "Shared nodes bloom when both contributors validate the constraint",
                 timestamp: Date(),
@@ -1373,7 +1466,7 @@ public struct CollaborationSessionView: View {
             // Sam adds last thought / builds on emergent node
             let entry = KnowledgeEntry(
                 id: "live_28",
-                projectID: "yaya",
+                projectID: store.activeProjectID,
                 type: .addition,
                 text: "Expose unresolved questions as hot corners for the next session",
                 timestamp: Date(),

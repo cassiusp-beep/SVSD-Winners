@@ -36,3 +36,7 @@ DerivedData/
 
 # Scratch scripts
 scratch/
+
+# iOS build products and per-user Xcode state
+BranchiOS/build/
+xcuserdata/

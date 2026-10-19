@@ -37,11 +37,9 @@ public struct IntegrationOrbView: View {
     }
     
     private var orbFillColor: Color {
-        if colorScheme == .dark {
-            return isDarkMonochromeLogo ? Color(white: 0.26) : Color(white: 0.22)
-        } else {
-            return Color.white
-        }
+        // Light plate in both modes so every original-colour logo reads (dark logos like Miro / Are.na / Savee
+        // vanish on a dark plate and template-tinting turns opaque-background PNGs into grey squares).
+        Color.white
     }
     
     public var body: some View {
@@ -52,12 +50,7 @@ public struct IntegrationOrbView: View {
                     .fill(orbFillColor)
                     .overlay(
                         Circle()
-                            .stroke(
-                                colorScheme == .dark
-                                ? Color.white.opacity(0.14)
-                                : Color.black.opacity(0.07),
-                                lineWidth: 1
-                            )
+                            .stroke(Color.black.opacity(0.06), lineWidth: 1)
                     )
                     .shadow(
                         color: isConnected
@@ -85,7 +78,8 @@ public struct IntegrationOrbView: View {
             }
             .frame(width: 62, height: 62)
             .scaleEffect(isConnecting ? 1.05 : 1.0)
-            .opacity(isConnected || isConnecting ? 1.0 : (colorScheme == .dark && isDarkMonochromeLogo ? 0.35 : 0.25))
+            // Dark mode keeps the plate light, so inactive needs more presence than 40% or Figma / Printables / Pinterest vanish.
+        .opacity(isConnected || isConnecting ? 1.0 : (colorScheme == .dark ? 0.62 : 0.40))
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -98,20 +92,11 @@ public struct IntegrationOrbView: View {
     @ViewBuilder
     private var logoView: some View {
         if let image = resolvedLogoImage {
-            if colorScheme == .dark && isDarkMonochromeLogo {
-                image
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .foregroundStyle(Color.white)
-                    .frame(width: 32, height: 32)
-            } else {
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32)
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-            }
+            IntegrationLogoBadge(
+                image: image,
+                isOpaqueTile: IntegrationLogoBadge.isOpaqueTile(named: integration.logoAssetName),
+                diameter: 40
+            )
         } else {
             fallbackInitialView
         }
@@ -139,3 +124,57 @@ public struct IntegrationOrbView: View {
     }
 }
 
+
+// MARK: - Logo badge
+/// Logos always read as a circular badge. Full-bleed opaque tiles (Are.na, Cosmos, Onshape, Savee) fill the
+/// circle instead of showing as a light square inside it; transparent glyphs sit centred on the white plate.
+struct IntegrationLogoBadge: View {
+    let image: Image
+    let isOpaqueTile: Bool
+    let diameter: CGFloat
+
+    var body: some View {
+        if isOpaqueTile {
+            image
+                .resizable()
+                .scaledToFill()
+                .frame(width: diameter, height: diameter)
+                .clipShape(Circle())
+        } else {
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: diameter * 0.8, height: diameter * 0.8)
+        }
+    }
+
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var cache: [String: Bool] = [:]
+
+    /// True when the PNG is opaque at the centre of all four edges, i.e. a full-bleed tile.
+    static func isOpaqueTile(named name: String) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        if let v = cache[name] { return v }
+        var result = false
+        #if canImport(UIKit)
+        let ui: UIImage? = {
+            if let path = Bundle.module.path(forResource: name, ofType: "png") { return UIImage(contentsOfFile: path) }
+            return UIImage(named: name, in: .module, with: nil)
+        }()
+        if let cg = ui?.cgImage {
+            let n = 16
+            var data = [UInt8](repeating: 0, count: n * n * 4)
+            if let ctx = CGContext(data: &data, width: n, height: n, bitsPerComponent: 8, bytesPerRow: n * 4,
+                                   space: CGColorSpaceCreateDeviceRGB(),
+                                   bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) {
+                ctx.draw(cg, in: CGRect(x: 0, y: 0, width: n, height: n))
+                func a(_ x: Int, _ y: Int) -> UInt8 { data[(y * n + x) * 4 + 3] }
+                let m = n / 2
+                result = a(0, m) > 230 && a(n - 1, m) > 230 && a(m, 0) > 230 && a(m, n - 1) > 230
+            }
+        }
+        #endif
+        cache[name] = result
+        return result
+    }
+}

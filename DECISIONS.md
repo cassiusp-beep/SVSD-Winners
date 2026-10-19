@@ -2,6 +2,129 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 19, 2026: Takeaways isometric grid, in progress (Decision 019)
+
+**Status:** In progress, not finished. Built in `IsometricContributionGrid.swift`: the flat and isometric grid, blurred artifact images inside slabs, "Artifact · time" callouts, and the FLAT/ISOMETRIC toggle with tilt → extrude → callout fade. Not built yet: the arrival sequence (step c), tap → moment sheet in Insights (step d), and the team receipt with the Solo/Group toggle (step e). The Takeaways light sweep is removed. The sweep constants remain in `ContributionGrid.swift` only because `ProfileHistoryGridView` still uses them.
+
+**Decided:**
+1. **2D projection, not a 3D engine.** One projection maps (column, lane) to screen points: rotate by 45° × t, then scale Y by 1 − 0.42 × t. Animating t from 0 (flat) to 1 (isometric) gives the tilt. Every block is a rounded `Path` with that transform applied.
+2. **Rejected first isometric look.** The step (a) render had hard, darker side faces, one block per 2s slice and a sprite on every lane. The user rejected it ("I don't like this at all") and pointed to a reference frame.
+3. **Moments, not slices.** Consecutive 2s slices of one agent merge into one long slab. Each empty run becomes one wide outlined tile. Aim for 3 to 6 large pieces per lane.
+4. **Frosted slabs in agent colour.** Short, blurred, translucent slabs with a soft glow, tinted with each agent's gradient (Maya purple, Theo orange, Alex blue, Sam green). No hard side faces. All slabs share one low height; intensity shows as glow and opacity.
+5. **Artifact callouts.** A slab whose moment contains a `KnowledgeEntry` with media shows that image, blurred, inside the slab, tinted with the agent's colour. Each such slab gets one outlined callout on a stem: "Artifact name · 0:07–0:11". The image is still at rest; tapping opens the moment sheet, where silent playback would live.
+6. **No sprites on the grid.** Agents are identified by colour, and by name on tap. This drops the hop pass and the sprite-tap highlight.
+7. **Arrival.** Rows fade in, then the tilt, then slabs rise column by column (about 1 s), then callouts fade in, then the grid settles. No other motion (one-moment rule, Decision 018).
+8. **Tap.** Tapping a block opens `MomentDetailSheet` in Insights (planned, not yet in code). Dismissing leaves the user in Insights filtered to that moment.
+9. **Team receipt (planned, not started).** Group view names real teammates by name and colour, not sprites. Tapping a name highlights that person's blocks and dims the rest. The Solo/Group toggle sits on the Session screen before a session; Group opens the receipt after stop. The NEXT STEP card is left out. The teammate frame sets the layout; our palette, naming and button rules take precedence.
+
+**Why:** The user rejected the sprite-on-block look, and the reference frame showed what the grid should feel like. Artifact callouts make the grid show the work, which is the project-is-the-story principle. Removing sprites and the sweep follows the no-decoration rule.
+
+**Alternatives considered:**
+- Hard isometric side faces (step a): rejected by the user.
+- Sprite hop pass and sprite-tap highlight: dropped once sprites left the grid.
+- A "strongest 3 to 4 moments" tag rule: replaced by artifact callouts.
+- A 3D engine: not used; the plan chose 2D math only.
+- Haptics on the toggle and on sprite taps: rejected by the user.
+
+**Defaults (per spec):** Solo Takeaways defaults to ISOMETRIC, remembered per app session and ISOMETRIC on launch. The Team receipt strip defaults to FLAT. These are two different screens. The agent highlight by long press is to be confirmed at step (d).
+
+**Familiar or new:** new for this project. A tilting 2D grid with slabs and artifact callouts has no precedent in our earlier work.
+
+## October 19, 2026: Global iOS rules for onboarding, safe areas and motion (Decision 018)
+
+**Decided:**
+1. **Onboarding wash.** The Welcome wash (warm off-white with lavender and sage glows, dimmed in dark mode) runs behind every onboarding step from Welcome through Sync. It is never part of a step transition. It fades out when onboarding ends. The main tabs stay plain white or black.
+2. **Safe areas.** Only background layers ignore the safe area. Root cause: `.ignoresSafeArea` on the whole onboarding `GeometryReader` made the top inset read as 0. The shared `ScreenHeader` sits 12 pt below the top safe area.
+3. **@nickname banner.** Shown only on Profile, Integrations and Sync, 8 pt below the safe area. Hidden on Intro, Quiz, Talk and Reveal.
+4. **Family accent.** The selected tab uses the user's family colour. Light: Cloud `#7E5FA6`, Bloom `#C9652F`, Prism `#2F7FA3`, Spark `#5E8A56`. Dark: Cloud `#A083BC`, Bloom `#E39A57`, Prism `#4598BB`, Spark `#8AAE83`. Guests use Cloud. All are at least 3:1.
+5. **One-moment rule.** Each screen gets one arrival moment of motion. After it settles, only ambient motion remains (blinking, marquee rows). Never two attention-grabbing animations at once.
+6. **Haptics.** The older rule "every interactive state change triggers a haptic" is replaced. Haptics fire at the moments the user approved: quiz answer selection, Reveal sprite tap and success, and capture success. The Takeaways screen has none. Other haptics still in the code (for example the scripted live-meeting entry and the Integrations and Syncing feedback) are not yet reviewed against this rule.
+7. **Fonts.** Berkeley Mono files are not bundled; SF Mono is the accepted fallback. `UIAppFonts` was removed from `Info.plist` after missing fonts caused a blank screen.
+8. **Testing.** Test on iPhone 17 and iPhone 17 Pro Max only (no iPhone SE). Agents never use the user's simulator.
+9. **Review.** Three reviewer rounds. Round 3 passed all four areas.
+
+**Why:** The existing rules did not describe the wash, the safe-area bug, the approved exceptions or the one-moment rule. The one-moment rule came from the Takeaways brief.
+
+**Alternatives considered:**
+- Keep "every state change triggers a haptic": rejected by the user, because it adds noise to the moments that should be quiet.
+- Ignore the safe area on the whole onboarding screen: caused the header bug above.
+- Use a bundled Berkeley Mono: not done. The SF Mono fallback was accepted.
+
+**Familiar or new:** the one-moment rule is new for this project. The safe-area and font decisions are ordinary iOS practice.
+
+## October 19, 2026: Welcome keeps the original full-width buttons (Decision 017)
+
+**Decided:** The round-arrow Welcome with text links was rejected. The original full-width "Try YaYa without an account" (black) and "Sign up" (outlined) buttons and the "Already have an account? Sign in" line are restored. Welcome is an approved exception to the rule against full-width bottom buttons. The new wordmark and both cloud eyes stay visible.
+
+**Why:** The user judged the arrow version against the original and chose the original. The override is recorded here so later reviewers do not restore the arrow.
+
+**Alternatives considered:** The round-arrow Welcome with text links (rejected by the user).
+
+**Familiar or new:** familiar. This is the original design.
+
+## October 19, 2026: YaYa wordmark, icon mark, app icon and launch splash (Decision 016)
+
+**Decided:**
+1. **Wordmark.** The bold sans letterforms from `docs/references/brand/yaya-wordmark-black.svg`, with gradient eyes (`#A083BC` to `#4598BB` and `#E39A57` to `#8AAE83`), embedded as a SwiftUI `Shape`. Not Berkeley Mono. No font file is needed.
+2. **Icon mark.** A black rounded square with two white eyes, matching `yaya-icon-rounded.svg`. It is used on Welcome (as the wordmark) and on the launch splash.
+3. **App icon.** A full-bleed 1024 black square, with dark and tinted variants, generated by `BranchiOS/scripts/render-app-icon.swift`.
+4. **Launch.** The static system launch screen hands off to `LaunchSplashView`, which draws the same mark, blinks once and fades to Welcome or the app.
+5. **Shared blink.** A `BlinkClock` drives the blinks for the sprites and both logos.
+6. **Xcode app wrapper.** `BranchiOS/YaYa.xcodeproj` carries the icon and launch screen to the home screen. A Swift package executable cannot.
+
+**Why:** The user wanted the brand to match the SVG proportions. The SVGs are now the checked-in source. A system launch screen cannot animate, so a SwiftUI takeover keeps it pixel-identical.
+
+**Alternatives considered:**
+- Berkeley Mono wordmark (the plan's first version): replaced by the SVG letterforms.
+- Old logos (four-colour mark, "YAYA." gradient pill, "YA²"): not found anywhere in the repository, so there was nothing to remove.
+- Package executable only, with no app wrapper: rejected, because the icon would not reach the home screen.
+
+**Familiar or new:** familiar for the icon and launch screen. The blinking eyes are our own motif.
+
+## October 19, 2026: Onboarding order, intent quiz and simulated talk (Decision 015)
+
+**Decided:**
+1. **Order.** Welcome, Sign up, Profile, Intro, Quiz or Talk, Reveal, Integrations, Sync, then the app. The `OnboardingStep` enum matches this.
+2. **Profile first.** Profile's Continue goes to Intro. Intro greets with the first word of the Profile name ("Hi Cash,"), or "Hi there," if the name is empty. There is no provider name and no `firstName` field.
+3. **Quiz to family.** Three questions, four answers each. The family with the most votes wins; a tie goes to the Q1 answer. The result sets the sprite family and seeds the Profile radar. Auto-advance after 0.6 s; Reduce Motion turns it off.
+4. **Talk is simulated.** A scripted talk (`TalkScript`) with no audio capture and no speech recognition. It ends when the script ends and goes to Reveal. "Write instead" takes typed text, matched by keyword on word boundaries.
+5. **Reveal.** The sprite settles into the revealed family. Tapping the sprite cycles families. The arrow or top-right Continue goes to Integrations. Reveal overrides the Profile sprite unless the user chose a photo; the family is still saved.
+6. **Skip.** Skip on Intro and Quiz goes to Integrations and keeps the Profile sprite.
+7. **Morphing sprite.** Shape changes use a point-sampled morph with a spring. The crossfade is the fallback behind the `-spriteCrossfade` launch argument. Intro cycles through Cloud, Spark, Prism and Bloom every 2.5 s.
+
+**Why:** The user wanted a short "get to know you" pass that sets the first shape. Putting name and avatar first means the quiz result lands on a known person. Talk gives a second path without building speech recognition.
+
+**Alternatives considered:**
+- Whiteboard order (sign up, quiz, create context, profile): the approved order differs. UIUX.md still shows the whiteboard order (see the status note there).
+- Provider first name, or a `-providerFirstName` argument: dropped.
+- Full mockup approval before build (AGENTS.md Option A): waived by the user (Option B). The frames plus the plan were the approved design.
+- Crossfade only: kept as the fallback, not the default.
+- Real speech recognition: not built.
+
+**Open:** UIUX.md section N04 says the intent question is "not a scored quiz." The approved quiz produces a family result, which is a scored mapping. The team should decide whether to keep it.
+
+**Familiar or new:** new. A quiz that maps to a shape, plus a simulated talk, is not a pattern we have used before.
+
+## October 19, 2026: YaYa name, native tab bar, project picker and capture cluster (Decision 014)
+
+**Decided:**
+1. **Name.** The app is called YaYa. Every "Ya Ya" in `BranchiOS/Sources` is renamed. Where it meant the project, it became "Making YaYa". Internal IDs such as `"yaya"` and launch arguments are unchanged. The docs still use "Branch" as the workspace name; whether the docs rename is not decided.
+2. **Native tab bar.** Four system tabs in a `TabView`: YaYa, Projects, Insights, Profile. The custom glass bar is removed, so Reduce Transparency and Increase Contrast work through the system. The Profile tab icon is the user's sprite, rendered once.
+3. **"Recording to" picker.** A top-left pill showing the active project: Making YaYa (default) or Critical design P3. It is a `Menu` with an inline picker. It is locked during a session.
+4. **Capture cluster.** Camera, Record and Paste in one row. The label under it reads "Start session" or the elapsed time. Record starts and stops the session.
+5. **Paste.** The system `PasteButton` is kept, although it renders as a grey circle. The user chose this to avoid a paste prompt that a custom button would trigger.
+
+**Why:** The user wanted photos and links to join a session as it happens. The system tab bar removes custom chrome and follows the iOS accessibility settings.
+
+**Alternatives considered:**
+- Custom glass tab bar: replaced by the system `TabView`.
+- Custom glass paste button: rejected, because it would trigger the paste prompt.
+- The frame's names, warm background and yellow play button: ignored under the global rules (plain white or black, primary-coloured record button).
+
+**Not recorded as answered:** the plan's extra additions (URLs copied as plain text, tapping the toast to open Insights, the picker selection haptic). Some are in the code, but the user's yes or no is not in the plan. Confirm them.
+
+**Familiar or new:** the tab bar and paste button are familiar platform patterns. The capture cluster and project picker are new for this product.
+
 ## October 19, 2026: Live Map Actor-Discourse Network & Cognitive Emergence (Decision 013)
 
 **Decided:**

@@ -47,16 +47,36 @@ public enum KnowledgeEntryType: String, CaseIterable, Sendable {
     }
 }
 
+// MARK: - Demo Project
+public struct DemoProject: Identifiable, Equatable, Sendable {
+    public let id: String
+    public let name: String
+    
+    public static let all: [DemoProject] = [
+        DemoProject(id: "yaya", name: "Making YaYa"),
+        DemoProject(id: "critical_p3", name: "Critical design P3")
+    ]
+    
+    public static let defaultID = "yaya"
+    
+    public static func name(for id: String?) -> String {
+        guard let id else { return "All projects" }
+        return all.first(where: { $0.id == id })?.name ?? "All projects"
+    }
+}
+
 // MARK: - Knowledge Media
 public struct KnowledgeMedia: Identifiable, Equatable, Sendable {
     public var id: String { "\(source)_\(title)_\(dateString)" }
-    public let title: String
+    public var title: String
     public let source: String           // "MIRO", "FIGMA", "WHITEBOARD"
     public let dateString: String       // "OCT 15", "OCT 17", "TODAY"
     public let assetName: String?       // e.g. "whiteboard_1", "miro_narrative"
     public let previewSnippet: String?  // Optional text excerpt preview
+    public var linkURL: URL? = nil      // Captured web link (nil for images)
     
-    public init(title: String, source: String, dateString: String, assetName: String? = nil, previewSnippet: String? = nil) {
+    public init(title: String, source: String, dateString: String, assetName: String? = nil, previewSnippet: String? = nil, linkURL: URL? = nil) {
+        self.linkURL = linkURL
         self.title = title
         self.source = source
         self.dateString = dateString
@@ -83,7 +103,7 @@ public enum KnowledgeActor: String, CaseIterable, Identifiable, Sendable {
         case .theo: return "Theo"
         case .alex: return "Alex"
         case .sam: return "Sam"
-        case .yaya: return "Ya Ya"
+        case .yaya: return "YaYa"
         }
     }
     
@@ -170,7 +190,7 @@ public struct KnowledgeEntry: Identifiable, Equatable, Sendable {
     public let agentId: Int?            // 0: Maya, 1: Theo, 2: Alex, 3: Sam
     public let agentName: String?
     public let agentSprite: BranchSprite?
-    public let media: KnowledgeMedia?
+    public var media: KnowledgeMedia?
     public let relatedEntryIDs: [String]
     public let elapsedSeconds: Double?
     
@@ -294,7 +314,7 @@ public struct SessionMeta: Identifiable, Equatable, Sendable {
 // MARK: - Seeded Project Knowledge Entries & Multi-Session History
 extension KnowledgeEntry {
     public static let seededSessions: [SessionMeta] = [
-        SessionMeta(id: "session_3", sessionNumber: 3, title: "Living Project Stories", subtitle: "SESSION 3 · 4 AGENTS · 2 PEOPLE", agentCount: 4, peopleCount: 2, dateDisplay: "TODAY"),
+        SessionMeta(id: "session_3", sessionNumber: 3, title: "Living Project Stories", subtitle: "SESSION 3 · 4 AGENTS · 3 PEOPLE", agentCount: 4, peopleCount: 3, dateDisplay: "TODAY"),
         SessionMeta(id: "session_2", sessionNumber: 2, title: "Individual-First Canvas", subtitle: "SESSION 2 · 4 AGENTS · 2 PEOPLE", agentCount: 4, peopleCount: 2, dateDisplay: "OCT 17"),
         SessionMeta(id: "session_1", sessionNumber: 1, title: "Initial Genesis & Probes", subtitle: "SESSION 1 · 4 AGENTS · 2 PEOPLE", agentCount: 4, peopleCount: 2, dateDisplay: "OCT 15")
     ]
@@ -305,7 +325,7 @@ extension KnowledgeEntry {
             id: "s1_01",
             projectID: "yaya",
             type: .addition,
-            text: "What could Ya Ya become in someone else’s hands?",
+            text: "What could YaYa become in someone else’s hands?",
             timestamp: Date().addingTimeInterval(-86400 * 4),
             dateDisplay: "OCT 15",
             sessionID: "session_1",
@@ -531,7 +551,7 @@ extension KnowledgeEntry {
             shortLabel: "Simplify complex things",
             frictionSuggestion: "you design for stressful moments"
         ),
-        // 6. Ya Ya AI Suggestion
+        // 6. YaYa AI Suggestion
         KnowledgeEntry(
             id: "s3_06",
             projectID: "yaya",
