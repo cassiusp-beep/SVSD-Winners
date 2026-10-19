@@ -120,32 +120,23 @@ public struct SpriteFlexArmShape: Shape {
         let p = flexProgress
         
         // Attached to the left side of the sprite body (right edge of arm rect)
-        let start = CGPoint(x: w, y: h * (0.64 + 0.04 * p))
+        let start = CGPoint(x: w, y: h * (0.70 + 0.02 * p))
         
-        // Elbow coordinates
-        // At p = 0: elbow dips down and out
-        // At p = 1: elbow moves horizontal and forms clean 90° corner
-        let elbowX = w * (0.42 - 0.12 * p)
-        let elbowY = h * (0.76 - 0.08 * p)
+        // In resting pose (p = 0): gentle outward hanging curve
+        // In complete pose (p = 1): smooth U-shaped curl bending up with tip curling slightly inward
+        let tipX = w * (0.12 + 0.16 * p)
+        let tipY = h * (0.75 - 0.62 * p)
         
-        // Hand / Tip coordinates
-        // At p = 0: gentle curve outwards to the left, slightly below mid height
-        // At p = 1: straight up vertical forearm reaching near top of frame
-        let tipX = w * (0.16 + 0.14 * p)
-        let tipY = h * (0.54 - 0.44 * p)
-        
-        let c1X = w * (0.72 - 0.08 * p)
-        let c1Y = h * (0.74 - 0.06 * p)
+        let c1X = w * (0.68 - 0.22 * p)
+        let c1Y = h * (0.82 + 0.14 * p)
+        let c2X = w * (0.32 - 0.38 * p)
+        let c2Y = h * (0.90 - 0.48 * p)
         
         path.move(to: start)
         path.addCurve(
-            to: CGPoint(x: elbowX, y: elbowY),
-            control1: CGPoint(x: c1X, y: c1Y),
-            control2: CGPoint(x: elbowX + w * 0.10, y: elbowY)
-        )
-        path.addQuadCurve(
             to: CGPoint(x: tipX, y: tipY),
-            control: CGPoint(x: elbowX - w * (0.05 * (1.0 - p)), y: (elbowY + tipY) * 0.50)
+            control1: CGPoint(x: c1X, y: c1Y),
+            control2: CGPoint(x: c2X, y: c2Y)
         )
         return path
     }

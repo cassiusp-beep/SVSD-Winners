@@ -145,66 +145,70 @@ public struct SyncingView: View {
     
     // MARK: - Body
     public var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            let hubCenter = CGPoint(x: w * 0.50, y: h * 0.45)
-            let hubDiameter: CGFloat = 136
-            let hubRadius: CGFloat = hubDiameter / 2
+        ZStack(alignment: .top) {
+            // Semantic background: white in light mode, black in dark mode
+            (colorScheme == .dark ? Color.black : Color.white)
+                .ignoresSafeArea()
             
-            ZStack(alignment: .top) {
-                // Background: white in light mode, black in dark mode
-                (colorScheme == .dark ? Color.black : Color.white)
-                    .ignoresSafeArea()
+            // Top Shared Username Banner (stays in place through entire transition)
+            VStack(spacing: 0) {
+                UsernameBanner(nickname: store.profile?.nickname ?? "cash")
                 
-                // Top Shared Username Banner (stays in place through entire transition)
-                VStack(spacing: 0) {
-                    UsernameBanner(nickname: store.profile?.nickname ?? "cash")
-                    
-                    // Shared Continue Button at top right (only in Complete)
-                    HStack {
-                        Spacer()
-                        if currentBeat == .beat4Complete {
-                            ContinueButton(title: "Continue", isEnabled: true) {
-                                advanceToHome()
-                            }
-                            .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 4)
-                    .frame(height: 36)
-                    
+                // Shared Continue Button at top right (only in Complete)
+                HStack {
                     Spacer()
+                    if currentBeat == .beat4Complete {
+                        ContinueButton(title: "Continue", isEnabled: true) {
+                            advanceToHome()
+                        }
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                    }
                 }
-                .zIndex(10)
+                .padding(.horizontal, 24)
+                .padding(.top, 4)
+                .frame(height: 36)
                 
-                // Center Status Copy (below hub)
-                VStack {
+                Spacer()
+            }
+            .zIndex(10)
+            
+            // Dynamic Interactive Canvas Layer
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
+                
+                // Hub and orbs centered in the middle of the screen
+                let hubCenter = CGPoint(x: w * 0.50, y: h * 0.50)
+                let hubDiameter: CGFloat = 136
+                let hubRadius: CGFloat = hubDiameter / 2
+                
+                ZStack {
+                    // Status Copy sits ABOVE the hub, centered, in the upper area (primary color, regular weight)
                     if !statusCopyText.isEmpty {
                         Text(statusCopyText)
                             .font(.system(size: 17, weight: .regular, design: .rounded))
-                            .foregroundStyle(Color.secondary)
+                            .foregroundStyle(Color.primary)
+                            .multilineTextAlignment(.center)
+                            .position(x: w * 0.50, y: hubCenter.y - hubRadius - 62)
                             .transition(.opacity)
                             .id(statusCopyText)
                             .accessibilityLabel(statusCopyText)
+                            .zIndex(8)
                     }
+                    
+                    // Central Hub Ring + Filled Primary Arrow
+                    hubView(center: hubCenter, diameter: hubDiameter, radius: hubRadius)
+                        .zIndex(5)
+                    
+                    // Avatar Orb + Satellite Integration Orbs
+                    orbsLayer(hubCenter: hubCenter, hubRadius: hubRadius, w: w, h: h)
+                        .zIndex(6)
+                    
+                    // Bottom Sprite Character
+                    bottomSpriteView(w: w, h: h)
+                        .zIndex(4)
                 }
-                .frame(maxWidth: .infinity)
-                .position(x: w * 0.50, y: hubCenter.y + hubRadius + 50)
-                .zIndex(8)
-                
-                // Central Hub Ring + Filled Primary Arrow
-                hubView(center: hubCenter, diameter: hubDiameter, radius: hubRadius)
-                    .zIndex(5)
-                
-                // Avatar Orb + Satellite Integration Orbs
-                orbsLayer(hubCenter: hubCenter, hubRadius: hubRadius, w: w, h: h)
-                    .zIndex(6)
-                
-                // Bottom Sprite Character
-                bottomSpriteView(w: w, h: h)
-                    .zIndex(4)
+                .frame(width: w, height: h)
             }
         }
         .ignoresSafeArea(edges: .bottom)
@@ -499,18 +503,18 @@ public struct SyncingView: View {
     
     // MARK: - Bottom Sprite View
     private func bottomSpriteView(w: CGFloat, h: CGFloat) -> some View {
-        let spriteW: CGFloat = 200
-        let spriteH: CGFloat = 135
+        let spriteW: CGFloat = 220
+        let spriteH: CGFloat = 140
         let color = activeSprite.color(for: colorScheme)
         
         // Centered position (Beat 0) vs Shifted right position (Beats 1-4)
         let centeredX = w * 0.50
-        let shiftedX = w * 0.65
+        let shiftedX = w * 0.72
         let currentX = centeredX + (shiftedX - centeredX) * spriteSlideProgress
         
-        // Sits at bottom, slides down as orbs launch into orbit
+        // Sits at bottom, slides down as orbs launch into orbit, cut off by bottom and right edges
         let startY = h - spriteH * 0.40
-        let endY = h - spriteH * 0.12
+        let endY = h - spriteH * 0.06
         let currentY = startY + (endY - startY) * spriteSlideProgress
         
         return ZStack(alignment: .bottom) {
@@ -527,11 +531,11 @@ public struct SyncingView: View {
                     .frame(width: spriteW * 0.32, height: spriteH * 0.98)
                     .position(x: spriteW * 0.92, y: spriteH * 0.35)
             } else {
-                // Left Arm: resting curve (Beats 1-3) morphing to bicep flex (Beat 4)
+                // Left Arm: resting curve (Beats 1-3) morphing to soft U-curl bicep flex (Beat 4)
                 SpriteFlexArmShape(flexProgress: leftArmFlexProgress)
-                    .stroke(color, style: StrokeStyle(lineWidth: 13, lineCap: .round, lineJoin: .round))
-                    .frame(width: 75, height: 100)
-                    .position(x: -28, y: spriteH * 0.42)
+                    .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
+                    .frame(width: 80, height: 110)
+                    .position(x: -30, y: spriteH * 0.44)
             }
             
             // Central Dome Body
