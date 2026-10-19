@@ -322,29 +322,6 @@ public struct CollaborationSessionView: View {
             .glassEffect(.regular, in: Capsule())
             .overlay(Capsule().stroke(Color.primary.opacity(0.12), lineWidth: 1))
             .position(x: w * 0.76, y: h * 0.44)
-            
-            // Fast Forward Button (Double Chevron >> at bottom-right)
-            Button {
-                withAnimation {
-                    mode = .takeaways
-                    triggerTakeawaysOpeningNod()
-                }
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(Color.primary.opacity(0.08))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: "forward.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.primary)
-                }
-                .glassEffect(.regular, in: Circle())
-                .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .position(x: w * 0.85, y: h * 0.86)
-            .accessibilityLabel("Skip to Project Takeaways")
         }
     }
     
@@ -425,28 +402,6 @@ public struct CollaborationSessionView: View {
             .glassEffect(.regular, in: Capsule())
             .overlay(Capsule().stroke(Color.primary.opacity(0.12), lineWidth: 1))
             .position(x: w * 0.76, y: h * 0.44)
-            
-            // Fast Forward Button (to Takeaways)
-            Button {
-                withAnimation {
-                    mode = .takeaways
-                    triggerTakeawaysOpeningNod()
-                }
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(Color.primary.opacity(0.08))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: "forward.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.primary)
-                }
-                .glassEffect(.regular, in: Circle())
-                .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .position(x: w * 0.85, y: h * 0.86)
             
             // Bottom Stage Caption
             VStack {
