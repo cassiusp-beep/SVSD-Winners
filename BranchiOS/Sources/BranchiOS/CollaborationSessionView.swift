@@ -218,21 +218,33 @@ public struct CollaborationSessionView: View {
             (colorScheme == .dark ? Color.black : Color.white)
                 .ignoresSafeArea()
             
-            // Main Content Area depending on mode
+            // Main Content Area depending on selected tab
             GeometryReader { geo in
                 let w = geo.size.width
                 let h = geo.size.height
                 
                 ZStack {
-                    switch mode {
-                    case .ready:
-                        readyCanvas(w: w, h: h)
+                    switch selectedTab {
+                    case .session:
+                        switch mode {
+                        case .ready:
+                            readyCanvas(w: w, h: h)
+                                .transition(.opacity)
+                        case .meeting:
+                            meetingCanvas(w: w, h: h)
+                                .transition(.opacity)
+                        case .takeaways:
+                            takeawaysCanvas(w: w, h: h)
+                                .transition(.opacity)
+                        }
+                    case .liveMap:
+                        liveMapCanvas(w: w, h: h)
                             .transition(.opacity)
-                    case .meeting:
-                        meetingCanvas(w: w, h: h)
+                    case .knowledge:
+                        knowledgeCanvas(w: w, h: h)
                             .transition(.opacity)
-                    case .takeaways:
-                        takeawaysCanvas(w: w, h: h)
+                    case .profile:
+                        profileCanvas(w: w, h: h)
                             .transition(.opacity)
                     }
                 }
@@ -615,6 +627,182 @@ public struct CollaborationSessionView: View {
         .frame(width: w, height: h)
     }
     
+    // MARK: - Live Map Placeholder Canvas
+    private func liveMapCanvas(w: CGFloat, h: CGFloat) -> some View {
+        VStack(spacing: 24) {
+            Spacer().frame(height: 60)
+            
+            HStack {
+                Text("Live Map")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundStyle(.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 28)
+            
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Image(systemName: "point.3.connected.trianglepath.dotted")
+                    .font(.system(size: 54, weight: .light))
+                    .foregroundStyle(.secondary)
+                
+                Text("Collective Emergence")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.primary)
+                
+                Text("Real-time conversational topology and emergent project dynamics.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+            
+            Spacer()
+        }
+        .frame(width: w, height: h)
+    }
+    
+    // MARK: - Knowledge Placeholder Canvas
+    private func knowledgeCanvas(w: CGFloat, h: CGFloat) -> some View {
+        VStack(spacing: 24) {
+            Spacer().frame(height: 60)
+            
+            HStack {
+                Text("Knowledge")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundStyle(.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 28)
+            
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Image(systemName: "books.vertical")
+                    .font(.system(size: 54, weight: .light))
+                    .foregroundStyle(.secondary)
+                
+                Text("Living Project Repository")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.primary)
+                
+                Text("Extracted artifacts, design tokens, and decisions captured across all sessions.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+            
+            Spacer()
+        }
+        .frame(width: w, height: h)
+    }
+    
+    // MARK: - Profile Canvas & Reset Demo Button
+    private func profileCanvas(w: CGFloat, h: CGFloat) -> some View {
+        VStack(spacing: 24) {
+            Spacer().frame(height: 60)
+            
+            HStack {
+                Text("Profile")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundStyle(.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 28)
+            
+            Spacer()
+            
+            // Profile Card
+            VStack(spacing: 16) {
+                // User Avatar
+                ZStack {
+                    Circle()
+                        .fill(Color.primary.opacity(0.06))
+                        .frame(width: 88, height: 88)
+                    
+                    if let spriteHex = store.profile?.spriteColorHex {
+                        let sprite = BranchSprite.from(hex: spriteHex)
+                        SpriteView(sprite: sprite, isBlinking: false, showsArms: false)
+                            .frame(width: 72, height: 72)
+                    } else {
+                        SpriteView(sprite: .cloud, isBlinking: false, showsArms: false)
+                            .frame(width: 72, height: 72)
+                    }
+                }
+                
+                VStack(spacing: 4) {
+                    if let nickname = store.profile?.nickname, !nickname.isEmpty {
+                        Text("@\(nickname)")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.primary)
+                    } else {
+                        Text("@demo")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.primary)
+                    }
+                    
+                    if let fullName = store.profile?.fullName, !fullName.isEmpty {
+                        Text(fullName)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                // Connected integrations count pill
+                HStack(spacing: 6) {
+                    Image(systemName: "link")
+                        .font(.system(size: 11, weight: .bold))
+                    Text("\(store.connectedIntegrationIds.count) Integrations Connected")
+                        .font(.system(size: 12, weight: .medium))
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(Color.primary.opacity(0.06)))
+            }
+            .padding(.vertical, 24)
+            .padding(.horizontal, 32)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
+            )
+            
+            Spacer()
+            
+            // Prominent Reset Demo Button
+            Button {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    store.resetDemo()
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 15, weight: .bold))
+                    Text("Reset Demo & Start Over")
+                        .font(.system(size: 15, weight: .semibold))
+                }
+                .foregroundStyle(Color.red)
+                .frame(maxWidth: .infinity)
+                .frame(height: 52)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.red.opacity(colorScheme == .dark ? 0.18 : 0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 28)
+            .padding(.bottom, 90)
+        }
+        .frame(width: w, height: h)
+    }
+    
     // MARK: - Collaborator Node Rendering (Transforms + Eyes + Tag)
     private func collaboratorSpriteNode(
         collab: AgentCollaborator,
@@ -778,9 +966,22 @@ public struct CollaborationSessionView: View {
                     }
                 } label: {
                     VStack(spacing: 4) {
-                        Image(systemName: tab.iconName)
-                            .font(.system(size: 19, weight: isSelected ? .bold : .medium))
-                            .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+                        if tab == .profile {
+                            ZStack {
+                                Circle()
+                                    .fill(isSelected ? Color.primary.opacity(0.15) : Color.primary.opacity(0.06))
+                                    .frame(width: 20, height: 20)
+                                
+                                let sprite = BranchSprite.from(hex: store.profile?.spriteColorHex ?? "")
+                                SpriteView(sprite: sprite, isBlinking: false, showsArms: false)
+                                    .frame(width: 17, height: 17)
+                            }
+                            .frame(height: 19)
+                        } else {
+                            Image(systemName: tab.iconName)
+                                .font(.system(size: 19, weight: isSelected ? .bold : .medium))
+                                .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+                        }
                         
                         Text(tab.rawValue)
                             .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
