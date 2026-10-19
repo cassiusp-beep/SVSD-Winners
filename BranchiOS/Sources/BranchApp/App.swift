@@ -46,6 +46,12 @@ struct BranchApp: App {
             SyncingView(store: mockFilledStore, startFromBeat: .beat4Complete)
         } else if CommandLine.arguments.contains("-syncingZero") {
             SyncingView(store: mockFilledStore)
+        } else if CommandLine.arguments.contains("-collaborationReady") {
+            CollaborationSessionView(initialMode: .ready)
+        } else if CommandLine.arguments.contains("-collaborationMeeting") {
+            CollaborationSessionView(initialMode: .meeting)
+        } else if CommandLine.arguments.contains("-collaborationTakeaways") {
+            CollaborationSessionView(initialMode: .takeaways)
         } else {
             // Standard end-to-end launch routing:
             // Continuous OnboardingFlowView -> HomeView

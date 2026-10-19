@@ -20,31 +20,7 @@ public struct HomeView: View {
     }
     
     public var body: some View {
-        ZStack {
-            // Ambient soft mesh background matching Liquid Glass environment
-            AnimatedMeshBackground()
-                .ignoresSafeArea()
-            
-            VStack(spacing: 24) {
-                Spacer()
-                
-                // Profile & Welcome Card with Liquid Glass treatment
-                profileCardView
-                    .padding(.horizontal, 24)
-                
-                Spacer()
-                
-                // Primary & Secondary Actions inside Glass Container
-                bottomActionContainer
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 20)
-            }
-            .padding(.top, 40)
-        }
-        .sheet(isPresented: $isShowingEditProfile) {
-            ProfileSetupView(store: store, isEditing: true)
-                .presentationDragIndicator(.visible)
-        }
+        CollaborationSessionView(store: store)
     }
     
     // MARK: - Profile Card View

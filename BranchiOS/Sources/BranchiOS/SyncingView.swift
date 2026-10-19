@@ -108,9 +108,6 @@ public struct SyncingView: View {
         if store.profile?.avatarType == .photo {
             return colorScheme == .dark ? Color.white : Color.black
         }
-        if activeSprite == .key && colorScheme == .dark {
-            return Color(white: 0.85) // Key in dark mode fills with light gray
-        }
         return activeSprite.color(for: colorScheme)
     }
     
@@ -119,14 +116,7 @@ public struct SyncingView: View {
         if store.profile?.avatarType == .photo {
             return colorScheme == .dark ? Color.black : Color.white
         }
-        switch activeSprite {
-        case .cyan, .yellow:
-            return Color.black
-        case .magenta:
-            return Color.white
-        case .key:
-            return colorScheme == .dark ? Color.black : Color.white
-        }
+        return Color(red: 0.137, green: 0.122, blue: 0.125)
     }
     
     // Current Status Copy

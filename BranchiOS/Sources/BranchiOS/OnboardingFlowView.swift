@@ -373,69 +373,41 @@ public struct OnboardingFlowView: View {
             if currentStep == .syncing || currentStep == .complete {
                 if currentSyncBeat == .beat1BigToss {
                     // Big toss: both arms push high
-                    SpriteArmShape(pose: 1.0, isLeft: true)
-                        .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW * 0.32, height: spriteH * 0.98)
-                        .position(x: spriteW * 0.08, y: spriteH * 0.35)
+                    SpriteArmShape(pose: 1.0, isLeft: true, sprite: activeSprite)
+                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
+                        .frame(width: spriteW * 0.34, height: spriteH * 0.98)
+                        .position(x: spriteW * activeSprite.leftArmAnchorNormalized.x, y: spriteH * activeSprite.leftArmAnchorNormalized.y)
                     
-                    SpriteArmShape(pose: 1.0, isLeft: false)
-                        .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
-                        .frame(width: spriteW * 0.32, height: spriteH * 0.98)
-                        .position(x: spriteW * 0.92, y: spriteH * 0.35)
+                    SpriteArmShape(pose: 1.0, isLeft: false, sprite: activeSprite)
+                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
+                        .frame(width: spriteW * 0.34, height: spriteH * 0.98)
+                        .position(x: spriteW * activeSprite.rightArmAnchorNormalized.x, y: spriteH * activeSprite.rightArmAnchorNormalized.y)
                 } else if currentSyncBeat >= .beat2Gathering {
                     // Beats 2-4: left arm resting -> bicep flex
                     SpriteFlexArmShape(flexProgress: leftArmFlexProgress)
-                        .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
+                        .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
                         .frame(width: 80, height: 110)
                         .position(x: -30, y: spriteH * 0.44)
                 }
             } else if showsArms {
                 // Juggling arms in Step 3 (Integrations) & Beat 0
-                SpriteArmShape(pose: armL, isLeft: true)
-                    .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
-                    .frame(width: spriteW * 0.32, height: spriteH * 0.98)
-                    .position(x: spriteW * 0.08, y: spriteH * 0.35)
+                SpriteArmShape(pose: armL, isLeft: true, sprite: activeSprite)
+                    .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
+                    .frame(width: spriteW * 0.34, height: spriteH * 0.98)
+                    .position(x: spriteW * activeSprite.leftArmAnchorNormalized.x, y: spriteH * activeSprite.leftArmAnchorNormalized.y)
                 
-                SpriteArmShape(pose: armR, isLeft: false)
-                    .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
-                    .frame(width: spriteW * 0.32, height: spriteH * 0.98)
-                    .position(x: spriteW * 0.92, y: spriteH * 0.35)
+                SpriteArmShape(pose: armR, isLeft: false, sprite: activeSprite)
+                    .stroke(activeSprite.gradient, style: StrokeStyle(lineWidth: max(spriteW * 0.055, 9), lineCap: .round, lineJoin: .round))
+                    .frame(width: spriteW * 0.34, height: spriteH * 0.98)
+                    .position(x: spriteW * activeSprite.rightArmAnchorNormalized.x, y: spriteH * activeSprite.rightArmAnchorNormalized.y)
             }
             
-            // Central Dome Body
-            UnevenRoundedRectangle(
-                topLeadingRadius: spriteW / 2,
-                bottomLeadingRadius: 0,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: spriteW / 2,
-                style: .continuous
+            // Central Vector Sprite Body with Dual-Layer Eyes
+            SpriteView(
+                sprite: activeSprite,
+                isBlinking: isSpriteBlinking || isDoubleBlinking,
+                showsArms: false
             )
-            .fill(color)
-            .overlay(
-                UnevenRoundedRectangle(
-                    topLeadingRadius: spriteW / 2,
-                    bottomLeadingRadius: 0,
-                    bottomTrailingRadius: 0,
-                    topTrailingRadius: spriteW / 2,
-                    style: .continuous
-                )
-                .stroke(colorScheme == .dark && activeSprite == .key ? Color.white.opacity(0.35) : Color.clear, lineWidth: 1.5)
-            )
-            .overlay {
-                // Eyes
-                HStack(spacing: spriteW * 0.18) {
-                    Capsule()
-                        .fill(Color.white)
-                        .frame(width: spriteW * 0.088, height: spriteH * 0.34)
-                        .scaleEffect(y: (isSpriteBlinking || isDoubleBlinking) ? 0.08 : 1.0, anchor: .center)
-                    
-                    Capsule()
-                        .fill(Color.white)
-                        .frame(width: spriteW * 0.088, height: spriteH * 0.34)
-                        .scaleEffect(y: (isSpriteBlinking || isDoubleBlinking) ? 0.08 : 1.0, anchor: .center)
-                }
-                .offset(y: -spriteH * 0.28)
-            }
             .frame(width: spriteW, height: spriteH)
             .scaleEffect(spriteTapBounce ? 0.94 : 1.0, anchor: .bottom)
             .contentShape(Rectangle())
@@ -759,15 +731,25 @@ public struct OnboardingFlowView: View {
         let p1 = Array(items.prefix(12))
         let p2 = Array(items.dropFirst(12))
         
-        VStack(spacing: 6) {
-            TabView(selection: $currentPage) {
-                pageGridView(for: p1).tag(0)
-                if !p2.isEmpty {
-                    pageGridView(for: p2).tag(1)
-                }
+        if items.isEmpty {
+            VStack {
+                Spacer()
+                Text("No matches")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(.secondary)
+                Spacer()
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 240)
+        } else {
+            VStack(spacing: 6) {
+                TabView(selection: $currentPage) {
+                    pageGridView(for: p1).tag(0)
+                    if !p2.isEmpty {
+                        pageGridView(for: p2).tag(1)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(height: 240)
             
             if !p2.isEmpty {
                 HStack(spacing: 6) {
@@ -782,6 +764,7 @@ public struct OnboardingFlowView: View {
             }
         }
     }
+}
     
     private func pageGridView(for items: [Integration]) -> some View {
         let rows = items.chunked(into: 4)
@@ -869,19 +852,12 @@ public struct OnboardingFlowView: View {
     
     private func hubView(center: CGPoint, diameter: CGFloat, radius: CGFloat) -> some View {
         let ringStrokeColor: Color = colorScheme == .dark ? Color.white : Color.black
-        let hubFillColor = activeSprite.color(for: colorScheme)
-        let hubArrowColor: Color = {
-            switch activeSprite {
-            case .cyan, .yellow: return Color.black
-            case .magenta: return Color.white
-            case .key: return colorScheme == .dark ? Color.black : Color.white
-            }
-        }()
+        let hubArrowColor = Color(red: 0.137, green: 0.122, blue: 0.125)
         
         return ZStack {
             // Background fill
             Circle()
-                .fill(hubFillColor)
+                .fill(activeSprite.gradient)
                 .frame(width: diameter * hubFillProgress, height: diameter * hubFillProgress)
             
             // Stroke ring
@@ -1173,10 +1149,11 @@ public struct OnboardingFlowView: View {
             }
             .prefix(5)
         
+        let avatarOrb = JuggleItem.avatar(store.profile, activeSprite)
         if items.isEmpty {
-            return [.avatar(store.profile, activeSprite)]
+            return [avatarOrb]
         } else {
-            return items.map { .integration($0) }
+            return [avatarOrb] + items.map { .integration($0) }
         }
     }
     
@@ -1442,12 +1419,18 @@ public struct OnboardingFlowView: View {
     }
     
     private func startContinuousBlinkLoop() {
+        scheduleNextBlink()
+    }
+    
+    private func scheduleNextBlink() {
         blinkTimer?.invalidate()
-        blinkTimer = Timer.scheduledTimer(withTimeInterval: 3.8, repeats: true) { _ in
+        let interval = Double.random(in: 2.0...6.0)
+        blinkTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
             Task { @MainActor in
                 isSpriteBlinking = true
                 try? await Task.sleep(nanoseconds: 140_000_000)
                 isSpriteBlinking = false
+                scheduleNextBlink()
             }
         }
     }
