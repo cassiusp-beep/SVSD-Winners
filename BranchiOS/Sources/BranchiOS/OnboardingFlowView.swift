@@ -2021,10 +2021,13 @@ public struct OnboardingFlowView: View {
     private func startTalkClock() {
         talkTask?.cancel()
         talkTask = Task { @MainActor in
+            let startTime = ContinuousClock.now
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 100_000_000)
+                try? await Task.sleep(nanoseconds: 50_000_000)
                 guard !Task.isCancelled, talkPhase == .speaking else { return }
-                talkElapsed += 0.1 * TalkScript.speed
+                let duration = startTime.duration(to: .now)
+                let wallSecs = Double(duration.components.seconds) + Double(duration.components.attoseconds) * 1e-18
+                talkElapsed = wallSecs * TalkScript.speed
                 let due = talkElapsed >= 2 ? min(TalkScript.lines.count, Int((talkElapsed - 2) / TalkScript.lineInterval) + 1) : 0
                 if due > talkShownLines {
                     talkShownLines = due
@@ -2157,6 +2160,15 @@ public struct OnboardingFlowView: View {
             return
         }
         
+        if let flag = args.firstIndex(of: "-autoplayStory"), args.indices.contains(flag + 1), args[flag + 1] == "E" {
+            autoplayTask = Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                guard !Task.isCancelled else { return }
+                store.startGuestSession()
+            }
+            return
+        }
+        
         guard let flag = args.firstIndex(of: "-autoplayOnboarding"), args.indices.contains(flag + 1) else { return }
         let mode = args[flag + 1]
         guard ["quiz", "talk", "skip"].contains(mode), autoplayTask == nil else { return }
@@ -2173,18 +2185,59 @@ public struct OnboardingFlowView: View {
                 await pause(1.4)
             }
             if currentStep == .profile {
-                fullName = "Naheel Jawaid"
-                nickname = "greatideanaheel"
-                nicknameStatus = .available
+                await pause(1.0)
+                guard !Task.isCancelled else { return }
+                
+                // Focus nickname field
                 withAnimation(BranchMotion.sharedSpring) {
+                    editingField = .nickname
+                    focusedField = .nickname
+                }
+                await pause(0.5)
+                
+                // Type "greatideanaheel"
+                let targetNick = "greatideanaheel"
+                for i in 1...targetNick.count {
+                    guard !Task.isCancelled else { return }
+                    nickname = String(targetNick.prefix(i))
+                    validateNicknameLive(nickname)
+                    try? await Task.sleep(nanoseconds: 65_000_000)
+                }
+                
+                await pause(0.8)
+                guard !Task.isCancelled else { return }
+                
+                // Focus full name field
+                withAnimation(BranchMotion.sharedSpring) {
+                    editingField = .fullName
+                    focusedField = .fullName
+                }
+                await pause(0.5)
+                
+                // Type "Naheel Jawaid"
+                let targetName = "Naheel Jawaid"
+                for i in 1...targetName.count {
+                    guard !Task.isCancelled else { return }
+                    fullName = String(targetName.prefix(i))
+                    try? await Task.sleep(nanoseconds: 65_000_000)
+                }
+                
+                await pause(0.8)
+                guard !Task.isCancelled else { return }
+                
+                // Dismiss keyboard to show clean centered resting state
+                withAnimation(BranchMotion.sharedSpring) {
+                    editingField = nil
+                    focusedField = nil
                     activeSprite = .spark
                     hasSelectedAvatar = true
                 }
-                await pause(1.6)
+                
+                await pause(1.5)
                 guard !Task.isCancelled else { return }
                 handleContinueTap()
             }
-            await pause(2.8)
+            await pause(2.5)
             guard !Task.isCancelled, currentStep == .intro else { return }
             
             switch mode {
@@ -2192,7 +2245,7 @@ public struct OnboardingFlowView: View {
                 skipIntent()
             case "talk":
                 openTalk()
-                await pause(1.6)
+                await pause(1.5)
                 toggleTalk()
                 while currentStep == .talk && !Task.isCancelled { await pause(0.3) }
             default:
@@ -2208,9 +2261,10 @@ public struct OnboardingFlowView: View {
             }
             
             if mode != "skip" {
-                await pause(2.0)
+                await pause(2.2)
                 guard !Task.isCancelled, currentStep == .reveal else { return }
                 revealedFamily = .spark
+                await pause(1.5)
                 cycleRevealedFamily()
                 await pause(1.4)
                 cycleRevealedFamily()
@@ -2218,22 +2272,22 @@ public struct OnboardingFlowView: View {
                 cycleRevealedFamily()
                 await pause(1.4)
                 cycleRevealedFamily()
-                await pause(1.6)
+                await pause(2.0)
                 finishReveal()
             }
             
             await pause(1.8)
             guard !Task.isCancelled, currentStep == .integrations else { return }
-            for id in ["github", "pinterest", "printables"] where Integration.allSupported.contains(where: { $0.id == id }) {
+            for id in ["figma", "github", "pinterest", "google_drive", "miro"] where Integration.allSupported.contains(where: { $0.id == id }) {
                 if let item = Integration.allSupported.first(where: { $0.id == id }) {
                     handleOrbTap(for: item)
                 }
-                await pause(1.2)
+                await pause(1.1)
             }
-            await pause(0.8)
+            await pause(1.2)
             handleContinueTap()
             while currentSyncBeat != .beat4Complete && !Task.isCancelled { await pause(0.3) }
-            await pause(1.5)
+            await pause(1.8)
             handleContinueTap()
         }
     }

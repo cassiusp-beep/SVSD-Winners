@@ -91,6 +91,22 @@ public struct ExportFlowView: View {
                 }
         }
         .background(background.ignoresSafeArea())
+        .onAppear {
+            if CommandLine.arguments.contains("-autoplayStory") {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 1_200_000_000)
+                    withAnimation(BranchMotion.sharedSpring) {
+                        path = [.preview]
+                    }
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    performExport()
+                    try? await Task.sleep(nanoseconds: 2_500_000_000)
+                    shareItems = nil
+                    try? await Task.sleep(nanoseconds: 1_200_000_000)
+                    onClose()
+                }
+            }
+        }
     }
     
     // MARK: Shared pieces

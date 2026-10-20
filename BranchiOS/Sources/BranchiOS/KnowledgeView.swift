@@ -163,6 +163,19 @@ public struct KnowledgeView: View {
                 }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoTapMediaThumbnail"))) { _ in
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                if let entry = displayedEntries.first(where: { $0.media != nil }),
+                   let media = entry.media {
+                    selectedMedia = media
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoCloseMediaThumbnail"))) { _ in
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                selectedMedia = nil
+            }
+        }
     }
     
     // MARK: - 1. Project Title & Picker Header

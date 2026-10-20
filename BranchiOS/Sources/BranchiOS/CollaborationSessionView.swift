@@ -159,9 +159,11 @@ public struct CollaborationSessionView: View {
     @State private var isShowingMomentDetail: Bool = false
     @State private var activeMomentDetail: MomentDetailModel = .canonical
     
-    // Guest Mode SSO & Profile Setup Sheets
     @State private var isShowingSSOSheet: Bool = false
     @State private var isShowingProfileSetupSheet: Bool = false
+    @State private var isShowingExportFlow: Bool = false
+    @State private var sessionAutoplayTask: Task<Void, Never>? = nil
+    @State private var highlightedAgentID: String? = TakeawaysLaunch.highlight
     
     // Virtual animation clock
     @State private var clock: Double = 0
@@ -567,9 +569,13 @@ public struct CollaborationSessionView: View {
             .presentationDetents([.fraction(0.85), .large])
             .presentationDragIndicator(.visible)
         }
+        .fullScreenCover(isPresented: $isShowingExportFlow) {
+            ExportFlowView(store: store, scope: .session) { isShowingExportFlow = false }
+        }
         .onAppear {
             startPhysicsClock()
             renderProfileTabImage()
+            startSessionAutoplayIfRequested()
         }
         .onChange(of: store.profile?.spriteColorHex) { _, _ in
             renderProfileTabImage()
@@ -579,6 +585,8 @@ public struct CollaborationSessionView: View {
         }
         .onDisappear {
             stopPhysicsClock()
+            sessionAutoplayTask?.cancel()
+            sessionAutoplayTask = nil
         }
     }
     
@@ -890,7 +898,7 @@ public struct CollaborationSessionView: View {
                         timeSlice: ContributionGridConstants.takeawayTimeSliceSeconds,
                         width: w,
                         maxHeight: geo.size.height,
-                        highlightedAgent: TakeawaysLaunch.highlight,
+                        highlightedAgent: highlightedAgentID,
                         isometric: gridIsometric,
                         artifacts: sessionArtifacts,
                         onSelectCell: selectCell
@@ -1831,6 +1839,189 @@ public struct PeopleCounterView: View {
                 Capsule()
                     .stroke(Color.primary.opacity(0.12), lineWidth: 1)
             )
+        }
+    }
+}
+
+// MARK: - Scripted Session Autoplay (-autoplayStory B|C|D|E)
+extension CollaborationSessionView {
+    private func startSessionAutoplayIfRequested() {
+        let args = CommandLine.arguments
+        guard let flag = args.firstIndex(of: "-autoplayStory"), args.indices.contains(flag + 1) else { return }
+        let story = args[flag + 1]
+        guard sessionAutoplayTask == nil else { return }
+        
+        func pause(_ seconds: Double) async {
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+        }
+        
+        sessionAutoplayTask = Task { @MainActor in
+            switch story {
+            case "B":
+                // Story B: Solo ready -> record 22s (whiteboard at 8s, link at 14s) -> stop -> takeaways -> select sprite -> moment sheet -> export
+                sessionScope = .solo
+                mode = .ready
+                selectedTab = .session
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                startMeeting()
+                
+                await pause(8.0)
+                guard !Task.isCancelled else { return }
+                if let path = Bundle.module.path(forResource: "whiteboard_1", ofType: "png"),
+                   let image = UIImage(contentsOfFile: path) {
+                    handleCapture(.image(image), source: "CAMERA")
+                }
+                
+                await pause(6.0)
+                guard !Task.isCancelled else { return }
+                if let url = URL(string: "https://www.figma.com/file/yaya-flows") {
+                    handleCapture(.link(url), source: "PASTED")
+                }
+                
+                await pause(8.0)
+                guard !Task.isCancelled else { return }
+                stopMeeting()
+                
+                await pause(3.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    highlightedAgentID = "cloud"
+                }
+                
+                await pause(1.8)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    activeMomentDetail = .canonical
+                    isShowingMomentDetail = true
+                }
+                
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    isShowingMomentDetail = false
+                }
+                
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    isShowingExportFlow = true
+                }
+                
+            case "C":
+                // Story C: Solo -> Team -> Consent -> 26s Meeting -> Receipt -> Moment Sheet -> Projects Map -> Resolve Friction -> Insights
+                sessionScope = .solo
+                mode = .ready
+                selectedTab = .session
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    sessionScope = .group
+                }
+                await pause(2.0)
+                guard !Task.isCancelled else { return }
+                startMeeting()
+                
+                await pause(26.0)
+                guard !Task.isCancelled else { return }
+                stopMeeting()
+                
+                await pause(3.0)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    activeMomentDetail = .canonical
+                    isShowingMomentDetail = true
+                }
+                
+                await pause(3.0)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    isShowingMomentDetail = false
+                }
+                
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    selectedTab = .liveMap
+                }
+                
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("OpenDemoFrictionSheet"), object: nil)
+                
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("ResolveDemoFrictionKeepMine"), object: nil)
+                
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    selectedTab = .knowledge
+                }
+                await pause(3.5)
+                
+            case "D":
+                // Story D: Projects tab -> switch sessions -> filter chip -> reset -> combination bloom -> Insights -> scroll history -> media thumbnail -> Profile -> stats & radar
+                selectedTab = .liveMap
+                await pause(2.0)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoCycleSession"), object: nil)
+                
+                await pause(2.0)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoFilterChip"), object: nil)
+                
+                await pause(2.0)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoResetFilter"), object: nil)
+                
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoTriggerCombination"), object: nil)
+                
+                await pause(3.0)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    selectedTab = .knowledge
+                }
+                
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoTapMediaThumbnail"), object: nil)
+                
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoCloseMediaThumbnail"), object: nil)
+                
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    selectedTab = .profile
+                }
+                await pause(2.0)
+                guard !Task.isCancelled else { return }
+                NotificationCenter.default.post(name: NSNotification.Name("DemoScrollToRadar"), object: nil)
+                await pause(4.0)
+                
+            case "E":
+                // Story E: Guest session ready -> record 5s -> stop -> Profile tab
+                selectedTab = .session
+                await pause(1.5)
+                guard !Task.isCancelled else { return }
+                startMeeting()
+                await pause(5.5)
+                guard !Task.isCancelled else { return }
+                stopMeeting()
+                await pause(2.5)
+                guard !Task.isCancelled else { return }
+                withAnimation(BranchMotion.sharedSpring) {
+                    selectedTab = .profile
+                }
+                await pause(3.5)
+                
+            default:
+                break
+            }
         }
     }
 }

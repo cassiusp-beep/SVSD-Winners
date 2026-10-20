@@ -81,16 +81,16 @@ public enum TalkScript {
     public static let firstLineAt: Double = 2
     /// The simulated talk ends when the script does: last line + a short pause.
     public static var totalSeconds: Double {
-        firstLineAt + lineInterval * Double(lines.count - 1) + 1.5
+        firstLineAt + lineInterval * Double(lines.count - 1) + 4.0
     }
     public static let lines: [String] = [
-        "...most of my ideas start on a whiteboard, right after a crit.",
-        "Then I lose track of which version was the real one.",
-        "I usually map everything out before I commit to anything.",
-        "Seeing it all connected is when it makes sense to me."
+        "...honestly, I start by building something rough.",
+        "I'd rather prototype it than talk about it for an hour.",
+        "Once I can hold it, I can tell what's working.",
+        "Then I bring it to people and see what they do with it."
     ]
-    /// The family a spoken take-through resolves to (the script is a systems thinker).
-    public static let family: ThinkingFamily = .cloud
+    /// The family a spoken take-through resolves to (the script is a Spark / builder).
+    public static let family: ThinkingFamily = .spark
 
     public static var speed: Double {
         CommandLine.arguments.contains("-talkFast") ? 8 : 1

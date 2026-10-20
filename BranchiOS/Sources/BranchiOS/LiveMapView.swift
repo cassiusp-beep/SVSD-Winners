@@ -278,6 +278,38 @@ public struct LiveMapView: View {
                     computeLayoutPositions(in: CGSize(width: w, height: h))
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("OpenDemoFrictionSheet"))) { _ in
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    selectedFrictionNode = entries.first(where: { $0.id == "s3_05" }) ?? entries.first(where: { $0.type == .counterpoint })
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResolveDemoFrictionKeepMine"))) { _ in
+                if let node = selectedFrictionNode ?? entries.first(where: { $0.type == .counterpoint }) {
+                    store.resolveFriction(entryID: node.id, resolution: .keptMine)
+                    selectedFrictionNode = nil
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoCycleSession"))) { _ in
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    store.selectedSessionID = store.selectedSessionID == "s3" ? "s2" : "s3"
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoFilterChip"))) { _ in
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    isolatedActor = .theo
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoResetFilter"))) { _ in
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    isolatedActor = nil
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoTriggerCombination"))) { _ in
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    combinationHighlightedEntryID = "s3_08"
+                    combinationRingBloom = true
+                }
+            }
         }
     }
     

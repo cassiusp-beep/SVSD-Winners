@@ -418,6 +418,14 @@ public struct SignInView: View {
         .ignoresSafeArea()
         .onAppear {
             startBlinkLoop()
+            if let flag = CommandLine.arguments.firstIndex(of: "-autoplayStory"),
+               CommandLine.arguments.indices.contains(flag + 1),
+               CommandLine.arguments[flag + 1] == "E" {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    handleGuestModeTap()
+                }
+            }
         }
         .onDisappear {
             blinkTimer?.invalidate()

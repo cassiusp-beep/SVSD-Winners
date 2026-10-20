@@ -21,7 +21,27 @@ struct BranchApp: App {
     
     @ViewBuilder
     private var rootView: some View {
-        if CommandLine.arguments.contains("-receipt") || CommandLine.arguments.contains("-teamReceipt") {
+        if let flag = CommandLine.arguments.firstIndex(of: "-autoplayStory"),
+           CommandLine.arguments.indices.contains(flag + 1) {
+            let story = CommandLine.arguments[flag + 1]
+            switch story {
+            case "B":
+                // Reset to onboarded as Naheel Jawaid (Spark), YaYa tab, Solo mode, no sessions yet
+                let store = Self.makeFreshSoloStore()
+                CollaborationSessionView(store: store, initialMode: .ready)
+            case "C":
+                // Onboarded as Naheel Jawaid (Spark), YaYa tab, Solo mode
+                CollaborationSessionView(store: mockFilledStore, initialMode: .ready)
+            case "D":
+                // Returning user with seeded history
+                CollaborationSessionView(store: mockFilledStore, initialMode: .ready)
+            case "E":
+                // Guest onboarding: Welcome -> Try YaYa without an account -> YaYa tab -> short solo session -> Profile
+                AppRootView(store: Self.guestLaunchStoreOnce)
+            default:
+                AppRootView(store: DemoStore.shared)
+            }
+        } else if CommandLine.arguments.contains("-receipt") || CommandLine.arguments.contains("-teamReceipt") {
             CollaborationSessionView(store: mockFilledStore, initialMode: .takeaways)
         } else if CommandLine.arguments.contains("-momentDetail") || CommandLine.arguments.contains("-nodeFromSession") {
             CollaborationSessionView(store: mockFilledStore, initialMode: .takeaways)
@@ -132,7 +152,7 @@ struct BranchApp: App {
     private static let intentStoreOnce: DemoStore = {
         let store = makeMockFilledStore()
         store.hasCompletedSync = false
-        store.profile = UserProfile(fullName: "Cash Palacio", nickname: "cashp", avatarType: .sprite, spriteColorHex: "#4598BB")
+        store.profile = UserProfile(fullName: "Naheel Jawaid", nickname: "greatideanaheel", avatarType: .sprite, spriteColorHex: "#4598BB")
         return store
     }()
     
@@ -153,6 +173,13 @@ struct BranchApp: App {
     /// evaluation, handing views a fresh store (and fresh seeded IDs) each time.
     private var mockFilledStore: DemoStore { Self.mockFilledStoreOnce }
     private static let mockFilledStoreOnce: DemoStore = makeMockFilledStore()
+    private static let guestLaunchStoreOnce: DemoStore = DemoStore()
+    private static func makeFreshSoloStore() -> DemoStore {
+        let store = makeMockFilledStore()
+        store.knowledgeEntries = []
+        store.liveKnowledgeEntries = []
+        return store
+    }
     
     private static func makeMockFilledStore() -> DemoStore {
         let store = DemoStore()

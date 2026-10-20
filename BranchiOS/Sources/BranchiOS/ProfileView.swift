@@ -494,6 +494,11 @@ public struct ProfileView: View {
                     }
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DemoScrollToRadar"))) { _ in
+                withAnimation(.spring(response: 0.65, dampingFraction: 0.85)) {
+                    proxy.scrollTo("thinkingCard", anchor: .top)
+                }
+            }
         }
     }
     
