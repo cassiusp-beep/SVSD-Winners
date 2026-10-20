@@ -65,7 +65,9 @@ public enum CollaboratorState: String, CaseIterable {
 // MARK: - Collaborator Model
 public struct AgentCollaborator: Identifiable {
     public let id: Int
-    public let name: String
+    public let soloName: String
+    public let groupName: String
+    public let groupHandle: String
     public let role: String
     public let sprite: BranchSprite
     public var state: CollaboratorState
@@ -82,6 +84,8 @@ public struct AgentCollaborator: Identifiable {
     
     // Curved takeaway label
     public let takeawayLabel: String
+    
+    public var name: String { soloName }
 }
 
 // MARK: - 28-Second Choreography Script Step
@@ -194,7 +198,9 @@ public struct CollaborationSessionView: View {
     @State private var collaborators: [AgentCollaborator] = [
         AgentCollaborator(
             id: 0,
-            name: "Cash",
+            soloName: "Cloud",
+            groupName: "Cash",
+            groupHandle: "@cassiusp",
             role: "Design",
             sprite: .cloud,
             state: .talking,
@@ -207,7 +213,9 @@ public struct CollaborationSessionView: View {
         ),
         AgentCollaborator(
             id: 1,
-            name: "Bhargs",
+            soloName: "Bloom",
+            groupName: "Bhargs",
+            groupHandle: "@bhargs",
             role: "Engineering",
             sprite: .bloom,
             state: .friction,
@@ -220,7 +228,9 @@ public struct CollaborationSessionView: View {
         ),
         AgentCollaborator(
             id: 2,
-            name: "Alex",
+            soloName: "Prism",
+            groupName: "Alex",
+            groupHandle: "@al3xxli",
             role: "Product",
             sprite: .prism,
             state: .processing,
@@ -233,7 +243,9 @@ public struct CollaborationSessionView: View {
         ),
         AgentCollaborator(
             id: 3,
-            name: "Naheel",
+            soloName: "Spark",
+            groupName: "Naheel",
+            groupHandle: "@naheel",
             role: "Strategy",
             sprite: .spark,
             state: .agree,
@@ -1009,34 +1021,40 @@ public struct CollaborationSessionView: View {
             }
         }
         
+        let isGroup = (sessionScope == .group)
+        let row0Name = isGroup ? "Cash" : "Cloud"
+        let row1Name = isGroup ? "Bhargs" : "Bloom"
+        let row2Name = isGroup ? "Alex" : "Prism"
+        let row3Name = isGroup ? "Naheel" : "Spark"
+        
         return [
             AgentGridRow(
                 id: 0,
-                name: "Cash",
+                name: row0Name,
                 role: "Design",
                 sprite: .cloud,
-                cells: makeCells(agentId: 0, name: "Cash", sprite: .cloud, map: mayaActionsByCol)
+                cells: makeCells(agentId: 0, name: row0Name, sprite: .cloud, map: mayaActionsByCol)
             ),
             AgentGridRow(
                 id: 1,
-                name: "Bhargs",
+                name: row1Name,
                 role: "Engineering",
                 sprite: .bloom,
-                cells: makeCells(agentId: 1, name: "Bhargs", sprite: .bloom, map: theoActionsByCol)
+                cells: makeCells(agentId: 1, name: row1Name, sprite: .bloom, map: theoActionsByCol)
             ),
             AgentGridRow(
                 id: 2,
-                name: "Alex",
+                name: row2Name,
                 role: "Product",
                 sprite: .prism,
-                cells: makeCells(agentId: 2, name: "Alex", sprite: .prism, map: alexActionsByCol)
+                cells: makeCells(agentId: 2, name: row2Name, sprite: .prism, map: alexActionsByCol)
             ),
             AgentGridRow(
                 id: 3,
-                name: "Naheel",
+                name: row3Name,
                 role: "Strategy",
                 sprite: .spark,
-                cells: makeCells(agentId: 3, name: "Naheel", sprite: .spark, map: samActionsByCol)
+                cells: makeCells(agentId: 3, name: row3Name, sprite: .spark, map: samActionsByCol)
             )
         ]
     }
@@ -1117,6 +1135,27 @@ public struct CollaborationSessionView: View {
     }
     
     // MARK: - Collaborator Node Rendering (Transforms + Eyes + Tag)
+    private func collaboratorPosition(for collab: AgentCollaborator, w: CGFloat, h: CGFloat) -> CGPoint {
+        if sessionScope == .group {
+            // Horizontal swap: Left ⇄ Right
+            // Cloud/Cash (0.17 -> 0.83) & Spark/Naheel (0.16 -> 0.84) on right
+            // Bloom/Bhargs (0.82 -> 0.18) & Prism/Alex (0.81 -> 0.19) on left
+            let xFrac = (1.0 - collab.xFraction)
+            return CGPoint(x: w * xFrac, y: h * collab.yFraction)
+        } else {
+            return CGPoint(x: w * collab.xFraction, y: h * collab.yFraction)
+        }
+    }
+    
+    private func collaboratorTagOffset(for collab: AgentCollaborator) -> CGSize {
+        if sessionScope == .group {
+            // Invert horizontal tag offset so pills point inward toward canvas center
+            return CGSize(width: -collab.tagOffset.width, height: collab.tagOffset.height)
+        } else {
+            return collab.tagOffset
+        }
+    }
+    
     private func collaboratorSpriteNode(
         collab: AgentCollaborator,
         in canvasSize: CGSize,
@@ -1129,6 +1168,14 @@ public struct CollaborationSessionView: View {
         
         // Compute motion transforms if live
         let motion = calculateMotion(for: collab, isLive: isLive)
+        
+        let displayName = (sessionScope == .group ? collab.groupName : collab.soloName)
+        let secondaryText: String = {
+            if isLive {
+                return collab.state.displayName
+            }
+            return sessionScope == .group ? collab.groupHandle : collab.role
+        }()
         
         return ZStack {
             // Sprite Body + Eyes
@@ -1144,14 +1191,14 @@ public struct CollaborationSessionView: View {
             .frame(width: spriteW, height: spriteH)
             .offset(x: motion.dx, y: motion.dy)
             
-            // Liquid Glass Pill Tag: `Name · Role` in Ready, `Name · State` in Meeting
+            // Liquid Glass Pill Tag: `Name · Role` in Ready (Solo), `Name · @handle` in Ready (Group), `Name · State` in Meeting
             HStack(spacing: 5) {
-                Text(collab.name)
+                Text(displayName)
                     .font(.system(size: 12, weight: .bold))
                 Text("·")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.secondary)
-                Text(isLive ? collab.state.displayName : collab.role)
+                Text(secondaryText)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.88) : Color.secondary)
             }
@@ -1163,9 +1210,10 @@ public struct CollaborationSessionView: View {
                 Capsule()
                     .stroke(collab.sprite.gradientColors[0].opacity(collab.state == .talking ? 0.7 : 0.25), lineWidth: 1)
             )
-            .offset(x: collab.tagOffset.width, y: collab.tagOffset.height)
+            .offset(x: collaboratorTagOffset(for: collab).width, y: collaboratorTagOffset(for: collab).height)
         }
-        .position(x: w * collab.xFraction, y: h * collab.yFraction)
+        .position(collaboratorPosition(for: collab, w: w, h: h))
+        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: sessionScope)
     }
     
     // MARK: - Motion Physics Computation (Directly from Branch - Collaboration Motion.html)
@@ -1248,7 +1296,9 @@ public struct CollaborationSessionView: View {
         // Eye Tracking: Turn gaze towards the single active speaker
         if let speakerIndex = resolveSingleSpeaker(), speakerIndex != collab.id {
             let speaker = collaborators[speakerIndex]
-            let dx = speaker.xFraction - collab.xFraction
+            let speakerX = sessionScope == .group ? (1.0 - speaker.xFraction) : speaker.xFraction
+            let collabX = sessionScope == .group ? (1.0 - collab.xFraction) : collab.xFraction
+            let dx = speakerX - collabX
             let dy = speaker.yFraction - collab.yFraction
             let dist = max(0.001, hypot(dx, dy))
             let maxGazeOffset: CGFloat = 2.8
