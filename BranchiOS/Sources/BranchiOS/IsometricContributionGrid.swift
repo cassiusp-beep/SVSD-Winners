@@ -51,8 +51,8 @@ public enum TakeawaysIsoConstants {
     public static let artifactContrast: Double = 1.12
     public static let artifactSaturation: Double = 1.35
     /// Agent colour laid over the image (normal blend) and a multiply pass; the image stays readable underneath.
-    public static let artifactTintOverlay: Double = 0.34
-    public static let artifactTintMultiply: Double = 0.30
+    public static let artifactTintOverlay: Double = 0.50
+    public static let artifactTintMultiply: Double = 0.35
     /// Fraction of a tick label's half-width kept inside the screen edge.
     public static let tickEdgeInset: CGFloat = 4
     // Tags
@@ -66,7 +66,7 @@ public enum TakeawaysIsoConstants {
     public static let tagNameCharWidth: CGFloat = 4.6
     public static let tagTimeCharWidth: CGFloat = 4.9
     public static let tagHeight: CGFloat = 25
-    public static let tagClearance: CGFloat = 3
+    public static let tagClearance: CGFloat = 8
     /// Stem lengths tried in order; anchors tried along the slab (fractions of its length).
     public static let stemCandidates: [CGFloat] = [14, 22, 30, 40, 52, 64, 78, 94, 112, 132, 150]
     public static let anchorFractions: [CGFloat] = [0.5, 0.38, 0.62, 0.26, 0.74, 0.14, 0.86, 0.06, 0.94]
@@ -89,6 +89,7 @@ public enum TakeawaysIsoConstants {
 /// Remembers the chosen grid view for the rest of the app session (resets to ISOMETRIC on launch).
 enum TakeawaysViewMemory {
     nonisolated(unsafe) static var isometric: Bool = !CommandLine.arguments.contains("-takeawaysFlat")
+    nonisolated(unsafe) static var receiptIsometric: Bool = CommandLine.arguments.contains("-receiptIso")
 }
 
 // MARK: - Projection
@@ -113,25 +114,37 @@ public struct TakeawaysArtifact: Identifiable, Equatable {
     public let end: Double
     public let name: String
     public let assetName: String?
+    public let entryID: String?
+
+    public var timestampDisplay: String {
+        let s = start
+        return String(format: "%d:%02d", Int(s) / 60, Int(s) % 60)
+    }
 
     public var timeRange: String {
         func f(_ s: Double) -> String { String(format: "%d:%02d", Int(s) / 60, Int(s) % 60) }
         return "\(f(start))\u{2013}\(f(end))"
     }
 
+    /// Canonical demo artifacts using the bundled whiteboard assets
+    public static let canonicalDemoBase: [(Int, Double, Double, String, String)] = [
+        (0, 10, 12, "Moodboard", "whiteboard_1"),
+        (0, 20, 22, "Signal map", "whiteboard_2"),
+        (1, 8, 10, "Core idea", "whiteboard_3"),
+        (2, 6, 8, "UI frame", "whiteboard_1"),
+        (3, 6, 8, "Field photo", "whiteboard_2")
+    ]
+
+    public static var canonicalNames: [String] {
+        canonicalDemoBase.map { $0.3 }
+    }
+
     /// Seeded demo artifacts (bundled whiteboards) so 3-5 slabs always carry one; the long run repeats the pattern.
     public static func demo(long: Bool) -> [TakeawaysArtifact] {
-        let base: [(Int, Double, Double, String, String)] = [
-            (0, 10, 12, "Moodboard", "artifact_moodboard"),
-            (0, 20, 22, "Signal map", "artifact_data"),
-            (1, 8, 10, "Core idea", "artifact_stickies"),
-            (2, 6, 8, "UI frame", "artifact_figma"),
-            (3, 6, 8, "Field photo", "artifact_scene")
-        ]
         let shifts: [Double] = long ? [0, 28, 56] : [0]
         return shifts.flatMap { shift in
-            base.map { TakeawaysArtifact(id: "demo_\($0.0)_\(Int($0.1 + shift))", agentId: $0.0, start: $0.1 + shift,
-                                         end: $0.2 + shift, name: $0.3, assetName: $0.4) }
+            canonicalDemoBase.map { TakeawaysArtifact(id: "demo_\($0.0)_\(Int($0.1 + shift))", agentId: $0.0, start: $0.1 + shift,
+                                         end: $0.2 + shift, name: $0.3, assetName: $0.4, entryID: nil) }
         }
     }
 
@@ -139,7 +152,7 @@ public struct TakeawaysArtifact: Identifiable, Equatable {
     public static func live(_ entries: [KnowledgeEntry]) -> [TakeawaysArtifact] {
         entries.compactMap { e in
             guard let m = e.media, let a = e.agentId, let t = e.elapsedSeconds else { return nil }
-            return TakeawaysArtifact(id: "live_\(e.id)", agentId: a, start: t, end: t + 2, name: m.title, assetName: m.assetName)
+            return TakeawaysArtifact(id: "live_\(e.id)", agentId: a, start: t, end: t + 2, name: m.title, assetName: m.assetName, entryID: e.id)
         }
     }
 }
@@ -171,6 +184,11 @@ struct IsoPiece: Identifiable {
         guard let c = cell else { return "" }
         func f(_ s: Double) -> String { String(format: "%d:%02d", Int(s) / 60, Int(s) % 60) }
         return "\(f(c.startTime))\u{2013}\(f(c.endTime))"
+    }
+
+    var isOpenQuestion: Bool {
+        guard let c = cell else { return false }
+        return (c.actions[.questions] ?? 0) > 0
     }
 
     /// Consecutive active slices merge into one slab (bridging short empty gaps); each remaining run of empty time is one tile.
@@ -331,52 +349,65 @@ struct IsoSlabView: View {
         let glow = min(dark ? C.glowOpacityCapDark : C.glowOpacityCapLight, C.glowOpacityBase + C.glowOpacityPerAction * n)
         let glowColor = sprite.gradientColors.first ?? .gray
 
-        if rise < 0.02 {
-            // Flat reading view: a clean tinted plate (agent gradient at intensity opacity), no glass stack.
-            top.fill(sprite.takeawayGradient(for: colorScheme)).opacity(min(1, fillOp + 0.1))
-                .overlay(top.stroke(Color.white.opacity(dark ? C.rimOpacityDark : C.rimOpacityLight), lineWidth: C.rimWidth))
-                .frame(width: bb.width, height: bb.height)
-                .position(x: bb.midX, y: bb.midY)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-        } else {
         ZStack {
-            body.fill(glowColor).blur(radius: C.glowRadius).opacity(glow * Double(0.35 + 0.65 * rise))
-            ZStack {
-                body.fill(.ultraThinMaterial)
-                if let ui = TakeawaysArtifactImages.image(artifact?.assetName) {
-                    // Blurred artifact, still, inside the frosted glass (the reference's ambient-video look);
-                    // the agent colour multiplies over it so ink reads as shifts of tint.
-                    Image(uiImage: ui)
-                        .resizable().scaledToFill()
-                        .frame(width: bb.width, height: bb.height)
-                        .scaleEffect(C.artifactZoom)
-                        .clipped()
-                        .blur(radius: C.artifactBlur)
-                        .saturation(C.artifactSaturation)
-                        .contrast(C.artifactContrast)
-                        .mask { body.fill(Color.black) }
-                    body.fill(sprite.takeawayGradient(for: colorScheme)).opacity(C.artifactTintOverlay)
-                    body.fill(sprite.takeawayGradient(for: colorScheme))
-                        .blendMode(.multiply)
-                        .opacity(dark ? C.artifactTintMultiply * 0.8 : C.artifactTintMultiply)
-                } else {
-                    body.fill(sprite.takeawayGradient(for: colorScheme)).opacity(fillOp)
-                }
-                body.fill(LinearGradient(colors: [.white.opacity(C.sheenTop * 0.5), .white.opacity(0)],
-                                         startPoint: .top, endPoint: .bottom))
+            // Flat plate representation (visible at rest in flat mode, fades out smoothly as rise extrudes)
+            if rise < 0.95 {
+                top.fill(sprite.takeawayGradient(for: colorScheme)).opacity(min(1, fillOp + 0.1) * max(0, 1.0 - Double(rise) * 2.0))
+                    .overlay(
+                        Group {
+                            if piece.isOpenQuestion {
+                                top.stroke(Color.primary.opacity(dark ? 0.80 : 0.85), style: StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                            } else {
+                                top.stroke(Color.white.opacity(dark ? C.rimOpacityDark : C.rimOpacityLight), lineWidth: C.rimWidth)
+                            }
+                        }
+                    )
             }
-            .blur(radius: C.blurRadius)
-            top.fill(LinearGradient(colors: [.white.opacity(dark ? C.sheenTop * 0.55 : C.sheenTop),
-                                             .white.opacity(C.sheenBottom)],
-                                    startPoint: .topLeading, endPoint: .bottomTrailing))
-            top.stroke(Color.white.opacity(dark ? C.rimOpacityDark : C.rimOpacityLight), lineWidth: C.rimWidth)
+            // Extruded glass representation (rises smoothly, side faces softer)
+            if rise > 0.01 {
+                ZStack {
+                    body.fill(glowColor).blur(radius: C.glowRadius).opacity(glow * Double(0.35 + 0.65 * rise))
+                    ZStack {
+                        body.fill(.ultraThinMaterial)
+                        if let ui = TakeawaysArtifactImages.image(artifact?.assetName) {
+                            // Blurred artifact, still, inside the frosted glass;
+                            // the agent colour multiplies over it so ink reads as shifts of tint.
+                            Image(uiImage: ui)
+                                .resizable().scaledToFill()
+                                .frame(width: bb.width, height: bb.height)
+                                .scaleEffect(C.artifactZoom)
+                                .clipped()
+                                .blur(radius: C.artifactBlur)
+                                .saturation(C.artifactSaturation)
+                                .contrast(C.artifactContrast)
+                                .mask { body.fill(Color.black) }
+                            body.fill(sprite.takeawayGradient(for: colorScheme)).opacity(C.artifactTintOverlay)
+                            body.fill(sprite.takeawayGradient(for: colorScheme))
+                                .blendMode(.multiply)
+                                .opacity(dark ? C.artifactTintMultiply * 0.8 : C.artifactTintMultiply)
+                        } else {
+                            body.fill(sprite.takeawayGradient(for: colorScheme)).opacity(fillOp)
+                        }
+                        body.fill(LinearGradient(colors: [.white.opacity(C.sheenTop * 0.5), .white.opacity(0)],
+                                                 startPoint: .top, endPoint: .bottom))
+                    }
+                    .blur(radius: C.blurRadius)
+                    top.fill(LinearGradient(colors: [.white.opacity(dark ? C.sheenTop * 0.55 : C.sheenTop),
+                                                     .white.opacity(C.sheenBottom)],
+                                            startPoint: .topLeading, endPoint: .bottomTrailing))
+                    if piece.isOpenQuestion {
+                        top.stroke(Color.primary.opacity(dark ? 0.80 : 0.85), style: StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                    } else {
+                        top.stroke(Color.white.opacity(dark ? C.rimOpacityDark : C.rimOpacityLight), lineWidth: C.rimWidth)
+                    }
+                }
+                .opacity(min(1.0, Double(rise) * 2.0))
+            }
         }
         .frame(width: bb.width, height: bb.height)
         .position(x: bb.midX, y: bb.midY)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
-        }
     }
 }
 
@@ -387,7 +418,7 @@ struct IsoTagView: View {
         let C = TakeawaysIsoConstants.self
         VStack(spacing: 0) {
             Text(artifact.name).font(.system(size: C.tagFontSize, weight: .regular))
-            Text(artifact.timeRange).font(.yaya(size: C.tagTimeFontSize)).foregroundStyle(.secondary)
+            Text(artifact.timestampDisplay).font(.yaya(size: C.tagTimeFontSize)).foregroundStyle(.secondary)
         }
         .lineLimit(1)
         .foregroundStyle(.primary)
@@ -411,7 +442,7 @@ struct IsoPlacedTag: Identifiable {
     var id: String { piece.id }
     var pillSize: CGSize {
         let C = TakeawaysIsoConstants.self
-        let w = max(CGFloat(artifact.name.count) * C.tagNameCharWidth, CGFloat(artifact.timeRange.count) * C.tagTimeCharWidth)
+        let w = max(CGFloat(artifact.name.count) * C.tagNameCharWidth, CGFloat(artifact.timestampDisplay.count) * C.tagTimeCharWidth)
         return CGSize(width: w + 2 * C.tagHPad, height: C.tagHeight)
     }
     var pillRect: CGRect {
@@ -732,7 +763,7 @@ public struct IsometricContributionGridView: View {
             }
             .mask { windowMask(layout: layout, t: t, active: maxScroll > 0) }
 
-            // Row labels (FLAT only)
+            // Row labels (FLAT: full sprite and name; ISO: small mono agent name at start of lane)
             if t < 0.4 {
                 ForEach(Array(rows.enumerated()), id: \.element.id) { lane, row in
                     let pos = layout.screen(CGPoint(x: -(C.spriteSize / 2 + 8),
@@ -749,6 +780,18 @@ public struct IsometricContributionGridView: View {
                     .allowsHitTesting(false)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(row.rowSummary)
+                }
+            } else {
+                ForEach(Array(rows.enumerated()), id: \.element.id) { lane, row in
+                    let pos = layout.screen(CGPoint(x: -4,
+                                                    y: CGFloat(lane) * layout.laneStride + layout.thickness / 2), t: t)
+                    Text(row.name.uppercased())
+                        .font(.yaya(size: 8, weight: .semibold))
+                        .foregroundStyle(Color.primary.opacity(0.55))
+                        .opacity(min(1.0, Double(t - 0.4) * 2.5) * laneOpacity(row.name))
+                        .position(x: pos.x - 14, y: pos.y)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
                 }
             }
 
@@ -781,6 +824,7 @@ public struct IsometricContributionGridView: View {
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("\(cell.agentName), \(cell.timeRangeString), \(cell.actionsSummary)" + (artifact(for: piece).map { ", artifact \($0.name)" } ?? ""))
+                    .accessibilityHint("Opens the moment")
                     .accessibilityAddTraits(.isButton)
             }
         }
@@ -839,7 +883,7 @@ struct GridViewModeToggle: View {
     let isometric: Bool
     let onSelect: (Bool) -> Void
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             pill("FLAT", selected: !isometric, iso: false)
             pill("ISOMETRIC", selected: isometric, iso: true)
         }
@@ -850,12 +894,12 @@ struct GridViewModeToggle: View {
             Text(title)
                 .font(.yaya(size: TakeawaysIsoConstants.toggleFontSize))
                 .foregroundStyle(Color.primary.opacity(selected ? 1 : 0.3))
-                .padding(.horizontal, 10).padding(.vertical, 5)
+                .padding(.horizontal, 14).padding(.vertical, 8)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(Color.primary.opacity(selected ? 1 : 0.0), lineWidth: 1)
                 )
-                .padding(.horizontal, 2).padding(.vertical, 8)
+                .frame(minWidth: 64, minHeight: 44)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

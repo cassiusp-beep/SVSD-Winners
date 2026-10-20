@@ -104,7 +104,8 @@ public struct ExportFlowView: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: Circle())
+        .glassEffect(.regular, in: Circle())
+        .overlay(Circle().stroke(Color.primary.opacity(0.12), lineWidth: 1))
         .accessibilityLabel(label)
     }
     
@@ -188,35 +189,52 @@ public struct ExportFlowView: View {
     
     private func optionCard(_ option: ExportFormat) -> some View {
         let isSelected = format == option
+        let isComingSoon = option == .video
         return Button {
+            if isComingSoon {
+                toast = CaptureToastItem(message: "Video export is coming soon", thumbnail: nil, isLink: false, isHint: true, systemImage: "film")
+                AccessibilityNotification.Announcement("Video export is coming soon").post()
+                return
+            }
             guard format != option else { return }
             withAnimation(pickerAnimation) { format = option }
         } label: {
             HStack(alignment: .center, spacing: 14) {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(Color.primary.opacity(0.06))
-                    .frame(width: tileSize, height: tileSize)
+                    .frame(width: min(tileSize, 48), height: min(tileSize, 48))
                     .overlay { ExportOptionIcon(option: option) }
                     .accessibilityHidden(true)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(option.title)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.primary)
+                    HStack(spacing: 8) {
+                        Text(option.title)
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(.primary)
+                        if isComingSoon {
+                            Text("COMING SOON")
+                                .font(Font.yaya(size: 9, weight: .bold))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6).padding(.vertical, 2)
+                                .background(Capsule().fill(Color.primary.opacity(0.08)))
+                        }
+                    }
                     Text(option.detail)
                         .font(.system(size: 15))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(option.formatLine)
-                        .font(Font.yaya(size: monoSize))
+                        .font(Font.yaya(size: min(monoSize, 12)))
                         .tracking(0.6)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary.opacity(0.85))
                         .padding(.top, 2)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                ExportRadio(isOn: isSelected)
-                    .accessibilityHidden(true)
+                if !isComingSoon {
+                    ExportRadio(isOn: isSelected)
+                        .accessibilityHidden(true)
+                }
             }
             .padding(14)
             .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(background))
@@ -224,12 +242,12 @@ public struct ExportFlowView: View {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .stroke(isSelected ? Color.primary : Color.primary.opacity(0.14), lineWidth: isSelected ? 2 : 1)
             )
+            .opacity(isComingSoon ? 0.6 : 1.0)
             .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
-        .sensoryFeedback(.impact(weight: .light), trigger: format) { old, new in new == option && old != new }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(option.title), \(option.detail), \(option.formatLine.replacingOccurrences(of: "·", with: "")), \(isSelected ? "selected" : "not selected")")
+        .accessibilityLabel("\(option.title), \(option.detail), \(isComingSoon ? "coming soon" : (isSelected ? "selected" : "not selected"))")
         .accessibilityAddTraits(.isButton)
     }
     
@@ -289,7 +307,7 @@ public struct ExportFlowView: View {
         .overlay(alignment: .top) {
             if let toast {
                 CaptureToast(item: toast)
-                    .padding(.top, 68)
+                    .padding(.top, 14)
                     .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                     .id(toast.id)
             }
@@ -341,9 +359,9 @@ public struct ExportFlowView: View {
                     .foregroundStyle(isOn.wrappedValue ? Color.primary : Color.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Text(value)
-                    .font(Font.yaya(size: monoSize))
+                    .font(Font.yaya(size: min(monoSize, 12)))
                     .tracking(0.6)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary.opacity(0.85))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
@@ -351,7 +369,6 @@ public struct ExportFlowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .sensoryFeedback(.impact(weight: .light), trigger: isOn.wrappedValue)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(label), \(value.lowercased()), \(isOn.wrappedValue ? "checked" : "not checked")")
         .accessibilityAddTraits(.isButton)
@@ -367,7 +384,7 @@ public struct ExportFlowView: View {
     private func performExport() {
         guard !selection.isEmpty else { return }
         if format == .video {
-            toast = CaptureToastItem(message: "Video export is coming soon", thumbnail: nil, isLink: false, isHint: true)
+            toast = CaptureToastItem(message: "Video export is coming soon", thumbnail: nil, isLink: false, isHint: true, systemImage: "film")
             AccessibilityNotification.Announcement("Video export is coming soon").post()
             return
         }
@@ -508,26 +525,33 @@ struct ExportPreviewCard: View {
     private var videoCard: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.primary.opacity(0.9))
-                .overlay(alignment: .bottomLeading) {
-                    Text(snapshot.name)
-                        .font(.system(size: 15, weight: .heavy))
-                        .foregroundStyle(Color(.systemBackground))
-                        .lineLimit(2)
-                        .padding(14)
-                }
+                .fill(Color.primary.opacity(0.88))
+            if let ui = TakeawaysArtifactImages.image("whiteboard_1") {
+                Image(uiImage: ui)
+                    .resizable().scaledToFill()
+                    .frame(height: 150)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(Color.black.opacity(0.42))
+            }
             Image(systemName: "play.fill")
                 .font(.system(size: 30))
-                .foregroundStyle(Color(.systemBackground))
+                .foregroundStyle(.white)
                 .frame(width: 64, height: 64)
-                .background(Circle().fill(Color(.systemBackground).opacity(0.18)))
+                .background(Circle().fill(Color.white.opacity(0.22)))
         }
         .frame(height: 150)
         .overlay(alignment: .topTrailing) {
             Text("ABOUT 40 SEC")
-                .font(Font.yaya(size: monoSize)).tracking(0.8)
-                .foregroundStyle(Color(.systemBackground).opacity(0.8))
+                .font(Font.yaya(size: min(monoSize, 12))).tracking(0.8)
+                .foregroundStyle(Color.white.opacity(0.9))
                 .padding(12)
+        }
+        .overlay(alignment: .bottomLeading) {
+            Text(snapshot.name)
+                .font(.system(size: 15, weight: .heavy))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .padding(14)
         }
         .padding(14)
         .accessibilityLabel("Preview of the video, about 40 seconds")
@@ -542,11 +566,11 @@ struct ExportPreviewCard: View {
             ForEach(rows, id: \.self) { r in
                 HStack(spacing: 10) {
                     Image(systemName: "doc.text").font(.system(size: 15)).foregroundStyle(.secondary)
-                    Text(r).font(Font.yaya(size: monoSize + 2)).foregroundStyle(.primary)
+                    Text(r).font(Font.yaya(size: min(monoSize, 12) + 2)).foregroundStyle(.primary)
                 }
             }
             if rows.isEmpty {
-                Text("Your sprite and direction only").font(Font.yaya(size: monoSize + 2)).foregroundStyle(.secondary)
+                Text("Your sprite and direction only").font(Font.yaya(size: min(monoSize, 12) + 2)).foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -573,11 +597,22 @@ struct ExportMiniMapView: View {
     
     private func position(_ id: String, in size: CGSize) -> CGPoint {
         let f: (CGFloat, CGFloat)
-        if id == map.main.id { f = (0.5, 0.17) }
-        else if id == map.artifact?.id { f = (0.36, 0.5) }
-        else if id == map.colored?.id { f = (0.7, 0.8) }
-        else if let i = map.extras.firstIndex(where: { $0.id == id }) { f = i == 0 ? (0.74, 0.4) : (0.25, 0.86) }
-        else { f = (0.5, 0.5) }
+        let otherNodes = map.nodes.filter { $0.id != map.main.id }
+        if id == map.main.id {
+            f = (0.50, 0.22)
+        } else if let idx = otherNodes.firstIndex(where: { $0.id == id }) {
+            if otherNodes.count == 1 {
+                f = (0.50, 0.72)
+            } else if otherNodes.count == 2 {
+                f = idx == 0 ? (0.28, 0.72) : (0.72, 0.72)
+            } else {
+                if idx == 0 { f = (0.26, 0.58) }
+                else if idx == 1 { f = (0.74, 0.58) }
+                else { f = (0.50, 0.84) }
+            }
+        } else {
+            f = (0.5, 0.5)
+        }
         var x = size.width * f.0, y = size.height * f.1
         // Keep the whole pill inside the card, with padding (uses measured size).
         if let n = nodeSizes[id] {
@@ -616,24 +651,26 @@ struct ExportMiniMapView: View {
     private func node(_ e: KnowledgeEntry) -> some View {
         if e.id == map.main.id {
             Text(e.shortLabel)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color(.systemBackground))
-                .lineLimit(1)
-                .padding(.horizontal, 16).padding(.vertical, 10)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 14).padding(.vertical, 8)
                 .background(Capsule().fill(Color.primary))
-                .frame(maxWidth: 240)
+                .frame(maxWidth: 220)
         } else if e.id == map.artifact?.id {
             VStack(alignment: .leading, spacing: 3) {
                 Text(e.media?.title ?? e.shortLabel)
-                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(.primary).lineLimit(1)
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(.primary)
+                    .lineLimit(2)
                 HStack(spacing: 4) {
                     Image(systemName: "doc").font(.system(size: 9))
-                    Text((e.media?.source ?? "").uppercased()).font(Font.yaya(size: monoSize)).lineLimit(1)
+                    Text((e.media?.source ?? "").uppercased()).font(Font.yaya(size: min(monoSize, 11))).lineLimit(1)
                 }
                 .foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 12).padding(.vertical, 9)
-            .frame(maxWidth: 190, alignment: .leading)
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .frame(maxWidth: 180, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(.systemBackground)))
             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.primary.opacity(0.18), lineWidth: 1))
         } else if e.id == map.colored?.id {
@@ -641,17 +678,19 @@ struct ExportMiniMapView: View {
             Text(e.shortLabel)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(.white)
-                .lineLimit(1)
-                .padding(.horizontal, 12).padding(.vertical, 9)
-                .frame(maxWidth: 170)
-                .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(FamilyAccent.color(for: family, scheme: .light)))
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .frame(maxWidth: 160)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(FamilyAccent.color(for: family, scheme: .light)))
         } else {
             Text(e.shortLabel)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.primary)
-                .lineLimit(1)
-                .padding(.horizontal, 12).padding(.vertical, 7)
-                .frame(maxWidth: 128)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .frame(maxWidth: 130)
                 .background(Capsule().fill(Color(.systemBackground)))
                 .overlay(Capsule().stroke(Color.primary.opacity(0.18), lineWidth: 1))
         }

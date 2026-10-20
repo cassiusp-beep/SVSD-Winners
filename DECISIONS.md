@@ -2,6 +2,31 @@
 
 Significant product and design choices, newest first. Each entry is also raw material for the "how we got here" part of the submission video.
 
+## October 19, 2026: Team Receipt, Teammate Thinker Filter & Solo/Group Session Toggle (Decision 021)
+
+**Decided:**
+1. **Team Receipt (Step e):** Implemented `TeamReceiptView` adhering strictly to studio rules (pure black/white backgrounds, high-contrast typography, zero generic AI glow, strictly NO "NEXT STEP" card). Features a header with dynamic metadata (`12 MIN · MAKING YAYA · 19 OCT 2026`), `ExportShareButton`, and an up-chevron return button floating cleanly above the system tab bar.
+2. **Teammate Thinker Cards & Interactive Filtering:** Displays the 4 real teammates with their thinker sprites and roles (Cash / Cloud / Synthesizer, Bhargs / Bloom / Systems, Alex / Prism / Product, Naheel / Spark / Strategy). Tapping any teammate toggles lane filtering: the selected teammate's lane remains at 100% opacity on the contribution timeline while all other lanes dim to 30%, accompanied by an active filter pill tag (`Showing <Name> [x]`).
+3. **Session Takeaways Bento:** Comprises a hero agreed insight card (`AGREED · YOUR IDEA: One person first, teams later`), resolved friction counter (`3 FRICTION: Granola, but for teams`), artifact counter (`5 ARTIFACTS`), and open questions metric (`6 OPEN QUESTION`) styled with an authentic dashed border matching the timeline.
+4. **Dashed Open Question Blocks:** Open question moments on the contribution timeline render with crisp dashed outline strokes (`dash: [4, 3]`), visually distinguishing unresolved threads from committed agreements.
+5. **Default FLAT with FLAT/ISOMETRIC Toggle:** The Receipt strip defaults to FLAT projection per specification (unlike Solo Takeaways which defaults to ISOMETRIC), with a `GridViewModeToggle` enabling 45° 3D isometric projection with extruded frosted glass and artifact tags.
+6. **Bidirectional Solo/Group Switcher:** Added a `ScopeSwitcherPill` on `readyCanvas` (Session screen before recording) and within both Solo Takeaways and Team Receipt headers, enabling seamless switching between individual synthesis and team contribution receipts.
+
+**Why:** Grounding team takeaways in an authentic, legible receipt gives interdisciplinary groups a concrete artifact of collective emergence without AI meeting-summary fluff. Attributing moments by thinker archetype reinforces individual identity within group collaboration.
+
+## October 19, 2026: Takeaways Moment Detail Sheet & Human Teammate Thinker Sprites (Decision 020)
+
+**Decided:**
+1. **Direct tap-to-sheet (Step d):** Tapping any slab or moment in Takeaways immediately opens `MomentDetailSheet` (matching reference frame `08d · Node: from the session` pixel-for-pixel). Dropped intermediate "complete" step in favor of direct tap-to-sheet. Dismissing leaves Insights/Knowledge filtered to that moment.
+2. **Interactive Audio Scrubber & Dialogue:** `MomentDetailSheet` features an interactive audio scrubber card (`04:12-05:40`, 1:28 duration) with an amber-to-pink gradient track, circular play/pause button, and dialogue rows for speakers (Naheel with photo avatar + Spark thinker sprite ear; Bhargs with golden Bloom sprite avatar and eye dots).
+3. **Whiteboard Sources & Linked Threads:** Displays horizontal cards for whiteboard sources (`whiteboard_1`, `whiteboard_2`, `whiteboard_3`) and linked threads with status badges (`RESOLVED FRICTION`, `BACKS THIS UP`), with `LINKED THREADS · 5` indicator.
+4. **Human teammates get thinker sprites:** Human teammates (Cash, Bhargs, Alex, Naheel) are attributed by name and their profile sprites (which indicate what type of thinker you are during a session: Cash/Cloud, Bhargs/Bloom, Alex/Prism, Naheel/Spark). Teammates retain their own set of agents via the user's own agents.
+5. **Callout single timestamp:** Callout pill tags display a single timestamp (e.g. `0:10`) rather than a range (`0:10–0:12`).
+6. **Export options & date formatting:** Export format option renamed to "Summary" (was "Interactive map"). Video replay card marked "COMING SOON" and made non-selectable. Export markdown documents use dynamic formatted date (`d MMM yyyy`) instead of "TODAY".
+7. **N04 Intent settled:** The N04 intent step is officially established as an engaging 3-question scored quiz mapping to sprite thinker archetypes, with an audio Talk option.
+
+**Why:** Direct tap-to-sheet eliminates unnecessary navigation friction and matches the approved 08d reference frame. Representing teammates by name with thinker archetypes connects the individual onboarding identity directly into collaborative sessions.
+
 ## October 19, 2026: Takeaways isometric grid, in progress (Decision 019)
 
 **Status:** In progress, not finished. Built in `IsometricContributionGrid.swift`: the flat and isometric grid, blurred artifact images inside slabs, "Artifact · time" callouts, and the FLAT/ISOMETRIC toggle with tilt → extrude → callout fade. Not built yet: the arrival sequence (step c), tap → moment sheet in Insights (step d), and the team receipt with the Solo/Group toggle (step e). The Takeaways light sweep is removed. The sweep constants remain in `ContributionGrid.swift` only because `ProfileHistoryGridView` still uses them.

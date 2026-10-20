@@ -490,7 +490,7 @@ public struct OnboardingFlowView: View {
         }
         .onChange(of: currentStep) { oldStep, newStep in
             handleStepChange(from: oldStep, to: newStep)
-            updateSpriteLanding(to: newStep)
+            updateSpriteLanding(to: newStep, from: oldStep)
         }
         .onChange(of: store.session) { _, newSession in
             if newSession != nil && currentStep == .signIn {
@@ -2179,11 +2179,17 @@ public struct OnboardingFlowView: View {
         step == .integrations || step == .syncing || step == .complete
     }
     
-    private func updateSpriteLanding(to step: OnboardingStep) {
+    private func updateSpriteLanding(to step: OnboardingStep, from oldStep: OnboardingStep? = nil) {
         landingTask?.cancel()
         guard Self.isStageStep(step) else {
             var t = Transaction(); t.disablesAnimations = true
             withTransaction(t) { spriteLanded = false }
+            return
+        }
+        // When advancing from .reveal directly into .integrations, keep spriteLanded true
+        // so the thinker sprite glides smoothly into the integrations stage instead of vanishing
+        if oldStep == .reveal && step == .integrations {
+            spriteLanded = true
             return
         }
         guard !spriteLanded else { return }

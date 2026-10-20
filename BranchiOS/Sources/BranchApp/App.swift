@@ -3,6 +3,10 @@ import BranchiOS
 
 @main
 struct BranchApp: App {
+    init() {
+        ExportFileWriter.cleanUp()
+    }
+    
     var body: some Scene {
         WindowGroup {
             rootView
@@ -14,7 +18,11 @@ struct BranchApp: App {
     
     @ViewBuilder
     private var rootView: some View {
-        if CommandLine.arguments.contains("-exportFlow") {
+        if CommandLine.arguments.contains("-receipt") || CommandLine.arguments.contains("-teamReceipt") {
+            CollaborationSessionView(store: mockFilledStore, initialMode: .takeaways)
+        } else if CommandLine.arguments.contains("-momentDetail") || CommandLine.arguments.contains("-nodeFromSession") {
+            CollaborationSessionView(store: mockFilledStore, initialMode: .takeaways)
+        } else if CommandLine.arguments.contains("-exportFlow") {
             ExportFlowView(
                 store: mockFilledStore,
                 scope: ExportFlowView.launchScope ?? .session,

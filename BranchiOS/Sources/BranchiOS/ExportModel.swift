@@ -18,14 +18,14 @@ public enum ExportFormat: String, CaseIterable, Identifiable, Sendable {
     
     var title: String {
         switch self {
-        case .map: return "Interactive map"
+        case .map: return "Summary"
         case .video: return "Video replay"
         case .package: return "Agent package"
         }
     }
     var detail: String {
         switch self {
-        case .map: return "People explore your threads and open the sources behind them."
+        case .map: return "A readable overview of your threads, key quotes, and sources."
         case .video: return "A short, step-by-step video of how your work grew."
         case .package: return "Your insights, timeline and sources, ready to hand to an AI tool."
         }
@@ -108,42 +108,49 @@ public extension DemoStore {
 
 struct ExportMiniMap {
     let main: KnowledgeEntry
-    let artifact: KnowledgeEntry?
-    let colored: KnowledgeEntry?
-    let extras: [KnowledgeEntry]
+    let nodes: [KnowledgeEntry]
     let edges: [(String, String)]
     
-    var all: [KnowledgeEntry] { [main] + [artifact, colored].compactMap { $0 } + extras }
+    var all: [KnowledgeEntry] { nodes }
+    var artifact: KnowledgeEntry? { nodes.first { $0.id != main.id && $0.media != nil } }
+    var colored: KnowledgeEntry? { nodes.first { $0.id != main.id && $0.id != artifact?.id && $0.actor.sprite != nil } }
+    var extras: [KnowledgeEntry] { nodes.filter { $0.id != main.id && $0.id != artifact?.id && $0.id != colored?.id } }
     
     init?(entries: [KnowledgeEntry]) {
-        guard let main = entries.first(where: { $0.isEmergent })
+        guard !entries.isEmpty else { return nil }
+        guard let primary = entries.first(where: { $0.isEmergent })
                 ?? entries.first(where: { $0.isCombination })
-                ?? entries.max(by: { $0.links.count < $1.links.count }) else { return nil }
-        self.main = main
-        var used: Set<String> = [main.id]
-        func connected(_ e: KnowledgeEntry) -> Bool {
-            main.links.contains { $0.targetEntryID == e.id } || e.links.contains { $0.targetEntryID == main.id }
+                ?? entries.max(by: { $0.links.count < $1.links.count })
+                ?? entries.first else { return nil }
+        self.main = primary
+        
+        var selected: [KnowledgeEntry] = [primary]
+        var selectedIDs: Set<String> = [primary.id]
+        
+        let connected = entries.filter { e in
+            e.id != primary.id && (primary.links.contains { $0.targetEntryID == e.id } || e.links.contains { $0.targetEntryID == primary.id })
         }
-        let pool = entries.filter { $0.id != main.id }
-        let ranked = pool.filter(connected) + pool.filter { !connected($0) }
+        if let art = connected.first(where: { $0.media != nil }) ?? entries.first(where: { $0.id != primary.id && $0.media != nil }) {
+            selected.append(art)
+            selectedIDs.insert(art.id)
+        }
+        for candidate in (connected + entries) where !selectedIDs.contains(candidate.id) && selected.count < 4 {
+            selected.append(candidate)
+            selectedIDs.insert(candidate.id)
+        }
+        self.nodes = selected
         
-        artifact = ranked.first(where: { $0.media != nil })
-        if let a = artifact { used.insert(a.id) }
-        colored = ranked.first(where: { !used.contains($0.id) && $0.actor.sprite != nil })
-            ?? ranked.first(where: { !used.contains($0.id) })
-        if let c = colored { used.insert(c.id) }
-        let more = ranked.filter { !used.contains($0.id) }.prefix(2)
-        extras = Array(more)
-        
-        let ids = Set(([main] + [artifact, colored].compactMap { $0 } + extras).map(\.id))
-        var e: [(String, String)] = []
-        for entry in [artifact, colored].compactMap({ $0 }) + extras { e.append((main.id, entry.id)) }
-        for entry in entries where ids.contains(entry.id) {
-            for l in entry.links where ids.contains(l.targetEntryID) && l.targetEntryID != main.id && entry.id != main.id {
-                e.append((entry.id, l.targetEntryID))
+        // Strictly real KnowledgeLink edges between the selected nodes
+        var realEdges: [(String, String)] = []
+        for entry in selected {
+            for link in entry.links where selectedIDs.contains(link.targetEntryID) {
+                let a = entry.id, b = link.targetEntryID
+                if !realEdges.contains(where: { ($0.0 == a && $0.1 == b) || ($0.0 == b && $0.1 == a) }) {
+                    realEdges.append((a, b))
+                }
             }
         }
-        edges = e
+        self.edges = realEdges
     }
 }
 
@@ -167,17 +174,20 @@ struct ExportDocument {
         let f = DateFormatter()
         f.dateFormat = "d MMM yyyy"
         f.locale = Locale(identifier: "en_US_POSIX")
-        dateText = f.string(from: date)
+        let formattedDate = f.string(from: date)
+        dateText = formattedDate
         var s: [ExportSection] = []
         if selection.threads {
             s.append(ExportSection(kind: .threads, heading: "Threads (\(snapshot.threadCount))", lines: snapshot.entries.map {
-                "\($0.shortLabel) (\($0.actor.displayName), \($0.dateDisplay))"
+                let d = $0.dateDisplay == "TODAY" ? formattedDate : $0.dateDisplay
+                return "\($0.shortLabel) (\($0.actor.displayName), \(d))"
             }))
         }
         if selection.sources {
             s.append(ExportSection(kind: .sources, heading: "Sources and links (\(snapshot.sourceCount))", lines: snapshot.sourceEntries.compactMap { e in
                 guard let m = e.media else { return nil }
-                var line = "\(m.title) (\(m.source), \(m.dateString))"
+                let d = m.dateString == "TODAY" ? formattedDate : m.dateString
+                var line = "\(m.title) (\(m.source), \(d))"
                 if let url = m.linkURL { line += " " + url.absoluteString }
                 else if let snip = m.previewSnippet, !snip.isEmpty { line += ": \(snip)" }
                 return line
@@ -242,10 +252,10 @@ struct ExportDocument {
 // MARK: - File writer
 
 #if canImport(UIKit)
-enum ExportFileWriter {
-    static var root: URL { FileManager.default.temporaryDirectory.appendingPathComponent("YaYaExport", isDirectory: true) }
+public enum ExportFileWriter {
+    public static var root: URL { FileManager.default.temporaryDirectory.appendingPathComponent("YaYaExport", isDirectory: true) }
     
-    static func cleanUp() { try? FileManager.default.removeItem(at: root) }
+    public static func cleanUp() { try? FileManager.default.removeItem(at: root) }
     
     static func baseName(_ name: String, date: Date = Date()) -> String {
         let f = DateFormatter()
@@ -280,7 +290,9 @@ enum ExportFileWriter {
         let folder = dir.appendingPathComponent(base, isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         if doc.hasInsightsContent {
-            try doc.markdown(kinds: [.threads, .quotes, .sprite], title: "\(doc.name): insights")
+            try doc.markdown(kinds: [.threads], title: "\(doc.name): timeline")
+                .write(to: folder.appendingPathComponent("timeline.md"), atomically: true, encoding: .utf8)
+            try doc.markdown(kinds: [.quotes, .sprite], title: "\(doc.name): insights")
                 .write(to: folder.appendingPathComponent("insights.md"), atomically: true, encoding: .utf8)
         }
         if doc.hasSourcesContent {

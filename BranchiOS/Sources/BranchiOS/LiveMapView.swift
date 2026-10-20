@@ -707,14 +707,18 @@ public struct LiveMapView: View {
             
             // Alex (Bottom Right)
             agentAnchorView(name: "Alex", role: "Product", sprite: .prism, actor: .alex)
-                .position(x: w * 0.84, y: h * 0.72)
+                .position(x: w * 0.84, y: bottomAgentY(h: h))
                 .onTapGesture { toggleActorIsolation(.alex) }
             
             // Sam (Bottom Left)
             agentAnchorView(name: "Sam", role: "Research", sprite: .spark, actor: .sam)
-                .position(x: w * 0.16, y: h * 0.72)
+                .position(x: w * 0.16, y: bottomAgentY(h: h))
                 .onTapGesture { toggleActorIsolation(.sam) }
         }
+    }
+    
+    private func bottomAgentY(h: CGFloat) -> CGFloat {
+        h > 880 ? h * 0.78 : (h > 800 ? h * 0.74 : h * 0.72)
     }
     
     private var userAnchorView: some View {
@@ -1023,8 +1027,8 @@ public struct LiveMapView: View {
         case .user: return CGPoint(x: w / 2, y: h / 2 + 30)
         case .maya: return CGPoint(x: w * 0.16, y: h * 0.34)
         case .theo: return CGPoint(x: w * 0.84, y: h * 0.34)
-        case .alex: return CGPoint(x: w * 0.84, y: h * 0.72)
-        case .sam:  return CGPoint(x: w * 0.16, y: h * 0.72)
+        case .alex: return CGPoint(x: w * 0.84, y: bottomAgentY(h: h))
+        case .sam:  return CGPoint(x: w * 0.16, y: bottomAgentY(h: h))
         case .yaya: return CGPoint(x: w / 2, y: 238)
         }
     }

@@ -147,6 +147,14 @@ public struct CollaborationSessionView: View {
     @State private var passedKnowledgeContext: ContributionCellContext? = nil
     @State private var gridIsometric: Bool = TakeawaysViewMemory.isometric
     
+    // Session Scope: Solo vs Group (team receipt)
+    @State private var sessionScope: SessionScope = (CommandLine.arguments.contains("-sessionGroup") || CommandLine.arguments.contains("-receipt") || CommandLine.arguments.contains("-teamReceipt")) ? .group : .solo
+    @State private var receiptIsometric: Bool = TakeawaysViewMemory.receiptIsometric
+    
+    // Moment Detail Sheet (Reference 08d: Node from the session)
+    @State private var isShowingMomentDetail: Bool = false
+    @State private var activeMomentDetail: MomentDetailModel = .canonical
+    
     // Guest Mode SSO & Profile Setup Sheets
     @State private var isShowingSSOSheet: Bool = false
     @State private var isShowingProfileSetupSheet: Bool = false
@@ -186,8 +194,8 @@ public struct CollaborationSessionView: View {
     @State private var collaborators: [AgentCollaborator] = [
         AgentCollaborator(
             id: 0,
-            name: "Maya",
-            role: "Strategy",
+            name: "Cash",
+            role: "Design",
             sprite: .cloud,
             state: .talking,
             energy: 0.55,
@@ -199,7 +207,7 @@ public struct CollaborationSessionView: View {
         ),
         AgentCollaborator(
             id: 1,
-            name: "Theo",
+            name: "Bhargs",
             role: "Engineering",
             sprite: .bloom,
             state: .friction,
@@ -225,8 +233,8 @@ public struct CollaborationSessionView: View {
         ),
         AgentCollaborator(
             id: 3,
-            name: "Sam",
-            role: "Research",
+            name: "Naheel",
+            role: "Strategy",
             sprite: .spark,
             state: .agree,
             energy: 0.45,
@@ -243,27 +251,27 @@ public struct CollaborationSessionView: View {
         ScriptStep(
             atSeconds: 0,
             states: [.talking, .listening, .processing, .listening],
-            caption: "Maya introduces an idea. The room follows her voice."
+            caption: "Cash introduces an idea. The room follows his voice."
         ),
         ScriptStep(
             atSeconds: 4,
             states: [.listening, .question, .processing, .listening],
-            caption: "Theo asks for a turn. A question is not disagreement."
+            caption: "Bhargs asks for a turn. A question is not disagreement."
         ),
         ScriptStep(
             atSeconds: 7,
             states: [.listening, .talking, .listening, .building],
-            caption: "Theo speaks. Sam explicitly builds on the idea."
+            caption: "Bhargs speaks. Naheel explicitly builds on the idea."
         ),
         ScriptStep(
             atSeconds: 11,
             states: [.friction, .talking, .listening, .listening],
-            caption: "Maya flags a constraint. Friction can make the idea richer."
+            caption: "Cash flags a constraint. Friction can make the idea richer."
         ),
         ScriptStep(
             atSeconds: 15,
             states: [.listening, .listening, .talking, .reframing],
-            caption: "Alex takes the turn. Sam offers a reframing."
+            caption: "Alex takes the turn. Naheel offers a reframing."
         ),
         ScriptStep(
             atSeconds: 19,
@@ -273,7 +281,7 @@ public struct CollaborationSessionView: View {
         ScriptStep(
             atSeconds: 23,
             states: [.processing, .listening, .listening, .talking],
-            caption: "Sam adds the last thought. Others remain free to respond."
+            caption: "Naheel adds the last thought. Others remain free to respond."
         ),
         ScriptStep(
             atSeconds: 28,
@@ -290,6 +298,12 @@ public struct CollaborationSessionView: View {
         if CommandLine.arguments.contains("-modeMeeting") || CommandLine.arguments.contains("-sessionLive") {
             resolvedMode = .meeting
             self._isSequenceRunning = State(initialValue: true)
+        } else if CommandLine.arguments.contains("-receipt") || CommandLine.arguments.contains("-teamReceipt") {
+            resolvedMode = .takeaways
+            self._sessionScope = State(initialValue: .group)
+        }
+        if CommandLine.arguments.contains("-receiptIso") {
+            self._receiptIsometric = State(initialValue: true)
         }
         self._mode = State(initialValue: resolvedMode)
         if CommandLine.arguments.contains("-tabKnowledgeLive") || CommandLine.arguments.contains("-knowledgeLive") {
@@ -305,7 +319,7 @@ public struct CollaborationSessionView: View {
                     timestamp: Date().addingTimeInterval(-24),
                     dateDisplay: "0:04",
                     agentId: 1,
-                    agentName: "Theo",
+                    agentName: "Bhargs",
                     agentSprite: .bloom,
                     elapsedSeconds: 4.0
                 ),
@@ -317,7 +331,7 @@ public struct CollaborationSessionView: View {
                     timestamp: Date().addingTimeInterval(-21),
                     dateDisplay: "0:07",
                     agentId: 3,
-                    agentName: "Sam",
+                    agentName: "Naheel",
                     agentSprite: .spark,
                     media: KnowledgeMedia(
                         title: "Spatial linking diagram",
@@ -395,6 +409,11 @@ public struct CollaborationSessionView: View {
             self._selectedTab = State(initialValue: .profile)
         }
         
+        if CommandLine.arguments.contains("-momentDetail") || CommandLine.arguments.contains("-nodeFromSession") {
+            self._isShowingMomentDetail = State(initialValue: true)
+            self._activeMomentDetail = State(initialValue: .canonical)
+        }
+        
         // Deterministic capture seeding for screenshots (Simulator camera and clipboard can't be scripted)
         let seedPhoto = CommandLine.arguments.contains("-seedCapturePhoto")
         let seedLink = CommandLine.arguments.contains("-seedCaptureLink")
@@ -417,7 +436,7 @@ public struct CollaborationSessionView: View {
             }
         }
         
-        if initialMode == .takeaways {
+        if initialMode == .takeaways || resolvedMode == .takeaways {
             if CommandLine.arguments.contains("-sessionRun2") || CommandLine.arguments.contains("-collaborationTakeawaysRun2") {
                 self._frictionCount = State(initialValue: 1)
                 self._futureOpportunitiesCount = State(initialValue: 4)
@@ -527,6 +546,15 @@ public struct CollaborationSessionView: View {
                 }
             }
         }
+        .sheet(isPresented: $isShowingMomentDetail) {
+            MomentDetailSheet(model: activeMomentDetail) { _ in
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                    selectedTab = .knowledge
+                }
+            }
+            .presentationDetents([.fraction(0.85), .large])
+            .presentationDragIndicator(.visible)
+        }
         .onAppear {
             startPhysicsClock()
             renderProfileTabImage()
@@ -565,13 +593,22 @@ public struct CollaborationSessionView: View {
                         switch mode {
                         case .ready:
                             readyCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
-                                .transition(.opacity)
+                                .transition(.asymmetric(
+                                    insertion: .opacity.animation(.easeInOut(duration: 0.28).delay(0.1)),
+                                    removal: .opacity.animation(.easeInOut(duration: 0.15))
+                                ))
                         case .meeting:
                             meetingCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
-                                .transition(.opacity)
+                                .transition(.asymmetric(
+                                    insertion: .opacity.animation(.easeInOut(duration: 0.28).delay(0.1)),
+                                    removal: .opacity.animation(.easeInOut(duration: 0.15))
+                                ))
                         case .takeaways:
-                            takeawaysCanvas(w: w, h: h, bottomInset: bottomInset)
-                                .transition(.opacity)
+                            takeawaysCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
+                                .transition(.asymmetric(
+                                    insertion: .opacity.animation(.easeInOut(duration: 0.28).delay(0.1)),
+                                    removal: .opacity.animation(.easeInOut(duration: 0.15))
+                                ))
                         }
                     case .liveMap:
                         liveMapCanvas(w: w, h: h, topInset: topInset, bottomInset: bottomInset)
@@ -642,13 +679,18 @@ public struct CollaborationSessionView: View {
     /// Capture cluster + project picker shared by the ready and live Session canvases.
     @ViewBuilder
     private func sessionControls(w: CGFloat, h: CGFloat, topInset: CGFloat, isLive: Bool) -> some View {
-        // Top-left "Recording to" picker (locked while live)
+        // Top-left "Recording to" picker (locked while live) + Top-right Scope Switcher (Solo / Group)
         VStack {
             HStack {
                 ProjectPickerPill(store: store, isLocked: isLive)
                     .padding(.top, max(topInset, 44) + 6)
                     .padding(.leading, 24)
                 Spacer()
+                if !isLive {
+                    ScopeSwitcherPill(scope: $sessionScope)
+                        .padding(.top, max(topInset, 44) + 6)
+                        .padding(.trailing, 24)
+                }
             }
             Spacer()
         }
@@ -719,23 +761,81 @@ public struct CollaborationSessionView: View {
         }
     }
     
-    // MARK: - 3. Project Takeaways Canvas (Contribution Grid)
+    // MARK: - 3. Project Takeaways Canvas (Contribution Grid / Team Receipt)
     nonisolated(unsafe) private static var replayStarted = false
-    private func takeawaysCanvas(w: CGFloat, h: CGFloat, bottomInset: CGFloat) -> some View {
+    private func takeawaysCanvas(w: CGFloat, h: CGFloat, topInset: CGFloat, bottomInset: CGFloat) -> some View {
+        let selectCell: (ContributionCellContext) -> Void = { cellContext in
+            passedKnowledgeContext = cellContext
+            activeMomentDetail = MomentDetailModel.canonical
+            isShowingMomentDetail = true
+        }
+        let liveMedia = TakeawaysArtifact.live(store.liveKnowledgeEntries)
+        let sessionArtifacts: [TakeawaysArtifact] = liveMedia.isEmpty
+            ? TakeawaysArtifact.demo(long: TakeawaysLaunch.long)
+            : liveMedia
+            
+        return Group {
+            if sessionScope == .group {
+                TeamReceiptView(
+                    store: store,
+                    width: w,
+                    topInset: topInset,
+                    bottomInset: bottomInset,
+                    rows: buildAgentGridRows(),
+                    sessionArtifacts: sessionArtifacts,
+                    sessionDuration: takeawaysSessionDuration,
+                    frictionCount: frictionCount,
+                    futureOpportunitiesCount: futureOpportunitiesCount,
+                    artifactsAddedCount: artifactsAddedCount,
+                    sessionQuestionsCount: sessionQuestionsCount,
+                    sessionAgreementsCount: sessionAgreementsCount,
+                    sessionScope: $sessionScope,
+                    receiptIsometric: $receiptIsometric,
+                    onSelectCell: selectCell,
+                    onDismiss: {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                            mode = .ready
+                            resetSessionCounts()
+                        }
+                    }
+                )
+            } else {
+                soloTakeawaysCanvas(
+                    w: w,
+                    h: h,
+                    topInset: topInset,
+                    bottomInset: bottomInset,
+                    sessionArtifacts: sessionArtifacts,
+                    selectCell: selectCell
+                )
+            }
+        }
+    }
+    
+    private func soloTakeawaysCanvas(
+        w: CGFloat,
+        h: CGFloat,
+        topInset: CGFloat,
+        bottomInset: CGFloat,
+        sessionArtifacts: [TakeawaysArtifact],
+        selectCell: @escaping (ContributionCellContext) -> Void
+    ) -> some View {
         ZStack(alignment: .topLeading) {
-            VStack(alignment: .leading, spacing: 18) {
-                // Header Title
-                HStack(alignment: .center, spacing: 12) {
-                    Text("Project Takeaways")
-                        .font(.system(size: 32, weight: .bold, design: .default))
-                        .foregroundStyle(.primary)
-                        .allowsHitTesting(false)
-                    Spacer(minLength: 0)
-                    ExportShareButton(store: store, scope: .session)
+            VStack(alignment: .leading, spacing: 14) {
+                // Header Title + Scope Switcher + Export Share Button
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .center, spacing: 12) {
+                        Text("Project Takeaways")
+                            .font(.system(size: 32, weight: .bold, design: .default))
+                            .foregroundStyle(.primary)
+                            .allowsHitTesting(false)
+                        Spacer(minLength: 0)
+                        ExportShareButton(store: store, scope: .session)
+                    }
+                    ScopeSwitcherPill(scope: $sessionScope)
                 }
-                .padding(.leading, 28)
-                .padding(.trailing, 20)
-                .padding(.top, 52)
+                .padding(.horizontal, 20)
+                .padding(.top, topInset + ScreenHeaderLayout.topSpacing)
                 
                 // 3 Horizontal Continuous Marquee Rows (stat numbers populated directly from session)
                 TakeawaysArrivalFade {
@@ -762,7 +862,7 @@ public struct CollaborationSessionView: View {
                     ContinuousTakeawayMarqueeRow(
                         statNumber: "\(artifactsAddedCount)",
                         statTitle: "Artifacts Added",
-                        keywords: ["Motion Guide", "Vector Specs", "Color Token Vault", "Living Story Script", "Figma Map"],
+                        keywords: TakeawaysArtifact.canonicalNames,
                         agentSprite: .cloud,
                         flowsRight: true
                     )
@@ -772,12 +872,6 @@ public struct CollaborationSessionView: View {
                 
                 // Grid region: fills the space below the marquee, centred so the screen stays balanced.
                 GeometryReader { geo in
-                    let selectCell: (ContributionCellContext) -> Void = { cellContext in
-                        passedKnowledgeContext = cellContext
-                        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
-                            selectedTab = .knowledge
-                        }
-                    }
                     IsometricContributionGridView(
                         rows: buildAgentGridRows(),
                         sessionDuration: takeawaysSessionDuration,
@@ -786,7 +880,7 @@ public struct CollaborationSessionView: View {
                         maxHeight: geo.size.height,
                         highlightedAgent: TakeawaysLaunch.highlight,
                         isometric: gridIsometric,
-                        artifacts: TakeawaysArtifact.demo(long: TakeawaysLaunch.long) + TakeawaysArtifact.live(store.liveKnowledgeEntries),
+                        artifacts: sessionArtifacts,
                         onSelectCell: selectCell
                     )
                     .frame(width: w, height: geo.size.height, alignment: .center)
@@ -918,17 +1012,17 @@ public struct CollaborationSessionView: View {
         return [
             AgentGridRow(
                 id: 0,
-                name: "Maya",
+                name: "Cash",
                 role: "Design",
                 sprite: .cloud,
-                cells: makeCells(agentId: 0, name: "Maya", sprite: .cloud, map: mayaActionsByCol)
+                cells: makeCells(agentId: 0, name: "Cash", sprite: .cloud, map: mayaActionsByCol)
             ),
             AgentGridRow(
                 id: 1,
-                name: "Theo",
+                name: "Bhargs",
                 role: "Engineering",
                 sprite: .bloom,
-                cells: makeCells(agentId: 1, name: "Theo", sprite: .bloom, map: theoActionsByCol)
+                cells: makeCells(agentId: 1, name: "Bhargs", sprite: .bloom, map: theoActionsByCol)
             ),
             AgentGridRow(
                 id: 2,
@@ -939,10 +1033,10 @@ public struct CollaborationSessionView: View {
             ),
             AgentGridRow(
                 id: 3,
-                name: "Sam",
-                role: "Research",
+                name: "Naheel",
+                role: "Strategy",
                 sprite: .spark,
-                cells: makeCells(agentId: 3, name: "Sam", sprite: .spark, map: samActionsByCol)
+                cells: makeCells(agentId: 3, name: "Naheel", sprite: .spark, map: samActionsByCol)
             )
         ]
     }

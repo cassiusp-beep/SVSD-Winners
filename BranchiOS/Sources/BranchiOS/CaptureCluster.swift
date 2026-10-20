@@ -244,6 +244,16 @@ public struct CaptureToastItem: Identifiable, Equatable {
     public let isLink: Bool
     public let isHint: Bool
     public var entryID: String? = nil
+    public var systemImage: String? = nil
+
+    public init(message: String, thumbnail: UIImage? = nil, isLink: Bool = false, isHint: Bool = false, entryID: String? = nil, systemImage: String? = nil) {
+        self.message = message
+        self.thumbnail = thumbnail
+        self.isLink = isLink
+        self.isHint = isHint
+        self.entryID = entryID
+        self.systemImage = systemImage
+    }
 
     public static func == (lhs: CaptureToastItem, rhs: CaptureToastItem) -> Bool { lhs.id == rhs.id }
 }
@@ -259,6 +269,10 @@ public struct CaptureToast: View {
                     .scaledToFill()
                     .frame(width: 28, height: 28)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            } else if let sys = item.systemImage {
+                Image(systemName: sys)
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(width: 28, height: 28)
             } else {
                 Image(systemName: item.isLink ? "link" : "doc.on.clipboard")
                     .font(.system(size: 14, weight: .semibold))

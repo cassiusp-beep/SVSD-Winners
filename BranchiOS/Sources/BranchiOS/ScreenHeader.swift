@@ -1,10 +1,15 @@
 import SwiftUI
 
+public enum ScreenHeaderLayout {
+    public static var topSpacing: CGFloat { 12 }
+    public static var horizontalPadding: CGFloat { 20 }
+}
+
 /// Shared tab-screen header: a title (or title + dropdown) on the leading side and an optional trailing accessory.
 /// Tab canvases already reserve the top safe area, so the header's top edge sits exactly 12pt below it.
 /// Use this instead of per-screen top padding so every tab title lands at the same height.
 public struct ScreenHeader<Leading: View, Trailing: View>: View {
-    public static var topSpacing: CGFloat { 12 }
+    public static var topSpacing: CGFloat { ScreenHeaderLayout.topSpacing }
     
     private let horizontalPadding: CGFloat
     private let leading: Leading

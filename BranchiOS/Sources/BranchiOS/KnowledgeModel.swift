@@ -99,10 +99,10 @@ public enum KnowledgeActor: String, CaseIterable, Identifiable, Sendable {
     public var displayName: String {
         switch self {
         case .user: return "You"
-        case .maya: return "Maya"
-        case .theo: return "Theo"
+        case .maya: return "Cash"
+        case .theo: return "Bhargs"
         case .alex: return "Alex"
-        case .sam: return "Sam"
+        case .sam: return "Naheel"
         case .yaya: return "YaYa"
         }
     }

@@ -143,6 +143,11 @@ public struct KnowledgeView: View {
                         handleHandoffContext(ctx: ctx, scrollProxy: scrollProxy)
                     }
                 }
+                .onChange(of: focusEntryID) { _, newID in
+                    if let id = newID {
+                        focusEntry(id, scrollProxy: scrollProxy)
+                    }
+                }
             }
             .clipped()
             .background((colorScheme == .dark ? Color.black : Color.white).ignoresSafeArea())
