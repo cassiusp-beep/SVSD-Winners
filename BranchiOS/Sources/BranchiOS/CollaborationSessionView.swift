@@ -199,32 +199,32 @@ public struct CollaborationSessionView: View {
         AgentCollaborator(
             id: 0,
             soloName: "Cloud",
-            groupName: "Cash",
-            groupHandle: "@cassiusp",
-            role: "Design",
-            sprite: .cloud,
-            state: .talking,
-            energy: 0.55,
-            xFraction: 0.17,
-            yFraction: 0.30,
-            widthFraction: 0.58,
-            tagOffset: CGSize(width: 45, height: 50),
-            takeawayLabel: "most artifacts added"
-        ),
-        AgentCollaborator(
-            id: 1,
-            soloName: "Bloom",
             groupName: "Bhargs",
             groupHandle: "@bhargs",
             role: "Engineering",
-            sprite: .bloom,
-            state: .friction,
+            sprite: .cloud,
+            state: .listening,
             energy: 0.40,
             xFraction: 0.82,
             yFraction: 0.28,
             widthFraction: 0.60,
             tagOffset: CGSize(width: -50, height: 60),
             takeawayLabel: "solutions expert"
+        ),
+        AgentCollaborator(
+            id: 1,
+            soloName: "Bloom",
+            groupName: "Cash",
+            groupHandle: "@cassiusp",
+            role: "Design",
+            sprite: .bloom,
+            state: .talking,
+            energy: 0.55,
+            xFraction: 0.17,
+            yFraction: 0.77,
+            widthFraction: 0.58,
+            tagOffset: CGSize(width: 45, height: -60),
+            takeawayLabel: "most artifacts added"
         ),
         AgentCollaborator(
             id: 2,
@@ -245,15 +245,15 @@ public struct CollaborationSessionView: View {
             id: 3,
             soloName: "Spark",
             groupName: "Naheel",
-            groupHandle: "@naheel",
+            groupHandle: "@greatideanaheel",
             role: "Strategy",
             sprite: .spark,
-            state: .agree,
+            state: .listening,
             energy: 0.45,
-            xFraction: 0.16,
-            yFraction: 0.77,
+            xFraction: 0.17,
+            yFraction: 0.30,
             widthFraction: 0.62,
-            tagOffset: CGSize(width: 50, height: -72),
+            tagOffset: CGSize(width: 50, height: 50),
             takeawayLabel: "top conversationalist"
         )
     ]
@@ -262,38 +262,38 @@ public struct CollaborationSessionView: View {
     private let scriptSteps: [ScriptStep] = [
         ScriptStep(
             atSeconds: 0,
-            states: [.talking, .listening, .processing, .listening],
+            states: [.listening, .talking, .listening, .listening],
             caption: "Cash introduces an idea. The room follows his voice."
         ),
         ScriptStep(
             atSeconds: 4,
-            states: [.listening, .question, .processing, .listening],
-            caption: "Bhargs asks for a turn. A question is not disagreement."
+            states: [.listening, .listening, .listening, .question],
+            caption: "Naheel asks: “Is this for one person, or the whole team?”"
         ),
         ScriptStep(
             atSeconds: 7,
-            states: [.listening, .talking, .listening, .building],
-            caption: "Bhargs speaks. Naheel explicitly builds on the idea."
+            states: [.talking, .listening, .listening, .listening],
+            caption: "Bhargs responds: “One person first. Teams can come later.”"
         ),
         ScriptStep(
             atSeconds: 11,
-            states: [.friction, .talking, .listening, .listening],
+            states: [.listening, .friction, .listening, .listening],
             caption: "Cash flags a constraint. Friction can make the idea richer."
         ),
         ScriptStep(
             atSeconds: 15,
-            states: [.listening, .listening, .talking, .reframing],
-            caption: "Alex takes the turn. Naheel offers a reframing."
+            states: [.listening, .listening, .talking, .listening],
+            caption: "Alex takes the turn. The tension is explored collaboratively."
         ),
         ScriptStep(
             atSeconds: 19,
-            states: [.agree, .listening, .talking, .agree],
-            caption: "Two explicit agreement gestures. Neither came from silence."
+            states: [.listening, .listening, .talking, .question],
+            caption: "Naheel clarifies: “What would you need to see to decide?”"
         ),
         ScriptStep(
             atSeconds: 23,
-            states: [.processing, .listening, .listening, .talking],
-            caption: "Naheel adds the last thought. Others remain free to respond."
+            states: [.listening, .agree, .agree, .listening],
+            caption: "Two explicit agreement gestures. Neither came from silence."
         ),
         ScriptStep(
             atSeconds: 28,

@@ -415,7 +415,7 @@ public struct ProfileView: View {
                             .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(.primary)
                         
-                        Text("MDes @ Berkeley · Idea validation for SVSD")
+                        Text(store.profile?.fullName == "Naheel Jawaid" ? "Organizer, SVSD" : "MDes @ Berkeley · Idea validation for SVSD")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(.secondary)
                     }

@@ -2094,6 +2094,69 @@ public struct OnboardingFlowView: View {
     // MARK: Scripted autoplay (-autoplayOnboarding quiz|talk|skip)
     private func startAutoplayIfRequested() {
         let args = CommandLine.arguments
+        
+        if args.contains("-demoTypeProfile"), autoplayTask == nil {
+            func pause(_ seconds: Double) async {
+                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            }
+            autoplayTask = Task { @MainActor in
+                fullName = ""
+                nickname = ""
+                nicknameStatus = .empty
+                activeSprite = .spark
+                hasSelectedAvatar = true
+                
+                await pause(1.0)
+                guard !Task.isCancelled else { return }
+                
+                // Focus nickname field
+                withAnimation(BranchMotion.sharedSpring) {
+                    editingField = .nickname
+                    focusedField = .nickname
+                }
+                await pause(0.5)
+                
+                // Type "greatideanaheel"
+                let targetNick = "greatideanaheel"
+                for i in 1...targetNick.count {
+                    guard !Task.isCancelled else { return }
+                    nickname = String(targetNick.prefix(i))
+                    validateNicknameLive(nickname)
+                    try? await Task.sleep(nanoseconds: 65_000_000)
+                }
+                
+                await pause(0.8)
+                guard !Task.isCancelled else { return }
+                
+                // Focus full name field
+                withAnimation(BranchMotion.sharedSpring) {
+                    editingField = .fullName
+                    focusedField = .fullName
+                }
+                await pause(0.5)
+                
+                // Type "Naheel Jawaid"
+                let targetName = "Naheel Jawaid"
+                for i in 1...targetName.count {
+                    guard !Task.isCancelled else { return }
+                    fullName = String(targetName.prefix(i))
+                    try? await Task.sleep(nanoseconds: 65_000_000)
+                }
+                
+                await pause(0.8)
+                guard !Task.isCancelled else { return }
+                
+                // Done editing: dismiss keyboard to show clean centered resting state
+                withAnimation(BranchMotion.sharedSpring) {
+                    editingField = nil
+                    focusedField = nil
+                }
+                
+                await pause(1.5)
+            }
+            return
+        }
+        
         guard let flag = args.firstIndex(of: "-autoplayOnboarding"), args.indices.contains(flag + 1) else { return }
         let mode = args[flag + 1]
         guard ["quiz", "talk", "skip"].contains(mode), autoplayTask == nil else { return }
@@ -2110,11 +2173,11 @@ public struct OnboardingFlowView: View {
                 await pause(1.4)
             }
             if currentStep == .profile {
-                fullName = "Cash Palacio"
-                nickname = "cashp"
+                fullName = "Naheel Jawaid"
+                nickname = "greatideanaheel"
                 nicknameStatus = .available
                 withAnimation(BranchMotion.sharedSpring) {
-                    activeSprite = .prism
+                    activeSprite = .spark
                     hasSelectedAvatar = true
                 }
                 await pause(1.6)
@@ -2134,7 +2197,7 @@ public struct OnboardingFlowView: View {
                 while currentStep == .talk && !Task.isCancelled { await pause(0.3) }
             default:
                 startQuiz()
-                for (q, pick) in [0, 0, 1].enumerated() {
+                for (q, pick) in [1, 1, 1].enumerated() {
                     await pause(1.3)
                     guard !Task.isCancelled, currentStep == .quiz, quizIndex == q else { return }
                     selectQuizAnswer(pick)
@@ -2147,6 +2210,7 @@ public struct OnboardingFlowView: View {
             if mode != "skip" {
                 await pause(2.0)
                 guard !Task.isCancelled, currentStep == .reveal else { return }
+                revealedFamily = .spark
                 cycleRevealedFamily()
                 await pause(1.4)
                 cycleRevealedFamily()

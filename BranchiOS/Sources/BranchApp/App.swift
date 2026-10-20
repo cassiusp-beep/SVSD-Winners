@@ -5,6 +5,9 @@ import BranchiOS
 struct BranchApp: App {
     init() {
         ExportFileWriter.cleanUp()
+        #if canImport(UIKit) && DEBUG
+        _ = UIWindow.enableTouchVisualizerOnce
+        #endif
     }
     
     var body: some Scene {
@@ -32,7 +35,7 @@ struct BranchApp: App {
             LogoSheetView()
         } else if CommandLine.arguments.contains("-signIn") {
             SignInView(store: DemoStore())
-        } else if CommandLine.arguments.contains("-onboardingProfileEmpty") {
+        } else if CommandLine.arguments.contains("-onboardingProfileEmpty") || CommandLine.arguments.contains("-demoTypeProfile") {
             OnboardingFlowView(store: emptySessionStore, initialStep: .profile)
         } else if CommandLine.arguments.contains("-onboardingProfileKeyboardEmpty") {
             OnboardingFlowView(store: emptySessionStore, initialStep: .profile)
@@ -161,15 +164,17 @@ struct BranchApp: App {
                 return ("Cassius Palacio", "cassiuspalacio_22")
             } else if CommandLine.arguments.contains("-descenderTest") {
                 return ("Cassius Palacio", "cassiuspalacio")
+            } else if CommandLine.arguments.contains("-profileCash") {
+                return ("Cassius", "cash")
             } else {
-                return ("Cassius", "cassius")
+                return ("Naheel Jawaid", "greatideanaheel")
             }
         }()
         store.profile = UserProfile(
             fullName: name,
             nickname: nick,
             avatarType: .sprite,
-            spriteColorHex: spriteFamilyOverrideHexStatic ?? "#F5A623"
+            spriteColorHex: spriteFamilyOverrideHexStatic ?? BranchSprite.spark.primaryHex
         )
         store.hasCompletedSync = true
         return store
@@ -195,3 +200,51 @@ struct BranchApp: App {
         return store
     }()
 }
+
+// MARK: - Camera-Ready Touch Visualizer (-showTouches)
+#if canImport(UIKit) && DEBUG
+import UIKit
+
+extension UIWindow {
+    static let enableTouchVisualizerOnce: Void = {
+        guard CommandLine.arguments.contains("-showTouches") else { return }
+        let originalSelector = #selector(sendEvent(_:))
+        let swizzledSelector = #selector(yaya_sendEvent(_:))
+        guard let originalMethod = class_getInstanceMethod(UIWindow.self, originalSelector),
+              let swizzledMethod = class_getInstanceMethod(UIWindow.self, swizzledSelector) else { return }
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }()
+
+    @objc func yaya_sendEvent(_ event: UIEvent) {
+        yaya_sendEvent(event)
+        guard let touches = event.allTouches else { return }
+        for touch in touches where touch.phase == .began {
+            let location = touch.location(in: self)
+            showTouchIndicator(at: location)
+        }
+    }
+
+    private func showTouchIndicator(at point: CGPoint) {
+        let size: CGFloat = 44
+        let circle = UIView(frame: CGRect(x: point.x - size / 2, y: point.y - size / 2, width: size, height: size))
+        circle.layer.cornerRadius = size / 2
+        circle.backgroundColor = UIColor.black.withAlphaComponent(0.18)
+        circle.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
+        circle.layer.borderWidth = 1.5
+        circle.isUserInteractionEnabled = false
+        circle.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        self.addSubview(circle)
+
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut) {
+            circle.transform = .identity
+        } completion: { _ in
+            UIView.animate(withDuration: 0.3, delay: 0.05, options: .curveEaseIn) {
+                circle.alpha = 0
+                circle.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
+            } completion: { _ in
+                circle.removeFromSuperview()
+            }
+        }
+    }
+}
+#endif
