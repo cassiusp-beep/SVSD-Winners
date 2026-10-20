@@ -1,8 +1,8 @@
-# Branch — agent entry
+# YaYa — agent entry
 
 Updated 18 October 2026 after the latest individual-first clarification. Start with **[UIUX.md](UIUX.md)** for current onboarding, screens and interaction guidance. [Product Definition.md](docs/context/product-definition.md) preserves the earlier team-first strategy; its audience and entry flows are superseded by this guide.
 
-Branch now establishes value for an individual first: capture or import thinking, create personal context, then build and explore. Team integration follows after the individual product is established. Team context may be added during Import work; this is not joining a team, inviting collaborators or making the imported material shared. The newest supplied onboarding whiteboard governs the three entry paths in UIUX.md. Figma supplies older UI/UX precedents only.
+YaYa now establishes value for an individual first: capture or import thinking, create personal context, then build and explore. Team integration follows after the individual product is established. Team context may be added during Import work; this is not joining a team, inviting collaborators or making the imported material shared. The newest supplied onboarding whiteboard governs the three entry paths in UIUX.md. Figma supplies older UI/UX precedents only.
 
 Creative discovery before commitment remains useful background: surface possible connections, preserve alternatives and let people decide what to explore. Keep interface effort low and reflection deliberate. The earlier team-first positioning and competitor comparison remain research hypotheses, not a constraint on the latest individual entry flow or an established competitive barrier.
 

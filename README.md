@@ -1,8 +1,8 @@
-# SVSD Winners: YaYa (formerly Branch)
+# SVSD Winners: YaYa
 
 Team ABC's entry for the Silicon Valley School of Design (SVSD) design competition: **"The Search for Top Young Design Talent."**
 
-- **Deliverables:** Camera-ready native iOS product prototype ([`BranchiOS`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS)) and a 7-minute submission video.
+- **Deliverables:** Camera-ready native iOS product prototype ([YaYa iOS](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS)) and a 7-minute submission video.
 - **Deadline:** Monday, October 19, 2026 at 11:59 PM Pacific. Finalists announced October 22. Finals in NYC on November 6–8.
 - **Native iOS Prototype:** [YaYa.xcodeproj](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/YaYa.xcodeproj) (Scheme: `YaYa`)
 
@@ -92,7 +92,7 @@ timeline
     section Oct 15 : Studio Genesis : Brainstorm on collaborative student studio exchange : Initial concept notes & problem definition
     section Oct 16 : Living Web Canvas : React Flow living node canvas & gooey conduits : Established 10-role agent pipeline & Playwright harness
     section Oct 17 : Studio Refinement : Night Lab palette & TouchDesigner modular hierarchy : Abolished modals in favor of 4 hot corners
-    section Oct 18 : The Individual-First Pivot : Onboarding Whiteboard session : Scrapped shared canvas; pivoted to "One person first, teams later" : Initiated native SwiftUI BranchiOS & orbital syncing
+    section Oct 18 : The Individual-First Pivot : Onboarding Whiteboard session : Scrapped shared canvas; pivoted to "One person first, teams later" : Initiated native SwiftUI YaYa iOS prototype & orbital syncing
     section Oct 19 : YaYa Native Construction : Renamed to YaYa; crafted SVG brand & BlinkClock : Built 4 native tabs, 3-question quiz, capture cluster : Engineered isometric takeaways & authentic Team Receipt : Formulated camera-ready recording suite
     section Oct 20 : Continuous Demo Suite : Built automated Story Takes A-E & touch visualizer : Finalized camera-ready video assets for SVSD submission
 ```
@@ -102,15 +102,15 @@ timeline
 | **Oct 15, 2026** | **Day 0: Conception & Genesis** | Initial team charrette at UC Berkeley MDes. Drafted problem space around student creative collaboration and cross-disciplinary maker friction. Established core design principles: *Exploratory by design*, *AI as an option*, *Project is the story*. |
 | **Oct 16, 2026** | **Day 1: Living Web Canvas & Governance** | Built the living infinite web prototype with React Flow, central bulbing hub, and animated bezier dialogue conduits. Established the formal 10-role agent pipeline in [`AGENTS.md`](file:///Users/cassiuspalacio/Documents/SVSD/AGENTS.md) and automated Playwright visual testing. |
 | **Oct 17, 2026** | **Day 2: Tactile Drafting Bed & Spec** | Refactored UI from generic dark IDE to tactile studio drafting bed. Established Night Lab color system, TouchDesigner-inspired node operators, and persistent Hot Corners HUD (eliminating modal dialogs). |
-| **Oct 18, 2026** | **Day 3: The Strategic Pivot** | Critical breakthrough from the 10-18 Whiteboard: collaborative creative exchanges fail because individuals don't have narrative clarity on their own work first. Pivoted to *"One person first, teams later."* Initiated native SwiftUI [`BranchiOS/`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS), animatable sprite flex arm, and orbital syncing choreography. |
+| **Oct 18, 2026** | **Day 3: The Strategic Pivot** | Critical breakthrough from the 10-18 Whiteboard: collaborative creative exchanges fail because individuals don't have narrative clarity on their own work first. Pivoted to *"One person first, teams later."* Initiated native SwiftUI iOS prototype ([`YaYa iOS`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS)), animatable sprite flex arm, and orbital syncing choreography. |
 | **Oct 19, 2026** | **Day 4: YaYa iOS Construction & Deep Craft** | Renamed project to **YaYa**. Engineered custom SVG wordmark, `BlinkClock`, 4 native system tabs, 3-question intent quiz, tactile capture cluster, 2D isometric takeaways projection with frosted slabs, direct tap-to-sheet `MomentDetailSheet`, and the physical `TeamReceiptView` with teammate thinker filtering. Built `record_clips.sh` recording suite. |
 | **Oct 20, 2026** | **Day 5: Camera-Ready Suite & Final Delivery** | Engineered method-swizzled touch visualizer and continuous story autoplay takes (`-autoplayStory A–E`). Recorded flawless, broadcast-quality 60fps clips for the 7-minute competition pitch video. Completed documentation and final review. |
 
 ---
 
-## Native iOS Architecture & Key Features (`BranchiOS`)
+## Native iOS Architecture & Key Features (YaYa iOS)
 
-The primary deliverable is a production-grade native SwiftUI iOS application located in [`BranchiOS/`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS) designed strictly against Apple Human Interface Guidelines and studio anti-slop rules (pure black/white backgrounds, high-contrast typography, zero generic neon cyber-glow or purple AI gradients).
+The primary deliverable is a production-grade native SwiftUI iOS application ([`YaYa iOS`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS)) designed strictly against Apple Human Interface Guidelines and studio anti-slop rules (pure black/white backgrounds, high-contrast typography, zero generic neon cyber-glow or purple AI gradients).
 
 ### 1. Brand Identity & Launch Experience
 - **SVG Wordmark & Icon Mark:** Custom SVG letterforms (`docs/references/brand/yaya-wordmark-black.svg`) with signature gradient eyes embedded natively as a SwiftUI `Shape`.
@@ -123,7 +123,7 @@ Implemented in [`OnboardingFlowView.swift`](file:///Users/cassiuspalacio/Documen
 - **Guest Mode:** Instant one-tap access into a solo capture session without registration, preserving local artifacts until optional sign-up.
 - **Profile Setup:** Captures user name and handle with dynamic keyboard-safe layout.
 - **Intro & Intent Quiz:** Scored 3-question intent quiz mapping answers to thinker archetypes, or an alternative simulated conversational voice reflection ([`TalkScript`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/Sources/BranchiOS/TalkScript.swift)).
-- **Reveal:** Interactive animated shape-morphing sprite reveal ([`BranchSprite`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/Sources/BranchiOS/BranchSprite.swift)) cycling through *Cloud*, *Bloom*, *Prism*, and *Spark* with haptic feedback.
+- **Reveal:** Interactive animated shape-morphing sprite reveal ([`Sprite`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/Sources/BranchiOS/BranchSprite.swift)) cycling through *Cloud*, *Bloom*, *Prism*, and *Spark* with haptic feedback.
 - **Integrations:** Multi-source context selection (Autodesk Fusion 360, Pinterest, GitHub, Printables).
 - **Syncing Choreography:** 4-beat physics-driven orbital handoff ([`SyncingView.swift`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/Sources/BranchiOS/SyncingView.swift)) with an animatable custom `SpriteFlexArmShape` culminating in a dynamic filled hub button.
 
@@ -178,7 +178,7 @@ Preserved in [`src/`](file:///Users/cassiuspalacio/Documents/SVSD/src) as the hi
 
 ## Quick Start & Local Development
 
-### 1. Native iOS Application (`BranchiOS`)
+### 1. Native iOS Application (YaYa)
 
 #### Requirements:
 - macOS Sonoma or later
@@ -187,7 +187,7 @@ Preserved in [`src/`](file:///Users/cassiuspalacio/Documents/SVSD/src) as the hi
 
 #### Build and Run via Xcode:
 1. Open [`BranchiOS/YaYa.xcodeproj`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/YaYa.xcodeproj).
-2. Select the **`YaYa`** scheme (do not use the bare `BranchApp` scheme).
+2. Select the **`YaYa`** scheme (do not use the bare executable scheme).
 3. Select an iPhone 17 simulator and click **Run** (`Cmd+R`).
 
 #### Build via Command Line:
@@ -250,7 +250,7 @@ npm run preview
 
 #### Production Deployment:
 ```bash
-VERCEL_NO_UPDATE_NOTIFIER=1 npx --yes vercel --yes --name svsd-branch --prod
+VERCEL_NO_UPDATE_NOTIFIER=1 npx --yes vercel --yes --name yaya --prod
 ```
 
 ---

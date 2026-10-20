@@ -1,4 +1,4 @@
-# Branch — UIUX handoff
+# YaYa — UIUX handoff
 
 Updated 18 October 2026. **Current direction: individual first; team integration follows.** This guide specifies the new experience from the latest whiteboard and direct user clarifications. It is a documentation proposal, not a report of implemented features or tested usability.
 
@@ -17,7 +17,7 @@ The user explicitly clarified that the Figma reflects previous ideas. Keep three
 
 ## 2. Product experience
 
-Branch helps an individual retain and connect their work, thoughts and sources, then develop a clearer account of what they are exploring. A person can start with a short recording or existing work. They receive a personal context they can inspect, correct and build upon; the map supports interpretation rather than evaluating the person's worth or ability.
+YaYa helps an individual retain and connect their work, thoughts and sources, then develop a clearer account of what they are exploring. A person can start with a short recording or existing work. They receive a personal context they can inspect, correct and build upon; the map supports interpretation rather than evaluating the person's worth or ability.
 
 The first useful result is **recognizing a thread in your own work and being able to change or develop it**. A populated dashboard, a completed quiz or a larger node count is not the outcome.
 

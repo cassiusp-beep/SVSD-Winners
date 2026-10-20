@@ -10,7 +10,7 @@ Our entry for the Silicon Valley School of Design (SVSD) design competition, "Th
 
 Every agent reads `docs/README.md` first and follows its precedence rule.
 
-**Current direction · later 18 October 2026:** the latest direct user instruction takes precedence. Start with [CONTEXT.md](CONTEXT.md) and [UIUX.md](UIUX.md): establish Branch for individuals first; team integration comes later. The newest onboarding whiteboard governs entry flows. Older Figma references inform UI/UX only, and importing team context does not join or share with a team. The [earlier product definition](docs/context/product-definition.md) preserves team-first strategy, now superseded for audience and entry flow. The official brief remains authoritative for competition requirements. Preserve the workflow and roles below within the actual assigned scope; their inherited product readings do not override this update. This guide does not implement or approve a new app.
+**Current direction · later 18 October 2026:** the latest direct user instruction takes precedence. Start with [CONTEXT.md](CONTEXT.md) and [UIUX.md](UIUX.md): establish YaYa for individuals first; team integration comes later. The newest onboarding whiteboard governs entry flows. Older Figma references inform UI/UX only, and importing team context does not join or share with a team. The [earlier product definition](docs/context/product-definition.md) preserves team-first strategy, now superseded for audience and entry flow. The official brief remains authoritative for competition requirements. Preserve the workflow and roles below within the actual assigned scope; their inherited product readings do not override this update. This guide does not implement or approve a new app.
 
 | File | What it holds |
 |---|---|
@@ -18,12 +18,12 @@ Every agent reads `docs/README.md` first and follows its precedence rule.
 | `docs/context/product-definition.md` | Earlier team-first positioning: five answers and strategy; audience/entry superseded by UIUX.md. |
 | `docs/references/collective-emergence/` | Supplied study, direction notes and evidence limits. |
 | `docs/archive/2026-10-17-individual-first/` | Historical system design and five editable Draw.io maps; not the live team blueprint. |
-| `docs/context/whiteboard-transcript.md` | **Whiteboard Transcript: Branch Interaction Walkthrough**: Historical prototype source from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners. |
+| `docs/context/whiteboard-transcript.md` | **Whiteboard Transcript: Interaction Walkthrough**: Historical prototype source from Cassius's walkthrough (`IMG_0837.MOV`). Single infinite canvas, profile at center, bulbing radial options, drag-in project genesis, gooey morph on drag, and hot corners. |
 | `whiteboard-transcript.md` | Workspace root copy of Cassius's whiteboard walkthrough. Matches `docs/context/whiteboard-transcript.md`. |
-| `interaction-model.md` | **Branch Interaction Model**: the spatial node-based canvas foundation, bloom/fade mechanics, hot corners, left/right spatial rules, and phone adaptations. |
+| `interaction-model.md` | **YaYa Interaction Model**: the spatial node-based canvas foundation, bloom/fade mechanics, hot corners, left/right spatial rules, and phone adaptations. |
 | `docs/context/brief.md` | The official brief, judging criteria and dates. This is the source of truth. |
 | `docs/context/judging.md` | Our research on what SVSD judges reward, and where it conflicts with the brief. |
-| `docs/context/conceptual-model.md` | **Branch**, the product's conceptual model: users, core concepts, the six user journeys, edge cases and the three flows to prototype first. Historical creative-exchange model; superseded for current product direction by CONTEXT.md and product-definition.md. |
+| `docs/context/conceptual-model.md` | **YaYa**, the product's conceptual model: users, core concepts, the six user journeys, edge cases and the three flows to prototype first. Historical creative-exchange model; superseded for current product direction by CONTEXT.md and product-definition.md. |
 | `docs/context/concept.md` | Notes from the first brainstorm on October 15. Superseded by the conceptual model where they differ. |
 | `DECISIONS.md` | Decisions made so far, with reasons and rejected options. Check it before reopening a settled question. |
 | `LESSONS.md` | Lessons learned from previous builds, retro lenses, and craft constraints. |
@@ -55,7 +55,7 @@ Every agent reads `docs/README.md` first and follows its precedence rule.
 - **Autonomous operation & human gate:** Work autonomously, with one exception: product-designer's mockup must be approved by a human before builder or experience-builder implement it.
 - **Visual review mandate:** reviewer and product-designer must run `npm run shots` and look at the images before giving any verdict. Code-only review does not count.
 - **Subagent delegation:** When delegating to a subagent, the orchestrator passes the file paths it needs and the outputs of previous steps. Never assume a subagent knows the context. When delegating, the orchestrator passes the paths of the references relevant to the slice.
-- **Deploy command:** To deploy to Vercel: `VERCEL_NO_UPDATE_NOTIFIER=1 npx --yes vercel --yes --name svsd-branch --prod`. Live production URL: https://svsd-branch.vercel.app
+- **Deploy command:** To deploy to Vercel: `VERCEL_NO_UPDATE_NOTIFIER=1 npx --yes vercel --yes --name yaya --prod`. Live production URL (archived milestone): https://svsd-branch.vercel.app
 
 ## Required agent pipeline (mandatory for every slice)
 
