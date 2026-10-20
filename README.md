@@ -10,13 +10,15 @@ Team ABC's entry for the Silicon Valley School of Design (SVSD) design competiti
 
 ## The Team (Team ABC)
 
+![Team ABC (Alex Li, Bhargavi Gundla, Cassius Palacio)](docs/references/team_abc.png)
+
 UC Berkeley Master of Design (MDes) candidates combining product engineering, systems design, narrative strategy, and design research:
 
 | Teammate | Studio Role & Focus | Background | Thinker Archetype |
 |---|---|---|---|
-| **Cassius Palacio** ([@cassiusp-beep](https://github.com/cassiusp-beep)) | **Research + Product Engineering**<br>Autonomous agent pipeline, iOS engineering, spatial interaction math, demo recording infrastructure | UC Berkeley MDes<br>University of Southern California | **Spark** *(Strategy & Emergence)*<br>Hex: `#FFB547` / `#5E8A56` |
-| **Bhargavi Gundla** ([@berkeley-bhargs](https://github.com/berkeley-bhargs)) | **Concept + Product Design**<br>Individual-first onboarding, screen architecture, studio visual design, physical receipts | UC Berkeley MDes<br>Georgia Institute of Technology | **Bloom** *(Systems & Structures)*<br>Hex: `#E39A57` / `#C9652F` |
-| **Alex Li** ([@al3xxli](https://github.com/al3xxli)) | **Concept, Narrative + Video**<br>Design storytelling, collective emergence synthesis, pitch video direction & script | UC Berkeley MDes<br>University of Waterloo | **Prism** *(Product & Synthesis)*<br>Hex: `#4598BB` / `#2F7FA3` |
+| **Cassius Palacio** ([@cassiusp-beep](https://github.com/cassiusp-beep)) | **Research + Product Engineering**<br>Autonomous agent pipeline, iOS engineering, spatial interaction math, demo recording infrastructure | **UC Berkeley MDes**<br>University of Southern California | **Spark** *(Strategy & Emergence)*<br>Hex: `#FFB547` / `#5E8A56` |
+| **Bhargavi Gundla** ([@berkeley-bhargs](https://github.com/berkeley-bhargs)) | **Concept + Product Design**<br>Individual-first onboarding, screen architecture, studio visual design, physical receipts | **UC Berkeley MDes**<br>Georgia Institute of Technology | **Bloom** *(Systems & Structures)*<br>Hex: `#E39A57` / `#C9652F` |
+| **Alex Li** ([@al3xxli](https://github.com/al3xxli)) | **Concept, Narrative + Video**<br>Design storytelling, collective emergence synthesis, pitch video direction & script | **UC Berkeley MDes**<br>University of Waterloo | **Prism** *(Product & Synthesis)*<br>Hex: `#4598BB` / `#2F7FA3` |
 
 ---
 
@@ -87,14 +89,12 @@ To build a camera-ready native iOS experience alongside an animated web living c
 ### Category 4: The 0-to-1 Timeline (How We Built This in 5 Days)
 
 ```mermaid
-timeline
-    title YaYa: The 5-Day Journey from 0 to 1
-    section Oct 15 : Studio Genesis : Brainstorm on collaborative student studio exchange : Initial concept notes & problem definition
-    section Oct 16 : Living Web Canvas : React Flow living node canvas & gooey conduits : Established 10-role agent pipeline & Playwright harness
-    section Oct 17 : Studio Refinement : Night Lab palette & TouchDesigner modular hierarchy : Abolished modals in favor of 4 hot corners
-    section Oct 18 : The Individual-First Pivot : Onboarding Whiteboard session : Scrapped shared canvas; pivoted to "One person first, teams later" : Initiated native SwiftUI YaYa iOS prototype & orbital syncing
-    section Oct 19 : YaYa Native Construction : Renamed to YaYa; crafted SVG brand & BlinkClock : Built 4 native tabs, 3-question quiz, capture cluster : Engineered isometric takeaways & authentic Team Receipt : Formulated camera-ready recording suite
-    section Oct 20 : Continuous Demo Suite : Built automated Story Takes A-E & touch visualizer : Finalized camera-ready video assets for SVSD submission
+flowchart LR
+    D0["<b>Day 0 · Oct 15</b><br/>Studio Genesis<br/>Concept & Principles"] --> D1["<b>Day 1 · Oct 16</b><br/>Living Web Canvas<br/>10-Agent Pipeline"]
+    D1 --> D2["<b>Day 2 · Oct 17</b><br/>Studio Drafting Bed<br/>Hot Corners HUD"]
+    D2 --> D3["<b>Day 3 · Oct 18</b><br/>Strategic Pivot<br/>Individual-First iOS"]
+    D3 --> D4["<b>Day 4 · Oct 19</b><br/>YaYa Native iOS<br/>Isometric Grid & Receipt"]
+    D4 --> D5["<b>Day 5 · Oct 20</b><br/>Demo Autoplay Suite<br/>Touch Visualizer & Video"]
 ```
 
 | Date | Phase | Key Milestones & Turning Points |
@@ -113,11 +113,19 @@ timeline
 The primary deliverable is a production-grade native SwiftUI iOS application ([`YaYa iOS`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS)) designed strictly against Apple Human Interface Guidelines and studio anti-slop rules (pure black/white backgrounds, high-contrast typography, zero generic neon cyber-glow or purple AI gradients).
 
 ### 1. Brand Identity & Launch Experience
+
+<p align="center">
+  <img src="docs/references/brand/yaya-wordmark-black.svg" width="240" alt="YaYa Wordmark" />
+</p>
+
 - **SVG Wordmark & Icon Mark:** Custom SVG letterforms (`docs/references/brand/yaya-wordmark-black.svg`) with signature gradient eyes embedded natively as a SwiftUI `Shape`.
 - **Synchronized Blinking Motif:** A centralized `BlinkClock` coordinates ambient blinking for avatars, brand marks, and thinker sprites.
 - **Native Launch Handoff:** System launch screen transitions seamlessly into [`LaunchSplashView`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/Sources/BranchiOS/LaunchSplashView.swift) before presenting onboarding or the main canvas.
 
 ### 2. Continuous Individual-First Onboarding
+
+![October 18 Onboarding Whiteboard](docs/references/individual-onboarding/2026-10-18%20Onboarding%20Whiteboard.jpg)
+
 Implemented in [`OnboardingFlowView.swift`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/Sources/BranchiOS/OnboardingFlowView.swift) across 8 orchestrated steps:
 - **Welcome:** Approved full-width actions ("Try YaYa without an account" guest mode, "Sign up", "Sign in") with warm multi-layer background wash.
 - **Guest Mode:** Instant one-tap access into a solo capture session without registration, preserving local artifacts until optional sign-up.
