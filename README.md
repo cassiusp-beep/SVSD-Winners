@@ -2,9 +2,8 @@
 
 Team ABC's entry for the Silicon Valley School of Design (SVSD) design competition: **"The Search for Top Young Design Talent."**
 
-- **Deliverables:** Camera-ready native iOS product prototype (`BranchiOS`), web-based living canvas prototype (`src/`), and a 7-minute submission video.
+- **Deliverables:** Camera-ready native iOS product prototype ([`BranchiOS`](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS)) and a 7-minute submission video.
 - **Deadline:** Monday, October 19, 2026 at 11:59 PM Pacific. Finalists announced October 22. Finals in NYC on November 6–8.
-- **Live Web Prototype:** [https://svsd-branch.vercel.app](https://svsd-branch.vercel.app)
 - **Native iOS Prototype:** [YaYa.xcodeproj](file:///Users/cassiuspalacio/Documents/SVSD/BranchiOS/YaYa.xcodeproj) (Scheme: `YaYa`)
 
 ---
@@ -168,7 +167,7 @@ Built in [`ExportFlowView.swift`](file:///Users/cassiuspalacio/Documents/SVSD/Br
 
 ## Archived Web Prototype & Design History (`src/`)
 
-Preserved in [`src/`](file:///Users/cassiuspalacio/Documents/SVSD/src) and deployed live at [svsd-branch.vercel.app](https://svsd-branch.vercel.app):
+Preserved in [`src/`](file:///Users/cassiuspalacio/Documents/SVSD/src) as the historical Day 1–2 living canvas milestone (prior to the native iOS pivot):
 - **Living Infinite Canvas:** Built on React Flow (`@xyflow/react`) featuring Elena Rostova's central circular hub node (`PersonHubNode`) and four persistent Hot Corners (`HotCornersHUD`).
 - **Gooey Metaball Connectors:** SVG filters creating fluid, organic bulbing between projects, skills, and collaborator nodes.
 - **Living Dialogue on Edges:** Discussion snippets and maker quotes anchored directly to bezier conduits with animated pulse dashes.
