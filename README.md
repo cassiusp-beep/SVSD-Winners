@@ -1,6 +1,6 @@
 # SVSD Winners: YaYa (formerly Branch)
 
-Team Fester's entry for the Silicon Valley School of Design (SVSD) design competition: **"The Search for Top Young Design Talent."**
+Team ABC's entry for the Silicon Valley School of Design (SVSD) design competition: **"The Search for Top Young Design Talent."**
 
 - **Deliverables:** Camera-ready native iOS product prototype (`BranchiOS`), web-based living canvas prototype (`src/`), and a 7-minute submission video.
 - **Deadline:** Monday, October 19, 2026 at 11:59 PM Pacific. Finalists announced October 22. Finals in NYC on November 6–8.
@@ -9,7 +9,7 @@ Team Fester's entry for the Silicon Valley School of Design (SVSD) design compet
 
 ---
 
-## The Team (Team Fester)
+## The Team (Team ABC)
 
 UC Berkeley Master of Design (MDes) candidates combining product engineering, systems design, narrative strategy, and design research:
 

@@ -1,4 +1,4 @@
-# SVSD Winners (team Fester)
+# SVSD Winners (team ABC)
 
 Our entry for the Silicon Valley School of Design (SVSD) design competition, "The Search for Top Young Design Talent."
 
